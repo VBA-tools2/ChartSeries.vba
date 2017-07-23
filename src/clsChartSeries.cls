@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "ChartSeries"
+Attribute VB_Name = "clsChartSeries"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -43,7 +43,7 @@ Attribute VB_Exposed = False
 'PointSourceRange (read-only)
 
 'Sub ExampleUsage()
-'    Dim MySeries As New ChartSeries
+'    Dim MySeries As New clsChartSeries
 '    With MySeries
 '        .Chart = Sheets(1).ChartObjects(1).Chart
 '        .ChartSeries = 1
