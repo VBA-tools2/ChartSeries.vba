@@ -58,8 +58,14 @@ Attribute VB_Exposed = False
 'End Sub
 
 Option Explicit
+
 Dim CurrChart As Chart     'accessible to all procedures
 Dim CurrSeries As Integer  'accessible to all procedures
+
+'==============================================================================
+'string to return when a series formula is inaccessible
+Const gcsInaccessible As String = "inaccessible"
+'==============================================================================
 
 
 Property Get Chart() As Chart
@@ -172,7 +178,7 @@ Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As Strin
     Dim rFirstBracket As Integer, rSecondBracket As Integer
     
     Dim SeriesName, XValues, Values, PlotOrder As Integer
-    
+    Dim iChartType As XlChartType
     
     'Exit if Surface chart (surface chrarts do not have SERIES formulas)
     If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
@@ -193,20 +199,51 @@ Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As Strin
     End If
     
     'Get the SERIES formula
+    '----------
+    'because there is a possibility that an error is risen, take care of that
+    'situation
+    '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
+    On Error Resume Next
     SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
+    'change to column chart if series is inaccessible
+    If Len(SeriesFormula) = 0 Then
+        'reset error number
+        Err.Number = 0
+        'store current 'ChartType' of series ...
+        iChartType = ChartObj.SeriesCollection(SeriesNum).ChartType
+        '... and change it temporarily to a column chart
+        ChartObj.SeriesCollection(SeriesNum).ChartType = xlColumnClustered
+        
+        'now try to read the formula again
+        SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
+        
+        'restore original 'ChartType'
+        ChartObj.SeriesCollection(SeriesNum).ChartType = iChartType
+        
+        'if still an error is returned, the formula is inaccessible, which will
+        'be returned
+        '(this e.g. can be the case if there are #REF errors inside the given ranges)
+        If Err.Number <> 0 Then
+            SERIESFormulaElementType = gcsInaccessible
+            Exit Function
+        End If
+    End If
+    On Error GoTo 0
+    '----------
+    
     rSeriesFormula = StrReverse(SeriesFormula)
     LenSeriesFormula = Len(SeriesFormula)
     
-'-----
-'adapt because string _can_ now be longer than 255
-'(also in 'SERIESFormulaElement')
-    'Exit if SERIES formula is longer than 255 characters
-    '(test if length of SeriesFormula = 255 and the last character isn't a ")")
-    If LenSeriesFormula = 255 And Left(rSeriesFormula, 1) <> ")" Then
-        SERIESFormulaElementType = "ERROR - FORMULA TOO LONG"
-        Exit Function
-    End If
-'-----
+''-----
+''adapt because string _can_ now be longer than 255
+''(also in 'SERIESFormulaElement')
+'    'Exit if SERIES formula is longer than 255 characters
+'    '(test if length of SeriesFormula = 255 and the last character isn't a ")")
+'    If LenSeriesFormula = 255 And Left(rSeriesFormula, 1) <> ")" Then
+'        SERIESFormulaElementType = "ERROR - FORMULA TOO LONG"
+'        Exit Function
+'    End If
+''-----
     
     '-----
     'Get the Fourth Element (Plot Order)
@@ -349,6 +386,8 @@ Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     Dim rFirstParen As Integer, rSecondParen As Integer
     Dim rFirstBracket As Integer, rSecondBracket As Integer
     
+    Dim iChartType As XlChartType
+    
     
     'Exit if Surface chart (surface chrarts do not have SERIES formulas)
     If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
@@ -369,17 +408,52 @@ Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     End If
     
     'Get the SERIES formula
+    '----------
+    'because there is a possibility that an error is risen, take care of that
+    'situation
+    '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
+    On Error Resume Next
     SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
+    'change to column chart if series is inaccessible
+    If Len(SeriesFormula) = 0 Then
+        'reset error number
+        Err.Number = 0
+        'store current 'ChartType' of series ...
+        iChartType = ChartObj.SeriesCollection(SeriesNum).ChartType
+        '... and change it temporarily to a column chart
+        ChartObj.SeriesCollection(SeriesNum).ChartType = xlColumnClustered
+        
+        'now try to read the formula again
+        SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
+        
+        'restore original 'ChartType'
+        ChartObj.SeriesCollection(SeriesNum).ChartType = iChartType
+        
+        'if still an error is returned, the formula is inaccessible, which will
+        'be returned
+        '(this e.g. can be the case if there are #REF errors inside the given ranges)
+        If Err.Number <> 0 Then
+            SERIESFormulaElement = gcsInaccessible
+            Exit Function
+        End If
+        
+    End If
+    On Error GoTo 0
+    '----------
+    
     rSeriesFormula = StrReverse(SeriesFormula)
     LenSeriesFormula = Len(SeriesFormula)
     
-    'Exit if SERIES formula is longer than 255 characters
-    '(test if length of SeriesFormula = 255 and the last character isn't a ")")
-    If LenSeriesFormula = 255 And Left(rSeriesFormula, 1) <> ")" Then
-        SERIESFormulaElement = "ERROR - FORMULA TOO LONG"
-        Exit Function
-    End If
-    
+''-----
+''adapt because string _can_ now be longer than 255
+''(also in 'SERIESFormulaElementType')
+'    'Exit if SERIES formula is longer than 255 characters
+'    '(test if length of SeriesFormula = 255 and the last character isn't a ")")
+'    If LenSeriesFormula = 255 And Left(rSeriesFormula, 1) <> ")" Then
+'        SERIESFormulaElement = "ERROR - FORMULA TOO LONG"
+'        Exit Function
+'    End If
+''-----
     
     '-----
     'Get the Fourth Element (Plot Order)
