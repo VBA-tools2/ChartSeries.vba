@@ -20,6 +20,8 @@ Attribute VB_Exposed = False
 'Copyright 1999. All rights reserved.
 'May be used and distributed freely, but may not be sold.
 'http://www.j-walk.com/ss/
+'new website:
+'<http://spreadsheetpage.com/index.php/file/a_class_module_to_manipulate_a_chart_series/>
 
 '===================================
 ' PROPERTIES FOR CHARTSERIES OBJECT
