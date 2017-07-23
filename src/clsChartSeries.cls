@@ -66,8 +66,8 @@ Property Get Chart() As Chart
     Set Chart = CurrChart
 End Property
 
-Property Let Chart(Cht)
-    Set CurrChart = Cht
+Property Let Chart(cht)
+    Set CurrChart = cht
 End Property
 
 
