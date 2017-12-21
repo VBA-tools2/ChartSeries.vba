@@ -55,8 +55,8 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-Dim CurrChart As Chart     'accessible to all procedures
-Dim CurrSeries As Integer  'accessible to all procedures
+Private CurrChart As Chart     'accessible to all procedures
+Private CurrSeries As Long  'accessible to all procedures
 
 '==============================================================================
 'string to return when a series formula is inaccessible
