@@ -8,10 +8,6 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 
-'=======================
-'last update: 2014-12-04
-'=======================
-
 'This Class module provides an easy way to access the items in a
 'chart's SERIES formula. It can be exported and then imported into
 'any project
