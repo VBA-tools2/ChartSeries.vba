@@ -339,7 +339,7 @@ Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As Strin
         If IsRange(XValues) Then
             SERIESFormulaElementType = "Range"
         Else
-            If XValues = "" Then
+            If XValues = vbNullString Then
                 SERIESFormulaElementType = "Empty"
             Else
                 SERIESFormulaElementType = "Array"
@@ -357,7 +357,7 @@ Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As Strin
         If IsRange(SeriesName) Then
             SERIESFormulaElementType = "Range"
         Else
-            If SeriesName = "" Then
+            If SeriesName = vbNullString Then
                 SERIESFormulaElementType = "Empty"
             Else
                 If TypeName(SeriesName) = "String" Then
@@ -872,7 +872,7 @@ Private Function ExtractNumber( _
             If IsNumeric(lNum) Then
                 If CDbl(lNum) < 0 Then Exit For
             Else
-                lNum = Replace(lNum, Left(lNum, 1), "", , 1)
+                lNum = Replace(lNum, Left(lNum, 1), vbNullString, , 1)
             End If
         End If
         If i = 1 And lNum <> vbNullString Then lNum = CDbl(Mid(lNum, 1, 1))
