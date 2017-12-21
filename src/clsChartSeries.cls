@@ -162,19 +162,31 @@ End Property
 Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As String
 
     Dim SeriesFormula As String
-    Dim FirstComma As Integer, SecondComma As Integer, LastComma As Integer
-    Dim FirstParen As Integer, SecondParen As Integer
-    Dim FirstBracket As Integer, SecondBracket As Integer
+    Dim FirstComma As Integer
+    Dim SecondComma As Integer
+    Dim LastComma As Integer
+    Dim FirstParen As Integer
+    Dim SecondParen As Integer
+    Dim FirstBracket As Integer
+    Dim SecondBracket As Integer
     
     'as above but reversed
     Dim LenSeriesFormula As Integer    'to store the length of 'SeriesFormula'
     Dim rSeriesFormula As String
-    Dim rFirstComma As Integer, rSecondComma As Integer, rLastComma As Integer
-    Dim rFirstParen As Integer, rSecondParen As Integer
-    Dim rFirstBracket As Integer, rSecondBracket As Integer
+    Dim rFirstComma As Integer
+    Dim rSecondComma As Integer
+    Dim rLastComma As Integer
+    Dim rFirstParen As Integer
+    Dim rSecondParen As Integer
+    Dim rFirstBracket As Integer
+    Dim rSecondBracket As Integer
     
-    Dim SeriesName, XValues, Values, PlotOrder As Integer
+    Dim SeriesName As Variant
+    Dim XValues As Variant
+    Dim Values As Variant
+    Dim PlotOrder As Integer
     Dim iChartType As XlChartType
+    
     
     'Exit if Surface chart (surface chrarts do not have SERIES formulas)
     If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
@@ -369,18 +381,29 @@ End Function
 Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     
     Dim SeriesFormula As String
-    Dim FirstComma As Integer, SecondComma As Integer, LastComma As Integer
-    Dim FirstParen As Integer, SecondParen As Integer
-    Dim FirstBracket As Integer, SecondBracket As Integer
+    Dim FirstComma As Integer
+    Dim SecondComma As Integer
+    Dim LastComma As Integer
+    Dim FirstParen As Integer
+    Dim SecondParen As Integer
+    Dim FirstBracket As Integer
+    Dim SecondBracket As Integer
     Dim StartY As Integer
-    Dim SeriesName, XValues, Values, PlotOrder As Integer
+    Dim SeriesName As Variant
+    Dim XValues As Variant
+    Dim Values As Variant
+    Dim PlotOrder As Integer
     
     'as above but reversed
     Dim LenSeriesFormula As Integer    'to store the length of 'SeriesFormula'
     Dim rSeriesFormula As String
-    Dim rFirstComma As Integer, rSecondComma As Integer, rLastComma As Integer
-    Dim rFirstParen As Integer, rSecondParen As Integer
-    Dim rFirstBracket As Integer, rSecondBracket As Integer
+    Dim rFirstComma As Integer
+    Dim rSecondComma As Integer
+    Dim rLastComma As Integer
+    Dim rFirstParen As Integer
+    Dim rSecondParen As Integer
+    Dim rFirstBracket As Integer
+    Dim rSecondBracket As Integer
     
     Dim iChartType As XlChartType
     
@@ -730,12 +753,17 @@ End Function
 'function that returns an array where all cells of a range are separated
 Private Function SplitRangeToSingleCells(sRange As String) As Variant
     
-    Dim arRange() As String, arRangeNew() As String
+    Dim arRange() As String
+    Dim arRangeNew() As String
     Dim arCRange() As String
-    Dim i As Integer, j As Integer
+    Dim i As Integer
+    Dim j As Integer
     Dim k As Integer     'counter for number of elements
-    Dim iStartRC As Integer, iEndRC As Integer
-    Dim iRow As Integer, sColumn As String
+    Dim iStartRC As Integer
+    Dim iEndRC As Integer
+    Dim iRow As Integer
+    Dim sColumn As String
+    
     
     'first split the 'Areas'
     arRange = Split(sRange, ",")
@@ -814,10 +842,15 @@ Private Function ExtractNumber( _
     Optional Take_negative As Boolean = False _
         ) As Double
     
-    Dim iCount As Integer, i As Integer, iLoop As Integer
-    Dim strNeg As String, strDec As String
+    Dim iCount As Integer
+    Dim i As Integer
+    Dim iLoop As Integer
+    Dim strNeg As String
+    Dim strDec As String
     Dim lNum As String
-    Dim vVal As Variant, vVal2 As Variant
+    Dim vVal As Variant
+    Dim vVal2 As Variant
+    
     
     If Take_decimal = True And Take_negative = True Then
         strNeg = "-" 'Negative Sign MUST be before 1st number.
