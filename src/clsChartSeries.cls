@@ -56,7 +56,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private CurrChart As Chart     'accessible to all procedures
-Private CurrSeries As Long  'accessible to all procedures
+Private CurrSeries As Long     'accessible to all procedures
 
 '==============================================================================
 'string to return when a series formula is inaccessible
@@ -162,29 +162,29 @@ End Property
 Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As String
 
     Dim SeriesFormula As String
-    Dim FirstComma As Integer
-    Dim SecondComma As Integer
-    Dim LastComma As Integer
-    Dim FirstParen As Integer
-    Dim SecondParen As Integer
-    Dim FirstBracket As Integer
-    Dim SecondBracket As Integer
+    Dim FirstComma As Long
+    Dim SecondComma As Long
+    Dim LastComma As Long
+    Dim FirstParen As Long
+    Dim SecondParen As Long
+    Dim FirstBracket As Long
+    Dim SecondBracket As Long
     
     'as above but reversed
-    Dim LenSeriesFormula As Integer    'to store the length of 'SeriesFormula'
+    Dim LenSeriesFormula As Long    'to store the length of 'SeriesFormula'
     Dim rSeriesFormula As String
-    Dim rFirstComma As Integer
-    Dim rSecondComma As Integer
-    Dim rLastComma As Integer
-    Dim rFirstParen As Integer
-    Dim rSecondParen As Integer
-    Dim rFirstBracket As Integer
-    Dim rSecondBracket As Integer
+    Dim rFirstComma As Long
+    Dim rSecondComma As Long
+    Dim rLastComma As Long
+    Dim rFirstParen As Long
+    Dim rSecondParen As Long
+    Dim rFirstBracket As Long
+    Dim rSecondBracket As Long
     
     Dim SeriesName As Variant
     Dim XValues As Variant
     Dim Values As Variant
-    Dim PlotOrder As Integer
+    Dim PlotOrder As Long
     Dim iChartType As XlChartType
     
     
@@ -381,29 +381,29 @@ End Function
 Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     
     Dim SeriesFormula As String
-    Dim FirstComma As Integer
-    Dim SecondComma As Integer
-    Dim LastComma As Integer
-    Dim FirstParen As Integer
-    Dim SecondParen As Integer
-    Dim FirstBracket As Integer
-    Dim SecondBracket As Integer
-    Dim StartY As Integer
+    Dim FirstComma As Long
+    Dim SecondComma As Long
+    Dim LastComma As Long
+    Dim FirstParen As Long
+    Dim SecondParen As Long
+    Dim FirstBracket As Long
+    Dim SecondBracket As Long
+    Dim StartY As Long
     Dim SeriesName As Variant
     Dim XValues As Variant
     Dim Values As Variant
-    Dim PlotOrder As Integer
+    Dim PlotOrder As Long
     
     'as above but reversed
-    Dim LenSeriesFormula As Integer    'to store the length of 'SeriesFormula'
+    Dim LenSeriesFormula As Long    'to store the length of 'SeriesFormula'
     Dim rSeriesFormula As String
-    Dim rFirstComma As Integer
-    Dim rSecondComma As Integer
-    Dim rLastComma As Integer
-    Dim rFirstParen As Integer
-    Dim rSecondParen As Integer
-    Dim rFirstBracket As Integer
-    Dim rSecondBracket As Integer
+    Dim rFirstComma As Long
+    Dim rSecondComma As Long
+    Dim rLastComma As Long
+    Dim rFirstParen As Long
+    Dim rSecondParen As Long
+    Dim rFirstBracket As Long
+    Dim rSecondBracket As Long
     
     Dim iChartType As XlChartType
     
@@ -609,7 +609,7 @@ End Property
 
 'determine the source range of Point 'PointNumber' of SERIES
 'the order of the points is as stated in the SERIES, not as shown in the graph
-Property Get PointSourceRange(PointNumber As Integer, XorY As Long) As Variant
+Property Get PointSourceRange(PointNumber As Long, XorY As Long) As Variant
     PointSourceRange = PointRange(CurrChart, CurrSeries, PointNumber, XorY)
 End Property
 
@@ -703,7 +703,7 @@ Private Function ExtractWorksheetName( _
         As String
     
     Dim sRng As String
-    Dim iRightEnd As Integer
+    Dim iRightEnd As Long
     Dim sWorkbookName As String
     Dim sApostroph As String
     
@@ -756,12 +756,12 @@ Private Function SplitRangeToSingleCells(sRange As String) As Variant
     Dim arRange() As String
     Dim arRangeNew() As String
     Dim arCRange() As String
-    Dim i As Integer
-    Dim j As Integer
-    Dim k As Integer     'counter for number of elements
-    Dim iStartRC As Integer
-    Dim iEndRC As Integer
-    Dim iRow As Integer
+    Dim i As Long
+    Dim j As Long
+    Dim k As Long     'counter for number of elements
+    Dim iStartRC As Long
+    Dim iEndRC As Long
+    Dim iRow As Long
     Dim sColumn As String
     
     
@@ -842,9 +842,9 @@ Private Function ExtractNumber( _
     Optional Take_negative As Boolean = False _
         ) As Double
     
-    Dim iCount As Integer
-    Dim i As Integer
-    Dim iLoop As Integer
+    Dim iCount As Long
+    Dim i As Long
+    Dim iLoop As Long
     Dim strNeg As String
     Dim strDec As String
     Dim lNum As String
