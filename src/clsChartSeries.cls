@@ -200,7 +200,7 @@ Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As Strin
         Exit Function
     End If
     
-    'Exit if element is > 4
+    'Exit if nonexistent 'Element' is specified
     If Element > 4 Or Element < 1 Then
         SERIESFormulaElementType = "ERROR - BAD ELEMENT NUMBER"
         Exit Function
@@ -419,8 +419,8 @@ Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
         Exit Function
     End If
     
-    'Exit if element is > 4
-    If Element > 4 Then
+    'Exit if nonexistent 'Element' is specified
+    If Element > 4 Or Element < 1 Then
         SERIESFormulaElement = "ERROR - BAD ELEMENT NUMBER"
         Exit Function
     End If
