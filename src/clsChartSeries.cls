@@ -64,25 +64,25 @@ Const gcsInaccessible As String = "inaccessible"
 '==============================================================================
 
 
-Property Get Chart() As Chart
+Public Property Get Chart() As Chart
     Set Chart = CurrChart
 End Property
 
-Property Let Chart(cht)
+Public Property Let Chart(cht)
     Set CurrChart = cht
 End Property
 
 
-Property Get ChartSeries()
+Public Property Get ChartSeries()
     ChartSeries = CurrSeries
 End Property
 
-Property Let ChartSeries(SeriesNum)
+Public Property Let ChartSeries(SeriesNum)
     CurrSeries = SeriesNum
 End Property
 
 
-Property Get SeriesName() As Variant
+Public Property Get SeriesName() As Variant
     If SeriesNameType = "Range" Then
         Set SeriesName = Range(SERIESFormulaElement(CurrChart, CurrSeries, 1))
     Else
@@ -90,17 +90,17 @@ Property Get SeriesName() As Variant
     End If
 End Property
 
-Property Let SeriesName(SName)
+Public Property Let SeriesName(SName)
     CurrChart.SeriesCollection(CurrSeries).Name = SName
 End Property
 
 
-Property Get SeriesNameType() As String
+Public Property Get SeriesNameType() As String
     SeriesNameType = SERIESFormulaElementType(CurrChart, CurrSeries, 1)
 End Property
 
 
-Property Get XValues() As Variant
+Public Property Get XValues() As Variant
     If XValuesType = "Range" Then
         Set XValues = Range(SERIESFormulaElement(CurrChart, CurrSeries, 2))
     Else
@@ -108,17 +108,17 @@ Property Get XValues() As Variant
     End If
 End Property
 
-Property Let XValues(XVals)
+Public Property Let XValues(XVals)
     CurrChart.SeriesCollection(CurrSeries).XValues = XVals
 End Property
 
 
-Property Get XValuesType() As String
+Public Property Get XValuesType() As String
     XValuesType = SERIESFormulaElementType(CurrChart, CurrSeries, 2)
 End Property
 
 
-Property Get Values() As Variant
+Public Property Get Values() As Variant
     If ValuesType = "Range" Then
         Set Values = Range(SERIESFormulaElement(CurrChart, CurrSeries, 3))
     Else
@@ -126,26 +126,26 @@ Property Get Values() As Variant
     End If
 End Property
 
-Property Let Values(Vals)
+Public Property Let Values(Vals)
     CurrChart.SeriesCollection(CurrSeries).Values = Vals
 End Property
 
 
-Property Get ValuesType() As String
+Public Property Get ValuesType() As String
     ValuesType = SERIESFormulaElementType(CurrChart, CurrSeries, 3)
 End Property
 
 
-Property Get PlotOrder()
+Public Property Get PlotOrder()
     PlotOrder = SERIESFormulaElement(CurrChart, CurrSeries, 4)
 End Property
 
-Property Let PlotOrder(PltOrder)
+Public Property Let PlotOrder(PltOrder)
     CurrChart.SeriesCollection(CurrSeries).PlotOrder = PltOrder
 End Property
 
 
-Property Get PlotOrderType() As String
+Public Property Get PlotOrderType() As String
     PlotOrderType = SERIESFormulaElementType(CurrChart, CurrSeries, 4)
 End Property
 
@@ -598,18 +598,18 @@ End Function
 '==============================================================================
 
 'determine number of data points in SERIES
-Property Get NoOfPoints() As Long
+Public Property Get NoOfPoints() As Long
     NoOfPoints = SERIESFormulaDataPoints(CurrChart, CurrSeries)
 End Property
 
 'determine Worksheet, where the data of SERIES come from
-Property Get DataSheet(XorY As Long) As String
+Public Property Get DataSheet(XorY As Long) As String
     DataSheet = SERIESFormulaDataSheet(CurrChart, CurrSeries, XorY)
 End Property
 
 'determine the source range of Point 'PointNumber' of SERIES
 'the order of the points is as stated in the SERIES, not as shown in the graph
-Property Get PointSourceRange(PointNumber As Long, XorY As Long) As Variant
+Public Property Get PointSourceRange(PointNumber As Long, XorY As Long) As Variant
     PointSourceRange = PointRange(CurrChart, CurrSeries, PointNumber, XorY)
 End Property
 
