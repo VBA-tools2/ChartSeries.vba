@@ -388,7 +388,6 @@ Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     Dim SecondParen As Long
     Dim FirstBracket As Long
     Dim SecondBracket As Long
-    Dim StartY As Long
     Dim SeriesName As Variant
     Dim XValues As Variant
     Dim Values As Variant
@@ -849,7 +848,6 @@ Private Function ExtractNumber( _
     Dim strDec As String
     Dim lNum As String
     Dim vVal As Variant
-    Dim vVal2 As Variant
     
     
     If Take_decimal = True And Take_negative = True Then
