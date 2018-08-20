@@ -562,7 +562,14 @@ Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     'Get the First Element (Series Name)
     '-----
     FirstParen = InStr(1, SeriesFormula, "(")
-    SeriesName = Mid(SeriesFormula, FirstParen + 1, FirstComma - FirstParen - 1)
+'---
+'2do: query for type repeated --> can't the result be stored in a custom 'Type'?
+    If SeriesNameType = "Range" Then
+'---
+        SeriesName = Mid(SeriesFormula, FirstParen + 1, FirstComma - FirstParen - 1)
+    Else
+        SeriesName = Mid(SeriesFormula, FirstParen + 2, FirstComma - FirstParen - 3)
+    End If
     If Element = 1 Then
         SERIESFormulaElement = SeriesName
         Exit Function
