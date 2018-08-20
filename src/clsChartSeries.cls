@@ -41,7 +41,8 @@ Attribute VB_Exposed = False
 'PointSourceRange (read-only)
 
 'Sub ExampleUsage()
-'    Dim MySeries As New clsChartSeries
+'    Dim MySeries As clsChartSeries
+'    Set MySeries = New clsChartSeries
 '    With MySeries
 '        .Chart = Sheets(1).ChartObjects(1).Chart
 '        .ChartSeries = 1
