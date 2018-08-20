@@ -189,7 +189,7 @@ Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As Strin
     Dim iChartType As XlChartType
     
     
-    'Exit if Surface chart (surface chrarts do not have SERIES formulas)
+    'Exit if Surface chart (surface charts do not have SERIES formulas)
     If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
         SERIESFormulaElementType = "ERROR - SURFACE CHART"
         Exit Function
@@ -408,7 +408,7 @@ Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
     Dim iChartType As XlChartType
     
     
-    'Exit if Surface chart (surface chrarts do not have SERIES formulas)
+    'Exit if Surface chart (surface charts do not have SERIES formulas)
     If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
         SERIESFormulaElement = "ERROR - SURFACE CHART"
         Exit Function
@@ -578,7 +578,7 @@ Private Function IsRange(ref) As Boolean
     
     sRef = ref
     
-    'if the string lenght of 'ref' exceeds 255 characters the below test will
+    'if the string length of 'ref' exceeds 255 characters the below test will
     'fail. Therefore remove 'Worksheet.Name' which should shrink the length
     'to below 255 characters and then test
     If Len(sRef) > 255 Then
@@ -705,7 +705,7 @@ Private Function ExtractWorksheetName( _
     Dim sRng As String
     Dim iRightEnd As Long
     Dim sWorkbookName As String
-    Dim sApostroph As String
+    Dim sApostrophe As String
     
     'set 'sRng' to 'sRngAddress'
     sRng = sRngAddress
@@ -723,10 +723,10 @@ Private Function ExtractWorksheetName( _
     
     'check, if remaining string starts and ends with "'"
     'if yes, remove them
-    'and store in 'sApostroph' apostroph
+    'and store in 'sApostrophe' apostrophe
     If Left(sRng, 1) = "'" Then
         sRng = Mid(sRng, 2, Len(sRng) - 2)
-        sApostroph = "'"
+        sApostrophe = "'"
     End If
     
     'check, if a 'Workbook.Name' is in the string and if so, extract it
@@ -742,7 +742,7 @@ Private Function ExtractWorksheetName( _
     End If
     
     If bWithExclMark = True Then
-        ExtractWorksheetName = sApostroph & sRng & sApostroph & "!"
+        ExtractWorksheetName = sApostrophe & sRng & sApostrophe & "!"
     Else
         ExtractWorksheetName = sRng
     End If
