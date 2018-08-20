@@ -83,6 +83,14 @@ Public Property Let ChartSeries(SeriesNum)
 End Property
 
 
+'------------------------------------------------------------------------------
+Public Property Let Formula(sFormula As String)
+    CurrChart.SeriesCollection(CurrSeries).Formula = sFormula
+End Property
+
+'------------------------------------------------------------------------------
+
+
 Public Property Get SeriesName() As Variant
     If SeriesNameType = "Range" Then
         Set SeriesName = Range(SERIESFormulaElement(CurrChart, CurrSeries, 1))
