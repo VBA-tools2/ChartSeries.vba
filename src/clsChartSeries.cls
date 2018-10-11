@@ -6,7 +6,14 @@ Attribute VB_Name = "clsChartSeries"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
+
+'@Exposed
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'2do:
+'- instead of "unhiding" stuff, set '.PlotVisibleOnly = False'?
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 'This Class module provides an easy way to access the items in a
 'chart's SERIES formula. It can be exported and then imported into
@@ -56,65 +63,98 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-Private CurrChart As Chart     'accessible to all procedures
-Private CurrSeries As Long     'accessible to all procedures
+Private CurrChart As Chart
+Private CurrSeries As Long
+Private pOldFullSeriesFormula As String
+Private pFullSeriesFormula As String
+Private pSeriesFormula As String
+Private pNameXValuesValues As String
+Private pNameXValues As String
+Private pName As String
+Private CurrData() As tElement
+Private CurrSheet() As String
+
+Private Enum eElement
+    [_First] = 1
+    eName = eElement.[_First]
+    eXValues
+    eYValues
+    ePlotOrder
+    [_Last] = eElement.ePlotOrder
+End Enum
+
+Private Type tElement
+    Type  As String      'type of element ("Empty", "String", "Integer", "Array", "Range")
+    Value As Variant     'value of element
+    Range As Range       'if type is "Range" then it stores the range
+End Type
 
 '==============================================================================
 'string to return when a series formula is inaccessible
-Const gcsInaccessible As String = "inaccessible"
+Private Const pcsInaccessible As String = "inaccessible"
+'string to return when a series number is invalid
+Private Const pcsBadSeriesNumber As String = "ERROR - BAD SERIES NUMBER"
+Private Const pcsSep As String = ","
 '==============================================================================
+
+
+Public Property Let Formula(ByVal sFormula As String)
+    CurrChart.SeriesCollection(CurrSeries).Formula = sFormula
+End Property
 
 
 Public Property Get Chart() As Chart
     Set Chart = CurrChart
 End Property
 
-Public Property Let Chart(cht)
+Public Property Let Chart(ByVal cht As Chart)
     Set CurrChart = cht
 End Property
 
 
-Public Property Get ChartSeries()
+Public Property Get ChartSeries() As Long
     ChartSeries = CurrSeries
 End Property
 
-Public Property Let ChartSeries(SeriesNum)
+Public Property Let ChartSeries(ByVal SeriesNum As Long)
     CurrSeries = SeriesNum
 End Property
 
 
-'------------------------------------------------------------------------------
-Public Property Let Formula(sFormula As String)
-    CurrChart.SeriesCollection(CurrSeries).Formula = sFormula
-End Property
-
-'------------------------------------------------------------------------------
-
-
 Public Property Get SeriesName() As Variant
-    If SeriesNameType = "Range" Then
-        Set SeriesName = Range(SERIESFormulaElement(CurrChart, CurrSeries, 1))
-    Else
-        SeriesName = SERIESFormulaElement(CurrChart, CurrSeries, 1)
-    End If
+    Call SERIESFormulaElement
+    With CurrData(eElement.eName)
+        If .Type = "Range" Then
+            Set SeriesName = .Range
+        Else
+            SeriesName = .Value
+        End If
+    End With
 End Property
 
-Public Property Let SeriesName(SName)
+'2do:
+'With this only a string can be set.
+'How can a range be set?
+Public Property Let SeriesName(ByVal SName)
     CurrChart.SeriesCollection(CurrSeries).Name = SName
 End Property
 
 
 Public Property Get SeriesNameType() As String
-    SeriesNameType = SERIESFormulaElementType(CurrChart, CurrSeries, 1)
+    Call SERIESFormulaElement
+    SeriesNameType = CurrData(eElement.eName).Type
 End Property
 
 
 Public Property Get XValues() As Variant
-    If XValuesType = "Range" Then
-        Set XValues = Range(SERIESFormulaElement(CurrChart, CurrSeries, 2))
-    Else
-        XValues = SERIESFormulaElement(CurrChart, CurrSeries, 2)
-    End If
+    Call SERIESFormulaElement
+    With CurrData(eElement.eXValues)
+        If .Type = "Range" Then
+            Set XValues = .Range
+        Else
+            XValues = .Value
+        End If
+    End With
 End Property
 
 Public Property Let XValues(XVals)
@@ -123,16 +163,20 @@ End Property
 
 
 Public Property Get XValuesType() As String
-    XValuesType = SERIESFormulaElementType(CurrChart, CurrSeries, 2)
+    Call SERIESFormulaElement
+    XValuesType = CurrData(eElement.eXValues).Type
 End Property
 
 
 Public Property Get Values() As Variant
-    If ValuesType = "Range" Then
-        Set Values = Range(SERIESFormulaElement(CurrChart, CurrSeries, 3))
-    Else
-        Values = SERIESFormulaElement(CurrChart, CurrSeries, 3)
-    End If
+    Call SERIESFormulaElement
+    With CurrData(eElement.eYValues)
+        If .Type = "Range" Then
+            Set Values = .Range
+        Else
+            Values = .Value
+        End If
+    End With
 End Property
 
 Public Property Let Values(Vals)
@@ -141,533 +185,456 @@ End Property
 
 
 Public Property Get ValuesType() As String
-    ValuesType = SERIESFormulaElementType(CurrChart, CurrSeries, 3)
+    Call SERIESFormulaElement
+    ValuesType = CurrData(eElement.eYValues).Type
 End Property
 
 
-Public Property Get PlotOrder()
-    PlotOrder = SERIESFormulaElement(CurrChart, CurrSeries, 4)
+Public Property Get PlotOrder() As Long
+    Call SERIESFormulaElement
+    PlotOrder = CurrData(eElement.ePlotOrder).Value
 End Property
 
-Public Property Let PlotOrder(PltOrder)
+Public Property Let PlotOrder(ByVal PltOrder As Long)
     CurrChart.SeriesCollection(CurrSeries).PlotOrder = PltOrder
 End Property
 
 
 Public Property Get PlotOrderType() As String
-    PlotOrderType = SERIESFormulaElementType(CurrChart, CurrSeries, 4)
+    Call SERIESFormulaElement
+    PlotOrderType = CurrData(eElement.ePlotOrder).Type
 End Property
 
 
-'------------------------------------------------------------------------------
+'determine Worksheet, where the data of SERIES come from
+Public Property Get DataSheet(ByVal Element As Long) As String
+    Call SERIESFormulaElement
+    DataSheet = CurrSheet(Element)
+End Property
 
-'Returns a string that describes the element of a chart's SERIES formula
-'This function essentially parses and analyzes a SERIES formula
-'
-'Element 1: Series Name. Returns "Range" , "Empty", or "String"
-'Element 2: XValues. Returns "Range", "Empty", or "Array"
-'Element 3: Values. Returns "Range" or "Array"
-'Element 4: PlotOrder. Always returns "Integer"
-Private Function SERIESFormulaElementType(ChartObj, SeriesNum, Element) As String
-
-    Dim SeriesFormula As String
-    Dim FirstComma As Long
-    Dim SecondComma As Long
-    Dim LastComma As Long
-    Dim FirstParen As Long
-    Dim SecondParen As Long
-    Dim FirstBracket As Long
-    Dim SecondBracket As Long
-    
-    'as above but reversed
-    Dim LenSeriesFormula As Long    'to store the length of 'SeriesFormula'
-    Dim rSeriesFormula As String
-    Dim rFirstComma As Long
-    Dim rSecondComma As Long
-    Dim rLastComma As Long
-    Dim rFirstParen As Long
-    Dim rSecondParen As Long
-    Dim rFirstBracket As Long
-    Dim rSecondBracket As Long
-    
-    Dim SeriesName As Variant
-    Dim XValues As Variant
-    Dim Values As Variant
-    Dim PlotOrder As Long
-    Dim iChartType As XlChartType
-    
-    
-    'Exit if Surface chart (surface charts do not have SERIES formulas)
-    If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
-        SERIESFormulaElementType = "ERROR - SURFACE CHART"
-        Exit Function
-    End If
-    
-    'Exit if nonexistent series is specified
-    If SeriesNum > ChartObj.SeriesCollection.Count Or SeriesNum < 1 Then
-        SERIESFormulaElementType = "ERROR - BAD SERIES NUMBER"
-        Exit Function
-    End If
-    
-    'Exit if nonexistent 'Element' is specified
-    If Element > 4 Or Element < 1 Then
-        SERIESFormulaElementType = "ERROR - BAD ELEMENT NUMBER"
-        Exit Function
-    End If
-    
-    'Get the SERIES formula
-    '----------
-    'because there is a possibility that an error is risen, take care of that
-    'situation
-    '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
-    On Error Resume Next
-    SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
-    'change to column chart if series is inaccessible
-    If Len(SeriesFormula) = 0 Then
-        'reset error number
-        Err.Number = 0
-        'store current 'ChartType' of series ...
-        iChartType = ChartObj.SeriesCollection(SeriesNum).ChartType
-        '... and change it temporarily to a column chart
-        ChartObj.SeriesCollection(SeriesNum).ChartType = xlColumnClustered
-        
-        'now try to read the formula again
-        SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
-        
-        'restore original 'ChartType'
-        ChartObj.SeriesCollection(SeriesNum).ChartType = iChartType
-        
-        'if still an error is returned, the formula is inaccessible, which will
-        'be returned
-        '(this e.g. can be the case if there are #REF errors inside the given ranges)
-        If Err.Number <> 0 Then
-            SERIESFormulaElementType = gcsInaccessible
-            Exit Function
-        End If
-    End If
-    On Error GoTo 0
-    '----------
-    
-    rSeriesFormula = StrReverse(SeriesFormula)
-    LenSeriesFormula = Len(SeriesFormula)
-    
-''-----
-''adapt because string _can_ now be longer than 255
-''(also in 'SERIESFormulaElement')
-'    'Exit if SERIES formula is longer than 255 characters
-'    '(test if length of SeriesFormula = 255 and the last character isn't a ")")
-'    If LenSeriesFormula = 255 And Left(rSeriesFormula, 1) <> ")" Then
-'        SERIESFormulaElementType = "ERROR - FORMULA TOO LONG"
-'        Exit Function
-'    End If
-''-----
-    
-    '-----
-    'Get the Fourth Element (Plot Order)
-    '-----
-    rLastComma = InStr(1, rSeriesFormula, ",")
-    LastComma = LenSeriesFormula - rLastComma + 1
-    
-    If Element = 4 Then
-        PlotOrder = Mid(SeriesFormula, LastComma + 1, Len(SeriesFormula) - LastComma - 1)
-        SERIESFormulaElementType = "Integer"
-        Exit Function
-    End If
-    
-    '-----
-    'Get the Third Element (Y Range)
-    '-----
-    If Mid(rSeriesFormula, rLastComma + 1, 1) = ")" Then
-        'Multiple ranges
-        rSecondParen = InStr(rLastComma, rSeriesFormula, ")")
-        rFirstParen = InStr(rSecondParen, rSeriesFormula, "(,")
-        
-        FirstParen = LenSeriesFormula - rFirstParen + 1
-        SecondParen = LenSeriesFormula - rSecondParen + 1
-        Values = Mid(SeriesFormula, FirstParen + 1, SecondParen - FirstParen - 1)
-        SecondComma = FirstParen - 1
-    Else
-        If Mid(rSeriesFormula, rLastComma + 1, 1) = "}" Then
-            'Literal Array
-            rSecondBracket = InStr(rLastComma, rSeriesFormula, "}")
-            rFirstBracket = InStr(rSecondBracket, rSeriesFormula, "{,")
-            
-            FirstBracket = LenSeriesFormula - rFirstBracket + 1
-            SecondBracket = LenSeriesFormula - rSecondBracket + 1
-            Values = Mid(SeriesFormula, FirstBracket, SecondBracket - FirstBracket + 1)
-            SecondComma = FirstBracket - 1
-        Else
-            'A single range
-            rSecondComma = InStr(rLastComma + 1, rSeriesFormula, ",")
-            
-            SecondComma = LenSeriesFormula - rSecondComma + 1
-            Values = Mid(SeriesFormula, SecondComma + 1, LastComma - SecondComma - 1)
-        End If
-    End If
-    rSecondComma = LenSeriesFormula - SecondComma + 1
-    If Element = 3 Then
-        If IsRange(Values) Then
-            SERIESFormulaElementType = "Range"
-        Else
-            SERIESFormulaElementType = "Array"
-        End If
-        Exit Function
-    End If
-    
-    '-----
-    'Get the Second Element (X Range)
-    '-----
-    If Mid(rSeriesFormula, rSecondComma + 1, 1) = ")" Then
-        'Multiple ranges
-        rSecondParen = InStr(rSecondComma, rSeriesFormula, ")")
-        rFirstParen = InStr(rSecondParen, rSeriesFormula, "(,")
-        
-        FirstParen = LenSeriesFormula - rFirstParen + 1
-        SecondParen = LenSeriesFormula - rSecondParen + 1
-        XValues = Mid(SeriesFormula, FirstParen, SecondParen - FirstParen + 1)
-        FirstComma = FirstParen - 1
-    Else
-        If Mid(rSeriesFormula, rSecondComma + 1, 1) = "}" Then
-            'Literal Array
-            rSecondBracket = InStr(rSecondComma, rSeriesFormula, "}")
-            rFirstBracket = InStr(rSecondBracket, rSeriesFormula, "{,")
-            
-            FirstBracket = LenSeriesFormula - rFirstBracket + 1
-            SecondBracket = LenSeriesFormula - rSecondBracket + 1
-            XValues = Mid(SeriesFormula, FirstBracket, SecondBracket - FirstBracket + 1)
-            FirstComma = FirstBracket - 1
-        Else
-            'A single range
-            rFirstComma = InStr(rSecondComma + 1, rSeriesFormula, ",")
-            
-            FirstComma = LenSeriesFormula - rFirstComma + 1
-            XValues = Mid(SeriesFormula, FirstComma + 1, SecondComma - FirstComma - 1)
-        End If
-    End If
-    If Element = 2 Then
-        If IsRange(XValues) Then
-            SERIESFormulaElementType = "Range"
-        Else
-            If XValues = vbNullString Then
-                SERIESFormulaElementType = "Empty"
-            Else
-                SERIESFormulaElementType = "Array"
-            End If
-        End If
-        Exit Function
-    End If
-    
-    '-----
-    'Get the First Element (Series Name)
-    '-----
-    FirstParen = InStr(1, SeriesFormula, "(")
-    SeriesName = Mid(SeriesFormula, FirstParen + 1, FirstComma - FirstParen - 1)
-    If Element = 1 Then
-        If IsRange(SeriesName) Then
-            SERIESFormulaElementType = "Range"
-        Else
-            If SeriesName = vbNullString Then
-                SERIESFormulaElementType = "Empty"
-            Else
-                If TypeName(SeriesName) = "String" Then
-                    SERIESFormulaElementType = "String"
-                End If
-            End If
-        End If
-        Exit Function
-    End If
-    
-End Function
-
-
-'Returns one of four elements in a chart's SERIES formula (as a string)
-'This function essentially parses and analyzes a SERIES formula
-'
-'Element 1: Series Name. Can be a range reference, a literal value, or nothing
-'Element 2: XValues. Can be a range reference (including a non-contiguous range), a literal array, or nothing
-'Element 3: Values. Can be a range reference (including a non-contiguous range), or a literal array
-'Element 4: PlotOrder. Must be an integer
-Private Function SERIESFormulaElement(ChartObj, SeriesNum, Element) As String
-    
-    Dim SeriesFormula As String
-    Dim FirstComma As Long
-    Dim SecondComma As Long
-    Dim LastComma As Long
-    Dim FirstParen As Long
-    Dim SecondParen As Long
-    Dim FirstBracket As Long
-    Dim SecondBracket As Long
-    Dim SeriesName As Variant
-    Dim XValues As Variant
-    Dim Values As Variant
-    Dim PlotOrder As Long
-    
-    'as above but reversed
-    Dim LenSeriesFormula As Long    'to store the length of 'SeriesFormula'
-    Dim rSeriesFormula As String
-    Dim rFirstComma As Long
-    Dim rSecondComma As Long
-    Dim rLastComma As Long
-    Dim rFirstParen As Long
-    Dim rSecondParen As Long
-    Dim rFirstBracket As Long
-    Dim rSecondBracket As Long
-    
-    Dim iChartType As XlChartType
-    
-    
-    'Exit if Surface chart (surface charts do not have SERIES formulas)
-    If ChartObj.ChartType >= 83 And ChartObj.ChartType <= 86 Then
-        SERIESFormulaElement = "ERROR - SURFACE CHART"
-        Exit Function
-    End If
-    
-    'Exit if nonexistent series is specified
-    If SeriesNum > ChartObj.SeriesCollection.Count Or SeriesNum < 1 Then
-        SERIESFormulaElement = "ERROR - BAD SERIES NUMBER"
-        Exit Function
-    End If
-    
-    'Exit if nonexistent 'Element' is specified
-    If Element > 4 Or Element < 1 Then
-        SERIESFormulaElement = "ERROR - BAD ELEMENT NUMBER"
-        Exit Function
-    End If
-    
-    'Get the SERIES formula
-    '----------
-    'because there is a possibility that an error is risen, take care of that
-    'situation
-    '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
-    On Error Resume Next
-    SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
-    'change to column chart if series is inaccessible
-    If Len(SeriesFormula) = 0 Then
-        'reset error number
-        Err.Number = 0
-        'store current 'ChartType' of series ...
-        iChartType = ChartObj.SeriesCollection(SeriesNum).ChartType
-        '... and change it temporarily to a column chart
-        ChartObj.SeriesCollection(SeriesNum).ChartType = xlColumnClustered
-        
-        'now try to read the formula again
-        SeriesFormula = ChartObj.SeriesCollection(SeriesNum).Formula
-        
-        'restore original 'ChartType'
-        ChartObj.SeriesCollection(SeriesNum).ChartType = iChartType
-        
-        'if still an error is returned, the formula is inaccessible, which will
-        'be returned
-        '(this e.g. can be the case if there are #REF errors inside the given ranges)
-        If Err.Number <> 0 Then
-            SERIESFormulaElement = gcsInaccessible
-            Exit Function
-        End If
-        
-    End If
-    On Error GoTo 0
-    '----------
-    
-    rSeriesFormula = StrReverse(SeriesFormula)
-    LenSeriesFormula = Len(SeriesFormula)
-    
-''-----
-''adapt because string _can_ now be longer than 255
-''(also in 'SERIESFormulaElementType')
-'    'Exit if SERIES formula is longer than 255 characters
-'    '(test if length of SeriesFormula = 255 and the last character isn't a ")")
-'    If LenSeriesFormula = 255 And Left(rSeriesFormula, 1) <> ")" Then
-'        SERIESFormulaElement = "ERROR - FORMULA TOO LONG"
-'        Exit Function
-'    End If
-''-----
-    
-    '-----
-    'Get the Fourth Element (Plot Order)
-    '-----
-    rLastComma = InStr(1, rSeriesFormula, ",")
-    LastComma = LenSeriesFormula - rLastComma + 1
-    
-    If Element = 4 Then
-        PlotOrder = Mid(SeriesFormula, LastComma + 1, Len(SeriesFormula) - LastComma - 1)
-        SERIESFormulaElement = PlotOrder
-        Exit Function
-    End If
-    
-    
-    '-----
-    'Get the Third Element (Y Range)
-    '-----
-    If Mid(rSeriesFormula, rLastComma + 1, 1) = ")" Then
-        'Multiple ranges
-        rSecondParen = InStr(rLastComma, rSeriesFormula, ")")
-        rFirstParen = InStr(rSecondParen, rSeriesFormula, "(,")
-        
-        FirstParen = LenSeriesFormula - rFirstParen + 1
-        SecondParen = LenSeriesFormula - rSecondParen + 1
-        Values = Mid(SeriesFormula, FirstParen + 1, SecondParen - FirstParen - 1)
-        SecondComma = FirstParen - 1
-    Else
-        If Mid(rSeriesFormula, rLastComma + 1, 1) = "}" Then
-            'Literal Array
-            rSecondBracket = InStr(rLastComma, rSeriesFormula, "}")
-            rFirstBracket = InStr(rSecondBracket, rSeriesFormula, "{,")
-            
-            FirstBracket = LenSeriesFormula - rFirstBracket + 1
-            SecondBracket = LenSeriesFormula - rSecondBracket + 1
-            Values = Mid(SeriesFormula, FirstBracket, SecondBracket - FirstBracket + 1)
-            SecondComma = FirstBracket - 1
-        Else
-            'A single range
-            rSecondComma = InStr(rLastComma + 1, rSeriesFormula, ",")
-            
-            SecondComma = LenSeriesFormula - rSecondComma + 1
-            Values = Mid(SeriesFormula, SecondComma + 1, LastComma - SecondComma - 1)
-        End If
-    End If
-    rSecondComma = LenSeriesFormula - SecondComma + 1
-    If Element = 3 Then
-        SERIESFormulaElement = Values
-        Exit Function
-    End If
-    
-    '-----
-    'Get the Second Element (X Range)
-    '-----
-    If Mid(rSeriesFormula, rSecondComma + 1, 1) = ")" Then
-        'Multiple ranges
-        rSecondParen = InStr(rSecondComma, rSeriesFormula, ")")
-        rFirstParen = InStr(rSecondParen, rSeriesFormula, "(,")
-        
-        FirstParen = LenSeriesFormula - rFirstParen + 1
-        SecondParen = LenSeriesFormula - rSecondParen + 1
-        XValues = Mid(SeriesFormula, FirstParen, SecondParen - FirstParen + 1)
-        FirstComma = FirstParen - 1
-    Else
-        If Mid(rSeriesFormula, rSecondComma + 1, 1) = "}" Then
-            'Literal Array
-            rSecondBracket = InStr(rSecondComma, rSeriesFormula, "}")
-            rFirstBracket = InStr(rSecondBracket, rSeriesFormula, "{,")
-            
-            FirstBracket = LenSeriesFormula - rFirstBracket + 1
-            SecondBracket = LenSeriesFormula - rSecondBracket + 1
-            XValues = Mid(SeriesFormula, FirstBracket, SecondBracket - FirstBracket + 1)
-            FirstComma = FirstBracket - 1
-        Else
-            'A single range
-            rFirstComma = InStr(rSecondComma + 1, rSeriesFormula, ",")
-            
-            FirstComma = LenSeriesFormula - rFirstComma + 1
-            XValues = Mid(SeriesFormula, FirstComma + 1, SecondComma - FirstComma - 1)
-        End If
-    End If
-    If Element = 2 Then
-        SERIESFormulaElement = XValues
-        Exit Function
-    End If
-    
-    '-----
-    'Get the First Element (Series Name)
-    '-----
-    FirstParen = InStr(1, SeriesFormula, "(")
-'---
-'2do: query for type repeated --> can't the result be stored in a custom 'Type'?
-    If SeriesNameType = "Range" Then
-'---
-        SeriesName = Mid(SeriesFormula, FirstParen + 1, FirstComma - FirstParen - 1)
-    Else
-        SeriesName = Mid(SeriesFormula, FirstParen + 2, FirstComma - FirstParen - 3)
-    End If
-    If Element = 1 Then
-        SERIESFormulaElement = SeriesName
-        Exit Function
-    End If
-    
-End Function
-
-
-'Returns True if 'ref' is a Range
-Private Function IsRange(ref) As Boolean
-    Dim x As Range
-    Dim sRef As String
-    
-    sRef = ref
-    
-    'if the string length of 'ref' exceeds 255 characters the below test will
-    'fail. Therefore remove 'Worksheet.Name' which should shrink the length
-    'to below 255 characters and then test
-    If Len(sRef) > 255 Then
-        Dim wksName As String
-        wksName = ExtractWorksheetName(sRef, True)
-        sRef = Replace(sRef, wksName, vbNullString)
-    End If
-    
-    On Error Resume Next
-    Set x = Range(sRef)
-    If Err = 0 Then IsRange = True Else IsRange = False
-End Function
-
-
-'==============================================================================
-'additions by Stefan Pinnow (2014-12-03)
-'==============================================================================
 
 'determine number of data points in SERIES
 Public Property Get NoOfPoints() As Long
-    NoOfPoints = SERIESFormulaDataPoints(CurrChart, CurrSeries)
+    NoOfPoints = SERIESFormulaDataPoints()
 End Property
 
-'determine Worksheet, where the data of SERIES come from
-Public Property Get DataSheet(XorY As Long) As String
-    DataSheet = SERIESFormulaDataSheet(CurrChart, CurrSeries, XorY)
-End Property
 
 'determine the source range of Point 'PointNumber' of SERIES
 'the order of the points is as stated in the SERIES, not as shown in the graph
-Public Property Get PointSourceRange(PointNumber As Long, XorY As Long) As Variant
-    PointSourceRange = PointRange(CurrChart, CurrSeries, PointNumber, XorY)
+Public Property Get PointSourceRange( _
+    ByVal Element As Long, _
+    ByVal PointNumber As Long _
+        ) As Variant
+    PointSourceRange = PointRange(Element, PointNumber)
 End Property
 
 
-'------------------------------------------------------------------------------
+'==============================================================================
+Private Sub Class_Initialize()
+    ReDim CurrData(eElement.[_First] To eElement.[_Last])
+    ReDim CurrSheet(eElement.eName To eElement.eYValues)
+End Sub
 
-'returns the number of (data) points in the chart's SERIES
-Private Function SERIESFormulaDataPoints(ChartObj, SeriesNum) As Long
-    SERIESFormulaDataPoints = ChartObj.SeriesCollection(SeriesNum).Points.Count
+
+'==============================================================================
+
+'This function essentially parses and analyzes the given 'Element' of a
+'SERIES formula
+'
+'Element 1: Series Name
+'- Type:  Returns "Range", "Empty", or "String"
+'- Value: Can be a range, a literal value, or nothing
+'Element 2: XValues.
+'- Type:  Returns "Range", "Empty", or "Array"
+'- Value: Can be a range reference (including a non-contiguous range), a literal array, or nothing
+'Element 3: Values.
+'- Type:  Returns "Range" or "Array"
+'- Value: Can be a range reference (including a non-contiguous range), or a literal array
+'Element 4: PlotOrder.
+'- Type:  Always returns "Integer"
+'- Value: Must be an integer
+Private Sub SERIESFormulaElement()
+
+    If Not IsCurrSeriesValid Then Exit Sub
+    If Not GetFullSeriesFormula Then Exit Sub
+    
+    If pOldFullSeriesFormula <> pFullSeriesFormula Then
+        Call GetSeriesFormula
+        Call GetPlotOrder
+        Call GetYXValues(False)
+        Call GetYXValues(True)
+        Call GetSeriesName
+        
+        Call GetWorksheets
+    End If
+    
+End Sub
+
+
+Private Function IsCurrSeriesValid() As Boolean
+
+    Dim i As eElement
+    
+    
+    IsCurrSeriesValid = False
+    
+    If CurrSeries < 1 Or CurrSeries > CurrChart.SeriesCollection.Count Then
+        For i = eElement.eName To eElement.eYValues
+            With CurrData(i)
+                .Type = pcsBadSeriesNumber
+                .Value = pcsBadSeriesNumber
+            End With
+        Next
+    Else
+        IsCurrSeriesValid = True
+    End If
+
 End Function
 
 
-'returns the 'Worksheet.Name' where the data from the SERIES are coming from
-Private Function SERIESFormulaDataSheet( _
-    ChartObj, SeriesNum, XorY, _
-    Optional bWithExclMark As Boolean = False) _
-        As Variant
+Private Function GetFullSeriesFormula() As Boolean
+
+    Dim iChartType As XlChartType
+    Dim i As eElement
     
-    Dim rng As Range
-    Dim sRngAddress As String
     
-    'exit if x or y values are not given as a range
-    If SERIESFormulaElementType(CurrChart, CurrSeries, XorY) <> "Range" Then
-        If XorY = 2 Then
-            SERIESFormulaDataSheet = "ERROR - XVALUES ARE NOT A RANGE"
-        Else
-            SERIESFormulaDataSheet = "ERROR - VALUES ARE NOT A RANGE"
+    GetFullSeriesFormula = False
+    pOldFullSeriesFormula = pFullSeriesFormula
+    pFullSeriesFormula = vbNullString
+    
+    With CurrChart
+        'because there is a possibility that an error is risen, take care of that
+        'situation
+        '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
+        On Error Resume Next
+        pFullSeriesFormula = .SeriesCollection(CurrSeries).Formula
+        'change to column chart if series is inaccessible
+        If Len(pFullSeriesFormula) = 0 Then
+            'reset error number
+            Err.Number = 0
+            'store current 'ChartType' of series ...
+            iChartType = .SeriesCollection(CurrSeries).ChartType
+            '... and change it temporarily to a column chart
+            .SeriesCollection(CurrSeries).ChartType = xlColumnClustered
+            
+            'now try to read the formula again
+            pFullSeriesFormula = .SeriesCollection(CurrSeries).Formula
+            
+            'restore original 'ChartType'
+            .SeriesCollection(CurrSeries).ChartType = iChartType
+            
+            'if still an error is returned, the formula is inaccessible
+            '(this e.g. can be the case if there are #REF errors inside the given ranges)
+            If Err.Number <> 0 Then
+                For i = eElement.eName To eElement.eYValues
+                    With CurrData(i)
+                        .Type = pcsInaccessible
+                        .Value = pcsInaccessible
+                    End With
+                Next
+                pFullSeriesFormula = pcsInaccessible
+                Exit Function
+            End If
         End If
-        Exit Function
+        On Error GoTo 0
+    End With
+    
+    GetFullSeriesFormula = True
+
+End Function
+
+
+Private Sub GetSeriesFormula()
+
+    Dim iLenPrefix As Long
+    Dim iLenSeriesFormula As Long
+    
+    '==========================================================================
+    Const csPrefix As String = "=SERIES("
+    Const ciSuffix As Long = 1
+    '==========================================================================
+    
+    
+    iLenPrefix = Len(csPrefix)
+    iLenSeriesFormula = Len(pFullSeriesFormula)
+    
+    pSeriesFormula = _
+            Mid( _
+                    pFullSeriesFormula, _
+                    iLenPrefix + 1, _
+                    iLenSeriesFormula - iLenPrefix - ciSuffix _
+            )
+
+End Sub
+
+
+Private Sub GetPlotOrder()
+
+    Dim LastComma As Long
+    
+    
+    LastComma = InStrRev(pSeriesFormula, pcsSep)
+    pNameXValuesValues = Left(pSeriesFormula, LastComma - 1)
+    With CurrData(eElement.ePlotOrder)
+        .Type = "Integer"
+        .Value = Mid(pSeriesFormula, LastComma + 1)
+        Set .Range = Nothing
+    End With
+
+End Sub
+
+
+Private Sub GetYXValues( _
+    ByVal YValues_or_XValues As Boolean _
+)
+
+    Dim LenTitleYXValues As Long
+    Dim iMinCommata As Long
+    Dim iComma As Long
+    Dim iOpeningBracket As Long
+    Dim YXValues As String
+    Dim sCurrString As String
+    Dim sOneLess As String
+    Dim DummyElement As tElement
+    
+    
+    If YValues_or_XValues = False Then
+        sCurrString = pNameXValuesValues
+        iMinCommata = 2
+    Else
+        sCurrString = pNameXValues
+        iMinCommata = 1
     End If
     
-    'store range of (X)Values
-    Set rng = Range(SERIESFormulaElement(CurrChart, CurrSeries, XorY))
-    sRngAddress = rng.Address(External:=True)
+    LenTitleYXValues = Len(sCurrString)
     
-    'call function that extracts the 'Worksheet.Name'
-    SERIESFormulaDataSheet = ExtractWorksheetName(sRngAddress, bWithExclMark)
+    Select Case Right(sCurrString, 1)
+        Case "}"    'Literal Array
+            iOpeningBracket = InStrRev(sCurrString, "{")
+            sOneLess = Left(sCurrString, iOpeningBracket - 2)
+            YXValues = Mid( _
+                    sCurrString, _
+                    iOpeningBracket + 1, _
+                    LenTitleYXValues - iOpeningBracket - 1 _
+            )
+        Case ")"    'Multiple ranges
+            iOpeningBracket = InStrRev(sCurrString, "(")
+            sOneLess = Left(sCurrString, iOpeningBracket - 2)
+            YXValues = Mid( _
+                    sCurrString, _
+                    iOpeningBracket, _
+                    LenTitleYXValues - iOpeningBracket + 1 _
+            )
+        Case pcsSep    'Empty
+            sOneLess = Left(sCurrString, LenTitleYXValues - 1)
+            YXValues = vbNullString
+        Case Else   'A single range
+            Call GetSingleRangeYXValues( _
+                    LenTitleYXValues, _
+                    iMinCommata, _
+                    sCurrString, _
+                    sOneLess, _
+                    YXValues _
+            )
+    End Select
     
+    With DummyElement
+        If Len(YXValues) = 0 Then
+            .Type = "Empty"
+            Set .Range = Nothing
+        ElseIf Right(sCurrString, 1) = "}" Then
+            .Type = "Array"
+            Set .Range = Nothing
+        Else
+            .Type = "Range"
+            Set .Range = Range(YXValues)
+        End If
+        .Value = YXValues
+    End With
+    
+    If YValues_or_XValues = False Then
+        CurrData(eElement.eYValues) = DummyElement
+        pNameXValues = sOneLess
+    Else
+        CurrData(eElement.eXValues) = DummyElement
+        pName = sOneLess
+    End If
+
+End Sub
+
+
+Private Sub GetSingleRangeYXValues( _
+    ByVal LenTitleYXValues As Long, _
+    ByVal iMinCommata As Long, _
+    ByVal sCurrString As String, _
+    ByRef sOneLess As String, _
+    ByRef YXValues As String _
+)
+
+    Dim iComma As Long
+    Dim iExclMark As Long
+    
+    
+    iExclMark = InStrRev(sCurrString, "'!")
+    
+    If NoOfOccurrencesInString(sCurrString, pcsSep) = iMinCommata Then
+        iComma = InStrRev(sCurrString, pcsSep)
+    Else
+        iComma = InStrRev(sCurrString, ",'", iExclMark)
+    End If
+    
+    sOneLess = Left(sCurrString, iComma - 1)
+    YXValues = Right( _
+            sCurrString, _
+            LenTitleYXValues - iComma _
+    )
+
+End Sub
+
+
+Private Sub GetSeriesName()
+
+    Dim LenName As Long
+    Dim SeriesName As String
+    
+    
+    LenName = Len(pName)
+    
+    With CurrData(eElement.eName)
+        If LenName = 0 Then
+            SeriesName = vbNullString
+            .Type = "Empty"
+            Set .Range = Nothing
+        ElseIf Left(pName, 1) = Chr(34) Then
+            SeriesName = Mid(pName, 2, LenName - 2)
+            .Type = "String"
+            Set .Range = Nothing
+        Else
+            SeriesName = pName
+            .Type = "Range"
+            Set .Range = Range(SeriesName)
+        End If
+        .Value = SeriesName
+    End With
+
+End Sub
+
+
+Private Sub GetWorksheets()
+    
+    Dim Element As eElement
+    Dim sChartWkb As String
+    
+    
+    sChartWkb = GetChartWkb
+    
+    For Element = LBound(CurrSheet) To UBound(CurrSheet)
+        'exit if x or y values are not given as a range
+        If CurrData(Element).Type <> "Range" Then
+            Select Case Element
+                Case eElement.eName
+                    CurrSheet(Element) = "ERROR - TITLE IS NOT A RANGE"
+                Case eElement.eXValues
+                    CurrSheet(Element) = "ERROR - XVALUES ARE NOT A RANGE"
+                Case eElement.eYValues
+                    CurrSheet(Element) = "ERROR - VALUES ARE NOT A RANGE"
+            End Select
+        Else
+            CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
+        End If
+    Next
+    
+End Sub
+
+
+Private Function GetChartWkb() As String
+
+    Dim crt As ChartObject
+    Dim wks As Worksheet
+    Dim wkb As Workbook
+    
+    With CurrChart
+        On Error Resume Next
+        Set wkb = .Parent
+        
+        If Err.Number <> 0 Then
+            Set crt = .Parent
+            Set wks = crt.Parent
+            Set wkb = wks.Parent
+        End If
+        On Error GoTo 0
+    End With
+    
+    GetChartWkb = wkb.Name
+
+End Function
+
+
+Private Function GetCurrWorksheet( _
+    ByVal Element As eElement, _
+    ByVal sChartWkb As String _
+        ) As String
+
+    Dim rng As Range
+    Dim wks As Worksheet
+    Dim wkb As Workbook
+    Dim sWks As String
+    Dim sWkb As String
+    Dim sWorksheet As String
+    Dim sApostrophe As String
+    
+    
+    Set rng = CurrData(Element).Range.Areas(1)
+    Set wks = rng.Parent
+    Set wkb = wks.Parent
+    
+    sWks = wks.Name
+    sWkb = wkb.Name
+    
+    sApostrophe = GetApostrophe(Element)
+    
+    sWorksheet = sApostrophe
+    
+    If sWkb <> sChartWkb Then
+        sWorksheet = sWorksheet & "[" & sWkb & "]"
+    End If
+    
+    sWorksheet = sWorksheet & sWks & sApostrophe
+    GetCurrWorksheet = sWorksheet
+
+End Function
+
+
+Private Function GetApostrophe( _
+    ByVal Element As eElement _
+        ) As String
+
+    '==========================================================================
+    Const csApostrophe As String = "'"
+    '==========================================================================
+    
+    If Left(CurrData(Element).Value, 2) = "(" & csApostrophe Or _
+            Left(CurrData(Element).Value, 1) = csApostrophe Then
+        GetApostrophe = csApostrophe
+    Else
+        GetApostrophe = vbNullString
+    End If
+
+End Function
+
+
+'------------------------------------------------------------------------------
+'returns the number of (data) points in the chart's SERIES
+Private Function SERIESFormulaDataPoints() As Long
+    SERIESFormulaDataPoints = CurrChart.SeriesCollection(CurrSeries).Points.Count
 End Function
 
 
 'returns the range of the given point
-Private Function PointRange(ChartObj, SeriesNum, PointNumber, XorY) As Variant
+Private Function PointRange( _
+    ByVal Element As eElement, _
+    ByVal PointNumber As Long _
+        ) As Variant
     
     Dim sSeries As String
     Dim sSheetName As String
@@ -677,96 +644,45 @@ Private Function PointRange(ChartObj, SeriesNum, PointNumber, XorY) As Variant
     
     
     'exit if PointNumber is greater than the number of points existent
-    'in 'SeriesNum'
-    If PointNumber > SERIESFormulaDataPoints(CurrChart, CurrSeries) Then
+    'in 'CurrSeries'
+    If PointNumber > SERIESFormulaDataPoints() Then
         PointRange = "ERROR - BAD POINTNUMBER"
         Exit Function
     End If
     
     'exit if x or y values are not given as a range
-    If SERIESFormulaElementType(CurrChart, CurrSeries, XorY) <> "Range" Then
-        If XorY = 2 Then
+    Call SERIESFormulaElement
+    If CurrData(Element).Type <> "Range" Then
+        If Element = eElement.eXValues Then
             PointRange = "ERROR - XVALUES ARE NOT A RANGE"
-        Else
+        ElseIf Element = eElement.eYValues Then
             PointRange = "ERROR - VALUES ARE NOT A RANGE"
         End If
         Exit Function
     End If
     
     'store the 'Worksheet.Name'
-    sWorksheetName = SERIESFormulaDataSheet(CurrChart, CurrSeries, XorY, True)
+    sWorksheetName = CurrSheet(Element)
     
     'get the range string to parse for the address and store only the
     'range without the 'Worksheet.Name'
-    Set rng = Range(SERIESFormulaElement(CurrChart, CurrSeries, XorY))
+    Set rng = CurrData(Element).Range
     sSeries = rng.Address(RowAbsolute:=False, ColumnAbsolute:=False)
     
     'get an array with all cells of the SERIES
     arRange = SplitRangeToSingleCells(sSeries)
     
-    PointRange = sWorksheetName & arRange(PointNumber - 1)
+    PointRange = sWorksheetName & "!" & arRange(PointNumber - 1)
 
 End Function
 
 
 '==============================================================================
 
-'function that returns the
-Private Function ExtractWorksheetName( _
-    sRngAddress As String, _
-    Optional bWithExclMark As Boolean = False) _
-        As String
-    
-    Dim sRng As String
-    Dim iRightEnd As Long
-    Dim sWorkbookName As String
-    Dim sApostrophe As String
-    
-    'set 'sRng' to 'sRngAddress'
-    sRng = sRngAddress
-    
-    'test, if string contains more than one cell
-    'if so, truncate it to only one cell
-    If InStr(sRng, ",") > 0 Then
-        sRng = Left(sRng, InStr(sRng, ",") - 1)
-    End If
-    
-    'remove cell reference part so only the 'Workbook.Name' and
-    ''Worksheet.Name' remains
-    iRightEnd = InStr(sRng, "!")
-    sRng = Left(sRng, iRightEnd - 1)
-    
-    'check, if remaining string starts and ends with "'"
-    'if yes, remove them
-    'and store in 'sApostrophe' apostrophe
-    If Left(sRng, 1) = "'" Then
-        sRng = Mid(sRng, 2, Len(sRng) - 2)
-        sApostrophe = "'"
-    End If
-    
-    'check, if a 'Workbook.Name' is in the string and if so, extract it
-    If Left(sRng, 1) = "[" Then
-        iRightEnd = InStrRev(sRng, "]")
-        sWorkbookName = Mid(sRng, 2, iRightEnd - 2)
-        
-        'if 'sWorkbookName' is the same as the 'ActiveWorkbook.Name' then
-        'only return the 'Worksheet.Name' otherwise the total remaining string
-        If sWorkbookName = ActiveWorkbook.Name Then
-            sRng = Right(sRng, Len(sRng) - iRightEnd)
-        End If
-    End If
-    
-    If bWithExclMark = True Then
-        ExtractWorksheetName = sApostrophe & sRng & sApostrophe & "!"
-    Else
-        ExtractWorksheetName = sRng
-    End If
-
-End Function
-
-
 'function that returns an array where all cells of a range are separated
-Private Function SplitRangeToSingleCells(sRange As String) As Variant
+Private Function SplitRangeToSingleCells( _
+    ByVal sRange As String _
+        ) As Variant
     
     Dim arRange() As String
     Dim arRangeNew() As String
@@ -781,7 +697,7 @@ Private Function SplitRangeToSingleCells(sRange As String) As Variant
     
     
     'first split the 'Areas'
-    arRange = Split(sRange, ",")
+    arRange = Split(sRange, pcsSep)
     
     'initialize 'k'
     k = 0
@@ -852,9 +768,9 @@ End Function
 '' the string is not given as a range but directly as string
 'Extracts a number from a string containing text and numbers.
 Private Function ExtractNumber( _
-    sText As String, _
-    Optional Take_decimal As Boolean = False, _
-    Optional Take_negative As Boolean = False _
+    ByVal sText As String, _
+    Optional ByVal Take_decimal As Boolean = False, _
+    Optional ByVal Take_negative As Boolean = False _
         ) As Double
     
     Dim iCount As Long
@@ -897,13 +813,29 @@ Private Function ExtractNumber( _
 End Function
 
 
-' =============================================================================
-' http://www.excelforum.com/excel-programming/638861-vb-convert-column-letter-to-number.html
-' -----------------------------------------------------------------------------
+'==============================================================================
+'<http://www.excelforum.com/excel-programming/638861-vb-convert-column-letter-to-number.html>
 Private Function ColumnLetterToNumber(ByVal strLetter As String) As Long
     ColumnLetterToNumber = ThisWorkbook.Worksheets(1).Columns(strLetter).Column
 End Function
 
 Private Function ColumnNumberToLetter(ByVal lngNumber As Long) As String
     ColumnNumberToLetter = Split(ThisWorkbook.Worksheets(1).Columns(lngNumber).Address(ColumnAbsolute:=False), ":")(0)
+End Function
+
+
+'inspired by <https://stackoverflow.com/a/23357807/5776000>
+Private Function NoOfOccurrencesInString( _
+    ByVal Expression As String, _
+    ByVal ToSearch As String _
+        ) As Long
+
+    Dim iNoOfOccurrencesInString As Long
+    
+    
+    iNoOfOccurrencesInString = _
+            Len(Expression) - Len(Replace(Expression, ToSearch, vbNullString))
+    
+    NoOfOccurrencesInString = iNoOfOccurrencesInString
+
 End Function
