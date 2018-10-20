@@ -95,6 +95,7 @@ Private Const pcsInaccessible As String = "inaccessible"
 'string to return when a series number is invalid
 Private Const pcsBadSeriesNumber As String = "ERROR - BAD SERIES NUMBER"
 Private Const pcsSep As String = ","
+Private Const pcsApostrophe As String = "'"
 '==============================================================================
 
 
@@ -209,7 +210,7 @@ End Property
 'determine Worksheet, where the data of SERIES come from
 Public Property Get DataSheet(ByVal Element As Long) As String
     Call SERIESFormulaElement
-    DataSheet = CurrSheet(Element)
+    DataSheet = RemovePossibleApostrophes(CurrSheet(Element))
 End Property
 
 
@@ -609,13 +610,9 @@ Private Function GetApostrophe( _
     ByVal Element As eElement _
         ) As String
 
-    '==========================================================================
-    Const csApostrophe As String = "'"
-    '==========================================================================
-    
-    If Left(CurrData(Element).Value, 2) = "(" & csApostrophe Or _
-            Left(CurrData(Element).Value, 1) = csApostrophe Then
-        GetApostrophe = csApostrophe
+    If Left(CurrData(Element).Value, 2) = "(" & pcsApostrophe Or _
+            Left(CurrData(Element).Value, 1) = pcsApostrophe Then
+        GetApostrophe = pcsApostrophe
     Else
         GetApostrophe = vbNullString
     End If
@@ -678,6 +675,25 @@ End Function
 
 
 '==============================================================================
+Private Function RemovePossibleApostrophes( _
+    ByVal sWorksheet As String _
+        ) As String
+
+    Dim iLen As Long
+    Dim sClean As String
+    
+    
+    If Left(sWorksheet, 1) = pcsApostrophe Then
+        iLen = Len(sWorksheet)
+        sClean = Mid(sWorksheet, 2, iLen - 2)
+    Else
+        sClean = sWorksheet
+    End If
+    
+    RemovePossibleApostrophes = sClean
+
+End Function
+
 
 'function that returns an array where all cells of a range are separated
 Private Function SplitRangeToSingleCells( _
