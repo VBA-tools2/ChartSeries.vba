@@ -472,13 +472,22 @@ Private Sub GetSingleRangeYXValues( _
     ByRef YXValues As String _
 )
 
-    Dim iComma As Long
     Dim iExclMark As Long
-    
-    
     iExclMark = InStrRev(sCurrString, "'!")
     
-    If NoOfOccurrencesInString(sCurrString, pcsSep) = iMinCommata Then
+    Dim iTotalNoOfSeparators As Long
+    iTotalNoOfSeparators = NoOfOccurrencesInString(sCurrString, pcsSep)
+    
+    Dim iNoOfSeparatorsInPossibleStringTitle As Long
+    iNoOfSeparatorsInPossibleStringTitle = _
+            GetNoOfSeparatorsInPossibleStringTitle(sCurrString)
+    
+    Dim iNoOfSeparatorsWOTheOnesInPossibleStringTitle As Long
+    iNoOfSeparatorsWOTheOnesInPossibleStringTitle = _
+            iTotalNoOfSeparators - iNoOfSeparatorsInPossibleStringTitle
+    
+    Dim iComma As Long
+    If iNoOfSeparatorsWOTheOnesInPossibleStringTitle = iMinCommata Then
         iComma = InStrRev(sCurrString, pcsSep)
     Else
         iComma = InStrRev(sCurrString, ",'", iExclMark)
@@ -491,6 +500,48 @@ Private Sub GetSingleRangeYXValues( _
     )
 
 End Sub
+
+
+Private Function GetNoOfSeparatorsInPossibleStringTitle( _
+    ByVal sCurrString As String _
+        ) As Long
+
+    'no string title
+    If Left(sCurrString, 1) <> Chr(34) Then Exit Function
+    
+    Dim iNoOfQuotes As Long
+    iNoOfQuotes = NoOfOccurrencesInString(sCurrString, Chr(34))
+    
+    If iNoOfQuotes = 2 Then
+        Dim sTitleString As String
+        sTitleString = GetStringTitle(sCurrString)
+        
+        GetNoOfSeparatorsInPossibleStringTitle = _
+                NoOfOccurrencesInString(sTitleString, pcsSep)
+    Else
+        'then it gets complicated, because either the string title itself
+        'contains one or more quotes or the Worksheet.Name contains one or
+        'more quotes
+        '--> return a negative value and hope that it will work
+        GetNoOfSeparatorsInPossibleStringTitle = -1
+    End If
+
+End Function
+
+
+Private Function GetStringTitle( _
+    ByVal sCurrString As String _
+        ) As String
+
+    Dim iLastQuotePos As Long
+    iLastQuotePos = InStrRev(sCurrString, Chr(34))
+    
+    Dim sTitleString As String
+    sTitleString = Mid(sCurrString, 2, iLastQuotePos - 2)
+    
+    GetStringTitle = sTitleString
+
+End Function
 
 
 Private Sub GetSeriesName()
