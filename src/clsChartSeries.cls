@@ -391,7 +391,6 @@ Private Sub GetYXValues( _
 
     Dim LenTitleYXValues As Long
     Dim iMinCommata As Long
-    Dim iComma As Long
     Dim iOpeningBracket As Long
     Dim YXValues As String
     Dim sCurrString As String
@@ -419,12 +418,11 @@ Private Sub GetYXValues( _
                     LenTitleYXValues - iOpeningBracket - 1 _
             )
         Case ")"    'Multiple ranges
-            iOpeningBracket = InStrRev(sCurrString, "(")
-            sOneLess = Left(sCurrString, iOpeningBracket - 2)
-            YXValues = Mid( _
+            Call GetMultiRangeYXValues( _
+                    LenTitleYXValues, _
                     sCurrString, _
-                    iOpeningBracket, _
-                    LenTitleYXValues - iOpeningBracket + 1 _
+                    sOneLess, _
+                    YXValues _
             )
         Case pcsSep    'Empty
             sOneLess = Left(sCurrString, LenTitleYXValues - 1)
@@ -461,6 +459,25 @@ Private Sub GetYXValues( _
         pName = sOneLess
     End If
 
+End Sub
+
+
+Private Sub GetMultiRangeYXValues( _
+    ByVal LenTitleYXValues, _
+    ByVal sCurrString, _
+    ByRef sOneLess, _
+    ByRef YXValues _
+)
+
+    Dim iOpeningBracket As Long
+    iOpeningBracket = InStrRev(sCurrString, ",(")
+    
+    sOneLess = Left(sCurrString, iOpeningBracket - 1)
+    YXValues = Mid( _
+            sCurrString, _
+            iOpeningBracket + 2, _
+            LenTitleYXValues - iOpeningBracket - 2 _
+    )
 End Sub
 
 

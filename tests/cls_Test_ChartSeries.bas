@@ -1543,6 +1543,734 @@ End Sub
 
 '==============================================================================
 '@TestMethod
+Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameAllRanges_ReturnsTwo()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim iValue As Long
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Integer"
+    Const aExpectedValue As Long = 2
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .PlotOrderType
+        iValue = .PlotOrder
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, iValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesYValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$4:$C$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .ValuesType
+        If sType = "Range" Then
+            Set rng = .Values
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesXValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$A$4:$A$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .XValuesType
+        If sType = "Range" Then
+            Set rng = .XValues
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .XValues
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameAllRanges_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$3"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .SeriesNameType
+        If sType = "Range" Then
+            Set rng = .SeriesName
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .SeriesName
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'------------------------------------------------------------------------------
+'@TestMethod
+Public Sub clsChartSeriesYValues_RoundBracketsWithArrayValues_ReturnsArray()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 3
+    '==========================================================================
+    Const aExpectedType As String = "Array"
+    Const aExpectedValue As String = "1.5,2.5,3.5,4.5"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .ValuesType
+        If sType = "Range" Then
+            Set rng = .Values
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesSeriesName_RoundBracketsWithString_ReturnsString()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 3
+    '==========================================================================
+    Const aExpectedType As String = "String"
+    Const aExpectedValue As String = "just a test, with a comma"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .SeriesNameType
+        If sType = "Range" Then
+            Set rng = .SeriesName
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .SeriesName
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'------------------------------------------------------------------------------
+'@TestMethod
+Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameFourAreas_ReturnsTwo()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim iValue As Long
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaFourAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Integer"
+    Const aExpectedValue As Long = 2
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .PlotOrderType
+        iValue = .PlotOrder
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, iValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesYValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaFourAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$4,$C$5,$C$6,$C$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .ValuesType
+        If sType = "Range" Then
+            Set rng = .Values
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesXValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaFourAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$A$4,$A$5,$A$6,$A$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .XValuesType
+        If sType = "Range" Then
+            Set rng = .XValues
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .XValues
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameFourAreas_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaFourAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$3"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .SeriesNameType
+        If sType = "Range" Then
+            Set rng = .SeriesName
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .SeriesName
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'------------------------------------------------------------------------------
+'@TestMethod
+Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameTwoAreas_ReturnsTwo()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim iValue As Long
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaTwoAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Integer"
+    Const aExpectedValue As Long = 2
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .PlotOrderType
+        iValue = .PlotOrder
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, iValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesYValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaTwoAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$4,$C$5:$C$6,$C$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .ValuesType
+        If sType = "Range" Then
+            Set rng = .Values
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesXValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaTwoAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$A$4,$A$5:$A$6,$A$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .XValuesType
+        If sType = "Range" Then
+            Set rng = .XValues
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .XValues
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameTwoAreas_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
+    Set cha = wks.ChartObjects("chaTwoAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$3"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .SeriesNameType
+        If sType = "Range" Then
+            Set rng = .SeriesName
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .SeriesName
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'==============================================================================
+'@TestMethod
 Public Sub clsChartSeriesNoOfPointsY_NoSpaceWithNameAllRanges_ReturnsFour()
     On Error GoTo TestFail
     
@@ -1684,6 +2412,50 @@ Public Sub clsChartSeriesDataSheetX_NoSpaceWithNameAllRanges_ReturnsWks()
     
     '==========================================================================
     Set wks = tblNoSpace
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 2
+    Const cElement As Long = 2
+    '==========================================================================
+    Dim aExpected As String
+        aExpected = wks.Name
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sDataSheet = .DataSheet(cElement)
+    End With
+    
+    'Assert:
+    Assert.AreEqual aExpected, sDataSheet
+    
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesDataSheetX_RoundBracketsWithNameAllRanges_ReturnsWks()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sDataSheet As String
+    
+    '==========================================================================
+    Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     Const cElement As Long = 2
