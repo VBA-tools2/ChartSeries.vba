@@ -10,11 +10,6 @@ Attribute VB_Exposed = True
 
 '@Exposed
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'2do:
-'- instead of "unhiding" stuff, set '.PlotVisibleOnly = False'?
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 'This Class module provides an easy way to access the items in a
 'chart's SERIES formula. It can be exported and then imported into
 'any project
@@ -304,6 +299,12 @@ Private Function GetFullSeriesFormula() As Boolean
     pFullSeriesFormula = vbNullString
     
     With CurrChart
+        'in case some data are currently hidden and thus the formula can't be
+        'accessed, temporarily change '.PlotVisibleOnly' to 'False'
+        Dim bPlotVisible As Boolean
+        bPlotVisible = .PlotVisibleOnly
+        .PlotVisibleOnly = False
+        
         'because there is a possibility that an error is risen, take care of that
         'situation
         '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
@@ -334,13 +335,16 @@ Private Function GetFullSeriesFormula() As Boolean
                     End With
                 Next
                 pFullSeriesFormula = pcsInaccessible
-                Exit Function
+                GoTo Exit_Function
             End If
         End If
         On Error GoTo 0
     End With
     
     GetFullSeriesFormula = True
+    
+Exit_Function:
+    CurrChart.PlotVisibleOnly = bPlotVisible
 
 End Function
 
