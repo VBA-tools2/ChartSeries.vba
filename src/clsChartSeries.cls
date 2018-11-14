@@ -79,7 +79,8 @@ Private Enum eElement
 End Enum
 
 Private Type tElement
-    Type  As String      'type of element ("Empty", "String", "Integer", "Array", "Range")
+    Type  As String      'type of element ("Empty", "String", "Integer",
+                         '"Array", "Range", External Range")
     Value As Variant     'value of element
     Range As Range       'if type is "Range" then it stores the range
 End Type
@@ -238,13 +239,13 @@ End Sub
 'SERIES formula
 '
 'Element 1: Series Name
-'- Type:  Returns "Range", "Empty", or "String"
+'- Type:  Returns "Range", "External Range", "Empty", or "String"
 '- Value: Can be a range, a literal value, or nothing
 'Element 2: XValues.
-'- Type:  Returns "Range", "Empty", or "Array"
+'- Type:  Returns "Range", "External Range", "Empty", or "Array"
 '- Value: Can be a range reference (including a non-contiguous range), a literal array, or nothing
 'Element 3: Values.
-'- Type:  Returns "Range" or "Array"
+'- Type:  Returns "Range", "External Range", "Empty", or "Array"
 '- Value: Can be a range reference (including a non-contiguous range), or a literal array
 'Element 4: PlotOrder.
 '- Type:  Always returns "Integer"
@@ -449,8 +450,15 @@ Private Sub GetYXValues( _
             .Type = "Array"
             Set .Range = Nothing
         Else
-            .Type = "Range"
-            Set .Range = Range(YXValues)
+            'external ranges can crash Excel (at least when the file is not open)
+            'thus only set the range when it is an "internal" range
+            If IsRangeExternal(YXValues) Then
+                .Type = "External Range"
+                Set .Range = Nothing
+            Else
+                .Type = "Range"
+                Set .Range = Range(YXValues)
+            End If
         End If
         .Value = YXValues
     End With
@@ -565,6 +573,24 @@ Private Function GetStringTitle( _
 End Function
 
 
+Private Function IsRangeExternal( _
+    ByVal RangeString As String _
+        ) As Boolean
+    
+    IsRangeExternal = False
+    
+    If InStr(RangeString, "\") > 0 Then
+        Dim bIsExternal As Boolean
+        bIsExternal = True
+    ElseIf InStr(RangeString, "[") > 0 And InStr(RangeString, "]") > 0 Then
+        bIsExternal = True
+    End If
+    
+    IsRangeExternal = bIsExternal
+
+End Function
+
+
 Private Sub GetSeriesName()
 
     Dim LenName As Long
@@ -584,8 +610,15 @@ Private Sub GetSeriesName()
             Set .Range = Nothing
         Else
             SeriesName = pName
-            .Type = "Range"
-            Set .Range = Range(SeriesName)
+            'external ranges can crash Excel (at least when the file is not open)
+            'thus only set the range when it is an "internal" range
+            If IsRangeExternal(SeriesName) Then
+                .Type = "External Range"
+                Set .Range = Nothing
+            Else
+                .Type = "Range"
+                Set .Range = Range(SeriesName)
+            End If
         End If
         .Value = SeriesName
     End With
@@ -648,24 +681,32 @@ Private Function GetCurrWorksheet( _
     ByVal sChartWkb As String _
         ) As String
 
-    Dim rng As Range
+    With CurrData(Element)
+        If .Range Is Nothing Then
+            GetCurrWorksheet = "External Range"
+            Exit Function
+        Else
+            Dim rng As Range
+            Set rng = .Range.Areas(1)
+        End If
+    End With
+    
     Dim wks As Worksheet
-    Dim wkb As Workbook
-    Dim sWks As String
-    Dim sWkb As String
-    Dim sWorksheet As String
-    Dim sApostrophe As String
-    
-    
-    Set rng = CurrData(Element).Range.Areas(1)
     Set wks = rng.Parent
+    
+    Dim wkb As Workbook
     Set wkb = wks.Parent
     
+    Dim sWks As String
     sWks = wks.Name
+    
+    Dim sWkb As String
     sWkb = wkb.Name
     
+    Dim sApostrophe As String
     sApostrophe = GetApostrophe(Element)
     
+    Dim sWorksheet As String
     sWorksheet = sApostrophe
     
     If sWkb <> sChartWkb Then
