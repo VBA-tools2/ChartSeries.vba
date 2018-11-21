@@ -2216,6 +2216,209 @@ TestFail:
 End Sub
 
 
+'==============================================================================
+'@TestMethod
+Public Sub clsChartSeriesBubbleSizes_NoSpaceWithNameAllRangesBubblePlot_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblNoSpace
+    Set cha = wks.ChartObjects("chaOneAreaBubble")
+    Const ciSeries As Long = 1
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$C$4:$C$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .BubbleSizesType
+        If sType = "Range" Then
+            Set rng = .BubbleSizes
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameAllRangesBubblePlot_ReturnsOne()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim iValue As Long
+    
+    '==========================================================================
+    Set wks = tblNoSpace
+    Set cha = wks.ChartObjects("chaOneAreaBubble")
+    Const ciSeries As Long = 1
+    '==========================================================================
+    Const aExpectedType As String = "Integer"
+    Const aExpectedValue As Long = 1
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .PlotOrderType
+        iValue = .PlotOrder
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, iValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'------------------------------------------------------------------------------
+'@TestMethod
+Public Sub clsChartSeriesBubbleSizes_SpaceCommaWithNameAllRangesBubblePlot_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblSpaceComma
+    Set cha = wks.ChartObjects("chaTwoAreasBubble")
+    Const ciSeries As Long = 1
+    '==========================================================================
+    Const aExpectedType As String = "Range"
+    Const aExpectedValue As String = "$B$4,$B$5:$B$6,$B$7"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .BubbleSizesType
+        If sType = "Range" Then
+            Set rng = .BubbleSizes
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesPlotOrder_SpaceCommaWithNameAllRangesBubblePlot_ReturnsOne()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim iValue As Long
+    
+    '==========================================================================
+    Set wks = tblSpaceComma
+    Set cha = wks.ChartObjects("chaTwoAreasBubble")
+    Const ciSeries As Long = 1
+    '==========================================================================
+    Const aExpectedType As String = "Integer"
+    Const aExpectedValue As Long = 1
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .PlotOrderType
+        iValue = .PlotOrder
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, iValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'==============================================================================
 '@TestMethod
 Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail

@@ -32,11 +32,13 @@ Attribute VB_Exposed = True
 'XValuesType (read-only)
 'ValuesType (read-only)
 'PlotOrderType (read-only)
+'BubbleSizesType (read-only)
 
 'SeriesName (read/write)
 'XValues (read/write)
 'Values (read/write)
 'PlotOrder (read/write)
+'BubbleSizes (read/write)
 
 'DataSheet (read-only)
 'NoOfPoints (read-only)
@@ -63,6 +65,7 @@ Private CurrSeries As Long
 Private pOldFullSeriesFormula As String
 Private pFullSeriesFormula As String
 Private pSeriesFormula As String
+Private pNameXValuesValuesPlotOrder As String
 Private pNameXValuesValues As String
 Private pNameXValues As String
 Private pName As String
@@ -75,7 +78,8 @@ Private Enum eElement
     eXValues
     eYValues
     ePlotOrder
-    [_Last] = eElement.ePlotOrder
+    eBubbleSizes
+    [_Last] = eElement.eBubbleSizes
 End Enum
 
 Private Type tElement
@@ -203,6 +207,28 @@ Public Property Let PlotOrder(ByVal PltOrder As Long)
 End Property
 
 
+Public Property Get BubbleSizesType() As String
+    Call SERIESFormulaElement
+    BubbleSizesType = CurrData(eElement.eBubbleSizes).Type
+End Property
+
+
+Public Property Get BubbleSizes() As Variant
+    Call SERIESFormulaElement
+    With CurrData(eElement.eBubbleSizes)
+        If .Type = "Range" Then
+            Set BubbleSizes = .Range
+        Else
+            BubbleSizes = .Value
+        End If
+    End With
+End Property
+
+Public Property Let BubbleSizes(ByVal Vals As Variant)
+    CurrChart.SeriesCollection(CurrSeries).Values = Vals
+End Property
+
+
 'determine Worksheet, where the data of SERIES come from
 Public Property Get DataSheet(ByVal Element As Long) As String
     Call SERIESFormulaElement
@@ -229,7 +255,7 @@ End Property
 '==============================================================================
 Private Sub Class_Initialize()
     ReDim CurrData(eElement.[_First] To eElement.[_Last])
-    ReDim CurrSheet(eElement.eName To eElement.eYValues)
+    ReDim CurrSheet(eElement.[_First] To eElement.[_Last])
 End Sub
 
 
@@ -250,6 +276,9 @@ End Sub
 'Element 4: PlotOrder.
 '- Type:  Always returns "Integer"
 '- Value: Must be an integer
+'Element 5: BubbleSizes (for Bubble plots (only)).
+'- Type:  Returns "Range", "External Range", or "Array"
+'- Value: Can be a range reference (including a non-contiguous range), or a literal array
 Private Sub SERIESFormulaElement()
 
     If Not IsCurrSeriesValid Then Exit Sub
@@ -257,9 +286,11 @@ Private Sub SERIESFormulaElement()
     
     If pOldFullSeriesFormula <> pFullSeriesFormula Then
         Call GetSeriesFormula
+        
+        Call GetBubbleSizes
         Call GetPlotOrder
-        Call GetYXValues(False)
-        Call GetYXValues(True)
+        Call GetValues(eElement.eYValues)
+        Call GetValues(eElement.eXValues)
         Call GetSeriesName
         
         Call GetWorksheets
@@ -370,23 +401,37 @@ Private Sub GetSeriesFormula()
 End Sub
 
 
+Private Sub GetBubbleSizes()
+    
+    With CurrChart
+        Select Case .ChartType
+            Case xlBubble, xlBubble3DEffect
+                Call GetValues(eElement.eBubbleSizes)
+            Case Else
+                pNameXValuesValuesPlotOrder = pSeriesFormula
+        End Select
+    End With
+    
+End Sub
+
+
 Private Sub GetPlotOrder()
 
     Dim LastComma As Long
-    LastComma = InStrRev(pSeriesFormula, pcsSep)
+    LastComma = InStrRev(pNameXValuesValuesPlotOrder, pcsSep)
     
-    pNameXValuesValues = Left(pSeriesFormula, LastComma - 1)
+    pNameXValuesValues = Left(pNameXValuesValuesPlotOrder, LastComma - 1)
     With CurrData(eElement.ePlotOrder)
         .Type = "Integer"
-        .Value = Mid(pSeriesFormula, LastComma + 1)
+        .Value = Mid(pNameXValuesValuesPlotOrder, LastComma + 1)
         Set .Range = Nothing
     End With
 
 End Sub
 
 
-Private Sub GetYXValues( _
-    ByVal YValues_or_XValues As Boolean _
+Private Sub GetValues( _
+    ByVal Element As eElement _
 )
 
     Dim LenTitleYXValues As Long
@@ -398,10 +443,13 @@ Private Sub GetYXValues( _
     Dim DummyElement As tElement
     
     
-    If YValues_or_XValues = False Then
+    If Element = eElement.eBubbleSizes Then
+        sCurrString = pSeriesFormula
+        iMinCommata = 4
+    ElseIf Element = eElement.eYValues Then
         sCurrString = pNameXValuesValues
         iMinCommata = 2
-    Else
+    ElseIf Element = eElement.eXValues Then
         sCurrString = pNameXValues
         iMinCommata = 1
     End If
@@ -458,10 +506,13 @@ Private Sub GetYXValues( _
         .Value = YXValues
     End With
     
-    If YValues_or_XValues = False Then
+    If Element = eElement.eBubbleSizes Then
+        CurrData(eElement.eBubbleSizes) = DummyElement
+        pNameXValuesValuesPlotOrder = sOneLess
+    ElseIf Element = eElement.eYValues Then
         CurrData(eElement.eYValues) = DummyElement
         pNameXValues = sOneLess
-    Else
+    ElseIf Element = eElement.eXValues Then
         CurrData(eElement.eXValues) = DummyElement
         pName = sOneLess
     End If
