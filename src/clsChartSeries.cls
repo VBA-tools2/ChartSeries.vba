@@ -270,12 +270,10 @@ End Sub
 
 Private Function IsCurrSeriesValid() As Boolean
 
-    Dim i As eElement
-    
-    
     IsCurrSeriesValid = False
     
     If CurrSeries < 1 Or CurrSeries > CurrChart.SeriesCollection.Count Then
+        Dim i As eElement
         For i = eElement.eName To eElement.eYValues
             With CurrData(i)
                 .Type = pcsBadSeriesNumber
@@ -291,10 +289,6 @@ End Function
 
 Private Function GetFullSeriesFormula() As Boolean
 
-    Dim iChartType As XlChartType
-    Dim i As eElement
-    
-    
     GetFullSeriesFormula = False
     pOldFullSeriesFormula = pFullSeriesFormula
     pFullSeriesFormula = vbNullString
@@ -316,6 +310,7 @@ Private Function GetFullSeriesFormula() As Boolean
             'reset error number
             Err.Number = 0
             'store current 'ChartType' of series ...
+            Dim iChartType As XlChartType
             iChartType = .SeriesCollection(CurrSeries).ChartType
             '... and change it temporarily to a column chart
             .SeriesCollection(CurrSeries).ChartType = xlColumnClustered
@@ -329,6 +324,7 @@ Private Function GetFullSeriesFormula() As Boolean
             'if still an error is returned, the formula is inaccessible
             '(this e.g. can be the case if there are #REF errors inside the given ranges)
             If Err.Number <> 0 Then
+                Dim i As eElement
                 For i = eElement.eName To eElement.eYValues
                     With CurrData(i)
                         .Type = pcsInaccessible
@@ -352,16 +348,16 @@ End Function
 
 Private Sub GetSeriesFormula()
 
-    Dim iLenPrefix As Long
-    Dim iLenSeriesFormula As Long
-    
     '==========================================================================
     Const csPrefix As String = "=SERIES("
     Const ciSuffix As Long = 1
     '==========================================================================
     
     
+    Dim iLenPrefix As Long
     iLenPrefix = Len(csPrefix)
+    
+    Dim iLenSeriesFormula As Long
     iLenSeriesFormula = Len(pFullSeriesFormula)
     
     pSeriesFormula = _
@@ -377,9 +373,8 @@ End Sub
 Private Sub GetPlotOrder()
 
     Dim LastComma As Long
-    
-    
     LastComma = InStrRev(pSeriesFormula, pcsSep)
+    
     pNameXValuesValues = Left(pSeriesFormula, LastComma - 1)
     With CurrData(eElement.ePlotOrder)
         .Type = "Integer"
