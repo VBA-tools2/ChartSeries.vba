@@ -138,7 +138,7 @@ End Property
 '2do:
 'With this only a string can be set.
 'How can a range be set?
-Public Property Let SeriesName(ByVal SName)
+Public Property Let SeriesName(ByVal SName As Variant)
     CurrChart.SeriesCollection(CurrSeries).Name = SName
 End Property
 
@@ -160,7 +160,7 @@ Public Property Get XValues() As Variant
     End With
 End Property
 
-Public Property Let XValues(XVals)
+Public Property Let XValues(ByVal XVals As Variant)
     CurrChart.SeriesCollection(CurrSeries).XValues = XVals
 End Property
 
@@ -182,7 +182,7 @@ Public Property Get Values() As Variant
     End With
 End Property
 
-Public Property Let Values(Vals)
+Public Property Let Values(ByVal Vals As Variant)
     CurrChart.SeriesCollection(CurrSeries).Values = Vals
 End Property
 
@@ -475,10 +475,10 @@ End Sub
 
 
 Private Sub GetMultiRangeYXValues( _
-    ByVal LenTitleYXValues, _
-    ByVal sCurrString, _
-    ByRef sOneLess, _
-    ByRef YXValues _
+    ByVal LenTitleYXValues As Long, _
+    ByVal sCurrString As String, _
+    ByRef sOneLess As String, _
+    ByRef YXValues As String _
 )
 
     Dim iOpeningBracket As Long
