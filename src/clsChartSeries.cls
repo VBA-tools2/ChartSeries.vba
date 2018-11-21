@@ -28,16 +28,16 @@ Attribute VB_Exposed = True
 'Chart (read/write)
 'ChartSeries (read/write)
 
+'SeriesNameType (read-only)
+'XValuesType (read-only)
+'ValuesType (read-only)
+'PlotOrderType (read-only)
+
 'SeriesName (read/write)
 'XValues (read/write)
 'Values (read/write)
 'PlotOrder (read/write)
 
-'SeriesNameType (read-only)
-'XValuesType (read-only)
-'ValuesType (read-only)
-'PlotOrderType (read-only)
-'
 'DataSheet (read-only)
 'NoOfPoints (read-only)
 'PointSourceRange (read-only)
@@ -118,6 +118,12 @@ Public Property Let ChartSeries(ByVal SeriesNum As Long)
 End Property
 
 
+Public Property Get SeriesNameType() As String
+    Call SERIESFormulaElement
+    SeriesNameType = CurrData(eElement.eName).Type
+End Property
+
+
 Public Property Get SeriesName() As Variant
     Call SERIESFormulaElement
     With CurrData(eElement.eName)
@@ -137,9 +143,9 @@ Public Property Let SeriesName(ByVal SName)
 End Property
 
 
-Public Property Get SeriesNameType() As String
+Public Property Get XValuesType() As String
     Call SERIESFormulaElement
-    SeriesNameType = CurrData(eElement.eName).Type
+    XValuesType = CurrData(eElement.eXValues).Type
 End Property
 
 
@@ -159,9 +165,9 @@ Public Property Let XValues(XVals)
 End Property
 
 
-Public Property Get XValuesType() As String
+Public Property Get ValuesType() As String
     Call SERIESFormulaElement
-    XValuesType = CurrData(eElement.eXValues).Type
+    ValuesType = CurrData(eElement.eYValues).Type
 End Property
 
 
@@ -181,9 +187,9 @@ Public Property Let Values(Vals)
 End Property
 
 
-Public Property Get ValuesType() As String
+Public Property Get PlotOrderType() As String
     Call SERIESFormulaElement
-    ValuesType = CurrData(eElement.eYValues).Type
+    PlotOrderType = CurrData(eElement.ePlotOrder).Type
 End Property
 
 
@@ -194,12 +200,6 @@ End Property
 
 Public Property Let PlotOrder(ByVal PltOrder As Long)
     CurrChart.SeriesCollection(CurrSeries).PlotOrder = PltOrder
-End Property
-
-
-Public Property Get PlotOrderType() As String
-    Call SERIESFormulaElement
-    PlotOrderType = CurrData(eElement.ePlotOrder).Type
 End Property
 
 
