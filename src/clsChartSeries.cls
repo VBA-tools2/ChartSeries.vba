@@ -225,6 +225,7 @@ End Property
 
 Public Property Let PlotOrder(ByVal PltOrder As Long)
     CurrChart.SeriesCollection(CurrSeries).PlotOrder = PltOrder
+    CurrSeries = PltOrder
 End Property
 
 
