@@ -1,4 +1,4 @@
-Attribute VB_Name = "cls_Test_ChartSeries"
+Attribute VB_Name = "cls_Test_ChartSeries_Read"
 
 Option Explicit
 Option Private Module
@@ -36,7 +36,7 @@ End Sub
 
 
 '==============================================================================
-'unit tests for 'clsChartSeries'
+'unit tests for 'clsChartSeries' -- read stuff
 '==============================================================================
 
 '@TestMethod
@@ -240,6 +240,59 @@ End Sub
 
 
 '==============================================================================
+'@TestMethod
+Public Sub clsChartSeriesBubbleSizes_NoBubbleChart_ReturnsError()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblNoSpace
+    Set cha = wks.ChartObjects("chaOneArea")
+    Const ciSeries As Long = 1
+    '==========================================================================
+    Const aExpectedType As String = "Error - No Bubble Chart"
+    Const aExpectedValue As String = "Error - No Bubble Chart"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .BubbleSizesType
+        If sType = "Range" Then
+            Set rng = .SeriesName
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .BubbleSizes
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
 '@TestMethod
 Public Sub clsChartSeriesSeriesName_InvalidSeriesNumber_ReturnsError()
     On Error GoTo TestFail
