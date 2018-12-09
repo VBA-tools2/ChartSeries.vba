@@ -174,7 +174,13 @@ Public Property Get XValues() As Variant
 End Property
 
 Public Property Let XValues(ByVal XVals As Variant)
-    CurrChart.SeriesCollection(CurrSeries).XValues = XVals
+    If TypeName(XVals) = "Range" Then
+        Dim sRange As String
+        sRange = GetRangeAddress(XVals)
+        CurrChart.SeriesCollection(CurrSeries).XValues = sRange
+    Else
+        CurrChart.SeriesCollection(CurrSeries).XValues = XVals
+    End If
 End Property
 
 
@@ -196,7 +202,13 @@ Public Property Get Values() As Variant
 End Property
 
 Public Property Let Values(ByVal Vals As Variant)
-    CurrChart.SeriesCollection(CurrSeries).Values = Vals
+    If TypeName(Vals) = "Range" Then
+        Dim sRange As String
+        sRange = GetRangeAddress(Vals)
+        CurrChart.SeriesCollection(CurrSeries).Values = sRange
+    Else
+        CurrChart.SeriesCollection(CurrSeries).Values = Vals
+    End If
 End Property
 
 
@@ -951,6 +963,51 @@ Private Function SplitRangeToSingleCells( _
     
     SplitRangeToSingleCells = arRangeNew
     
+End Function
+
+
+Private Function GetRangeAddress( _
+    ByVal Vals As Variant _
+        ) As String
+    
+    Dim iNoOfRangeAreas As Long
+    iNoOfRangeAreas = Vals.Areas.Count
+    
+    If iNoOfRangeAreas = 1 Then
+        Dim sRange As String
+        sRange = "=" & CombineWorksheetAndRange(Vals)
+    Else
+        sRange = "=(" & CombineWorksheetAndRange(Vals.Areas(1))
+        
+        Dim i As Long
+        For i = 2 To iNoOfRangeAreas
+            sRange = sRange & pcsSep & CombineWorksheetAndRange(Vals.Areas(i))
+        Next
+        
+        sRange = sRange & ")"
+    End If
+    
+    GetRangeAddress = sRange
+    
+End Function
+
+
+Private Function CombineWorksheetAndRange( _
+    ByVal Vals As Variant _
+        ) As String
+
+    Dim wks As Worksheet
+    Set wks = Vals.Parent
+    
+    Dim sWks As String
+    sWks = wks.Name
+    
+    Dim sRange As String
+    sRange = Vals.Address(False, False)
+    
+    CombineWorksheetAndRange = _
+            pcsApostrophe & sWks & pcsApostrophe & "!" & sRange
+
 End Function
 
 
