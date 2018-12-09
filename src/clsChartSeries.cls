@@ -99,7 +99,12 @@ Private Const pcsApostrophe As String = "'"
 '==============================================================================
 
 
-Public Property Let Formula(ByVal sFormula As String)
+Public Property Get FullFormula() As String
+    Call SERIESFormulaElement
+    FullFormula = pFullSeriesFormula
+End Property
+
+Public Property Let FullFormula(ByVal sFormula As String)
     CurrChart.SeriesCollection(CurrSeries).Formula = sFormula
 End Property
 
