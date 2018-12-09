@@ -84,7 +84,7 @@ End Enum
 
 Private Type tElement
     Type  As String      'type of element ("Empty", "String", "Integer",
-                         '"Array", "Range", External Range")
+                         '"Array", "Named Range", "Range", External Range")
     Value As Variant     'value of element
     Range As Range       'if type is "Range" then it stores the range
 End Type
@@ -527,7 +527,11 @@ Private Sub GetValues( _
                 .Type = "External Range"
                 Set .Range = Nothing
             Else
-                .Type = "Range"
+                If IsNamedRange(YXValues) Then
+                    .Type = "Named Range"
+                Else
+                    .Type = "Range"
+                End If
                 Set .Range = Range(YXValues)
             End If
         End If
@@ -661,6 +665,31 @@ Private Function IsRangeExternal( _
     End If
     
     IsRangeExternal = bIsExternal
+
+End Function
+
+
+Private Function IsNamedRange( _
+    ByVal YXValues As String _
+        ) As Boolean
+
+    If InStr(YXValues, "$") > 0 Then Exit Function
+    
+    Dim rng As Range
+    Set rng = Range(YXValues)
+    
+    Dim wks As Worksheet
+    On Error Resume Next
+    Set wks = rng.Parent
+    
+    If wks Is Nothing Then
+        Dim wkb As Workbook
+        Set wkb = rng.Parent
+    Else
+        Set wkb = wks.Parent
+    End If
+    
+    IsNamedRange = RangeExists(wkb, YXValues)
 
 End Function
 

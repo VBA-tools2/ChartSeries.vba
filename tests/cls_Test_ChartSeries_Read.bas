@@ -2271,6 +2271,113 @@ End Sub
 
 '==============================================================================
 '@TestMethod
+Public Sub clsChartSeriesYValues_NamedRange_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblWithSpace
+    Set cha = wks.ChartObjects("chaFourAreas")
+    Const ciSeries As Long = 3
+    '==========================================================================
+    Const aExpectedType As String = "Named Range"
+    Const aExpectedValue As String = "'Space, Comma'!wks_y2"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .ValuesType
+        If sType = "Range" Then
+            Set rng = .Values
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod
+Public Sub clsChartSeriesXValues_NamedRange_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblWithSpace
+    Set cha = wks.ChartObjects("chaFourAreas")
+    Const ciSeries As Long = 3
+    '==========================================================================
+    Const aExpectedType As String = "Named Range"
+    Const aExpectedValue As String = "cls_Test_ChartSeries.xlsm!wkb_y1"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .XValuesType
+        If sType = "Range" Then
+            Set rng = .XValues
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .XValues
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'==============================================================================
+'@TestMethod
 Public Sub clsChartSeriesBubbleSizes_NoSpaceWithNameAllRangesBubblePlot_ReturnsAddress()
     On Error GoTo TestFail
     
