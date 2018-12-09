@@ -94,6 +94,10 @@ End Type
 Private Const pcsInaccessible As String = "inaccessible"
 'string to return when a series number is invalid
 Private Const pcsBadSeriesNumber As String = "ERROR - BAD SERIES NUMBER"
+'string to return if 'BubbleSizes' or 'BubbleSizesType' is asked for a
+'non-bubble chart
+Private Const pcsBadBubbleChart As String = "Error - No Bubble Chart"
+
 Private Const pcsSep As String = ","
 Private Const pcsApostrophe As String = "'"
 '==============================================================================
@@ -414,6 +418,12 @@ Private Sub GetBubbleSizes()
                 Call GetValues(eElement.eBubbleSizes)
             Case Else
                 pNameXValuesValuesPlotOrder = pSeriesFormula
+                
+                With CurrData(eElement.eBubbleSizes)
+                    Set .Range = Nothing
+                    .Type = pcsBadBubbleChart
+                    .Value = pcsBadBubbleChart
+                End With
         End Select
     End With
     
@@ -695,6 +705,8 @@ Private Sub GetWorksheets()
                     CurrSheet(Element) = "ERROR - XVALUES ARE NOT A RANGE"
                 Case eElement.eYValues
                     CurrSheet(Element) = "ERROR - VALUES ARE NOT A RANGE"
+                Case eElement.eBubbleSizes
+                    CurrSheet(Element) = pcsBadBubbleChart
             End Select
         Else
             CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
