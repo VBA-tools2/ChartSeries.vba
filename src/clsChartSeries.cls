@@ -533,7 +533,7 @@ Private Sub GetValues( _
                 Else
                     .Type = "Range"
                 End If
-                Set .Range = Range(YXValues)
+                Set .Range = SetRange(YXValues)
             End If
         End If
         .Value = YXValues
@@ -695,6 +695,107 @@ Private Function IsNamedRange( _
 End Function
 
 
+Private Function SetRange( _
+    ByVal YXValues As String _
+        ) As Range
+
+    If Len(YXValues) <= 255 Then
+        Set SetRange = Range(YXValues)
+    Else
+        Set SetRange = SetLongRange(YXValues)
+    End If
+    
+End Function
+
+
+Private Function SetLongRange( _
+    ByVal YXValues As String _
+        ) As Range
+
+    Dim sWks As String
+    sWks = ExtractWorksheetPartOfFullRange(YXValues)
+    
+    Dim wks As Worksheet
+    Set wks = SetWorksheet(sWks)
+    
+    Dim sRng As String
+    sRng = ExtractRange( _
+            YXValues, _
+            sWks _
+    )
+    
+    Set SetLongRange = wks.Range(sRng)
+    
+End Function
+
+
+Private Function ExtractWorksheetPartOfFullRange( _
+    ByVal YXValues As String _
+        ) As String
+    
+    Dim sApostrophe As String
+    If Left$(YXValues, 1) = pcsApostrophe Then
+        sApostrophe = pcsApostrophe
+    End If
+    
+    Dim sSeparator As String
+    sSeparator = sApostrophe & "!$"
+    
+    Dim iSeparator As Long
+    iSeparator = InStr(YXValues, sSeparator)
+    
+    If iSeparator = 0 Then Exit Function
+    
+    Dim sWorksheet As String
+    sWorksheet = Left$(YXValues, iSeparator)
+    
+    ExtractWorksheetPartOfFullRange = sWorksheet
+    
+End Function
+
+
+Private Function SetWorksheet( _
+    ByVal sWks As String _
+        ) As Worksheet
+    
+    If Left$(sWks, 1) = pcsApostrophe Then
+        Dim iLenWksName As Long
+        iLenWksName = Len(sWks)
+        
+        Dim sWorksheet As String
+        sWorksheet = Mid$(sWks, 2, iLenWksName - 2)
+    End If
+    
+    Dim wkb As Workbook
+    Set wkb = ActiveWorkbook
+    
+    Dim wks As Worksheet
+    Set wks = wkb.Worksheets(sWorksheet)
+    
+    Set SetWorksheet = wks
+
+End Function
+
+
+Private Function ExtractRange( _
+    ByVal YXValues As String, _
+    ByVal sWks As String _
+        ) As String
+    
+    Dim sWorksheet As String
+    sWorksheet = sWks & "!"
+    
+    Dim sRngWithoutWksNames As String
+    sRngWithoutWksNames = Replace(YXValues, sWorksheet, vbNullString)
+    
+    Dim sRng As String
+    sRng = Replace(sRngWithoutWksNames, "$", vbNullString)
+    
+    ExtractRange = sRng
+    
+End Function
+
+
 Private Sub GetSeriesName()
 
     Dim LenName As Long
@@ -815,9 +916,13 @@ Private Function GetCurrWorksheet( _
     Dim sWorksheet As String
     sWorksheet = sApostrophe
     
+'---
+'2do: could be superfluous, because external ranges are not possible here
+'     any more
     If sWkb <> sChartWkb Then
         sWorksheet = sWorksheet & "[" & sWkb & "]"
     End If
+'---
     
     sWorksheet = sWorksheet & sWks & sApostrophe
     GetCurrWorksheet = sWorksheet
