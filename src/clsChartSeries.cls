@@ -414,7 +414,7 @@ Private Sub GetSeriesFormula()
     iLenSeriesFormula = Len(pFullSeriesFormula)
     
     pSeriesFormula = _
-            Mid( _
+            Mid$( _
                     pFullSeriesFormula, _
                     iLenPrefix + 1, _
                     iLenSeriesFormula - iLenPrefix - ciSuffix _
@@ -448,10 +448,10 @@ Private Sub GetPlotOrder()
     Dim LastComma As Long
     LastComma = InStrRev(pNameXValuesValuesPlotOrder, pcsSep)
     
-    pNameXValuesValues = Left(pNameXValuesValuesPlotOrder, LastComma - 1)
+    pNameXValuesValues = Left$(pNameXValuesValuesPlotOrder, LastComma - 1)
     With CurrData(eElement.ePlotOrder)
         .Type = "Integer"
-        .Value = Mid(pNameXValuesValuesPlotOrder, LastComma + 1)
+        .Value = Mid$(pNameXValuesValuesPlotOrder, LastComma + 1)
         Set .Range = Nothing
     End With
 
@@ -479,16 +479,16 @@ Private Sub GetValues( _
     Dim LenTitleYXValues As Long
     LenTitleYXValues = Len(sCurrString)
     
-    Select Case Right(sCurrString, 1)
+    Select Case Right$(sCurrString, 1)
         Case "}"    'Literal Array
             Dim iOpeningBracket As Long
             iOpeningBracket = InStrRev(sCurrString, "{")
             
             Dim sOneLess As String
-            sOneLess = Left(sCurrString, iOpeningBracket - 2)
+            sOneLess = Left$(sCurrString, iOpeningBracket - 2)
             
             Dim YXValues As String
-            YXValues = Mid( _
+            YXValues = Mid$( _
                     sCurrString, _
                     iOpeningBracket + 1, _
                     LenTitleYXValues - iOpeningBracket - 1 _
@@ -501,7 +501,7 @@ Private Sub GetValues( _
                     YXValues _
             )
         Case pcsSep    'Empty
-            sOneLess = Left(sCurrString, LenTitleYXValues - 1)
+            sOneLess = Left$(sCurrString, LenTitleYXValues - 1)
             YXValues = vbNullString
         Case Else   'A single range
             Call GetSingleRangeYXValues( _
@@ -518,7 +518,7 @@ Private Sub GetValues( _
         If Len(YXValues) = 0 Then
             .Type = "Empty"
             Set .Range = Nothing
-        ElseIf Right(sCurrString, 1) = "}" Then
+        ElseIf Right$(sCurrString, 1) = "}" Then
             .Type = "Array"
             Set .Range = Nothing
         Else
@@ -563,8 +563,8 @@ Private Sub GetMultiRangeYXValues( _
     Dim iOpeningBracket As Long
     iOpeningBracket = InStrRev(sCurrString, ",(")
     
-    sOneLess = Left(sCurrString, iOpeningBracket - 1)
-    YXValues = Mid( _
+    sOneLess = Left$(sCurrString, iOpeningBracket - 1)
+    YXValues = Mid$( _
             sCurrString, _
             iOpeningBracket + 2, _
             LenTitleYXValues - iOpeningBracket - 2 _
@@ -601,8 +601,8 @@ Private Sub GetSingleRangeYXValues( _
         iComma = InStrRev(sCurrString, ",'", iExclMark)
     End If
     
-    sOneLess = Left(sCurrString, iComma - 1)
-    YXValues = Right( _
+    sOneLess = Left$(sCurrString, iComma - 1)
+    YXValues = Right$( _
             sCurrString, _
             LenTitleYXValues - iComma _
     )
@@ -615,10 +615,10 @@ Private Function GetNoOfSeparatorsInPossibleStringTitle( _
         ) As Long
 
     'no string title
-    If Left(sCurrString, 1) <> Chr(34) Then Exit Function
+    If Left$(sCurrString, 1) <> Chr$(34) Then Exit Function
     
     Dim iNoOfQuotes As Long
-    iNoOfQuotes = NoOfOccurrencesInString(sCurrString, Chr(34))
+    iNoOfQuotes = NoOfOccurrencesInString(sCurrString, Chr$(34))
     
     If iNoOfQuotes = 2 Then
         Dim sTitleString As String
@@ -642,10 +642,10 @@ Private Function GetStringTitle( _
         ) As String
 
     Dim iLastQuotePos As Long
-    iLastQuotePos = InStrRev(sCurrString, Chr(34))
+    iLastQuotePos = InStrRev(sCurrString, Chr$(34))
     
     Dim sTitleString As String
-    sTitleString = Mid(sCurrString, 2, iLastQuotePos - 2)
+    sTitleString = Mid$(sCurrString, 2, iLastQuotePos - 2)
     
     GetStringTitle = sTitleString
 
@@ -708,8 +708,8 @@ Private Sub GetSeriesName()
             SeriesName = vbNullString
             .Type = "Empty"
             Set .Range = Nothing
-        ElseIf Left(pName, 1) = Chr(34) Then
-            SeriesName = Mid(pName, 2, LenName - 2)
+        ElseIf Left$(pName, 1) = Chr$(34) Then
+            SeriesName = Mid$(pName, 2, LenName - 2)
             .Type = "String"
             Set .Range = Nothing
         Else
@@ -829,8 +829,8 @@ Private Function GetApostrophe( _
     ByVal Element As eElement _
         ) As String
 
-    If Left(CurrData(Element).Value, 2) = "(" & pcsApostrophe Or _
-            Left(CurrData(Element).Value, 1) = pcsApostrophe Then
+    If Left$(CurrData(Element).Value, 2) = "(" & pcsApostrophe Or _
+            Left$(CurrData(Element).Value, 1) = pcsApostrophe Then
         GetApostrophe = pcsApostrophe
     Else
         GetApostrophe = vbNullString
@@ -902,9 +902,9 @@ Private Function RemovePossibleApostrophes( _
     Dim sClean As String
     
     
-    If Left(sWorksheet, 1) = pcsApostrophe Then
+    If Left$(sWorksheet, 1) = pcsApostrophe Then
         iLen = Len(sWorksheet)
-        sClean = Mid(sWorksheet, 2, iLen - 2)
+        sClean = Mid$(sWorksheet, 2, iLen - 2)
     Else
         sClean = sWorksheet
     End If
@@ -948,7 +948,7 @@ Private Function SplitRangeToSingleCells( _
             'test if given row by row
             If iStartRC <> iEndRC Then
                 'find column
-                sColumn = Left(arCRange(LBound(arCRange)), Len(arCRange(LBound(arCRange))) - Len(CStr(iStartRC)))
+                sColumn = Left$(arCRange(LBound(arCRange)), Len(arCRange(LBound(arCRange))) - Len(CStr(iStartRC)))
                 
                 'now create all the cells in the range
                 If i = LBound(arRange) Then
@@ -965,9 +965,9 @@ Private Function SplitRangeToSingleCells( _
                 'store row number
                 iRow = iStartRC
                 'extract column (numbers)
-                sColumn = Left(arCRange(LBound(arCRange)), Len(arCRange(LBound(arCRange))) - Len(CStr(iRow)))
+                sColumn = Left$(arCRange(LBound(arCRange)), Len(arCRange(LBound(arCRange))) - Len(CStr(iRow)))
                 iStartRC = ColumnLetterToNumber(sColumn)
-                sColumn = Left(arCRange(UBound(arCRange)), Len(arCRange(UBound(arCRange))) - Len(CStr(iRow)))
+                sColumn = Left$(arCRange(UBound(arCRange)), Len(arCRange(UBound(arCRange))) - Len(CStr(iRow)))
                 iEndRC = ColumnLetterToNumber(sColumn)
                 
                 'now create all the cells in the range
@@ -1075,17 +1075,17 @@ Private Function ExtractNumber( _
     iLoop = Len(sText)
     
     For iCount = iLoop To 1 Step -1
-        vVal = Mid(sText, iCount, 1)
+        vVal = Mid$(sText, iCount, 1)
         If IsNumeric(vVal) Or vVal = strNeg Or vVal = strDec Then
             i = i + 1
-            lNum = Mid(sText, iCount, 1) & lNum
+            lNum = Mid$(sText, iCount, 1) & lNum
             If IsNumeric(lNum) Then
                 If CDbl(lNum) < 0 Then Exit For
             Else
-                lNum = Replace(lNum, Left(lNum, 1), vbNullString, , 1)
+                lNum = Replace(lNum, Left$(lNum, 1), vbNullString, , 1)
             End If
         End If
-        If i = 1 And lNum <> vbNullString Then lNum = CDbl(Mid(lNum, 1, 1))
+        If i = 1 And lNum <> vbNullString Then lNum = CDbl(Mid$(lNum, 1, 1))
     Next iCount
     
     ExtractNumber = CDbl(lNum)
