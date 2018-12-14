@@ -461,18 +461,12 @@ End Sub
 Private Sub GetValues( _
     ByVal Element As eElement _
 )
-
-    Dim LenTitleYXValues As Long
-    Dim iMinCommata As Long
-    Dim iOpeningBracket As Long
-    Dim YXValues As String
-    Dim sCurrString As String
-    Dim sOneLess As String
-    Dim DummyElement As tElement
-    
     
     If Element = eElement.eBubbleSizes Then
+        Dim sCurrString As String
         sCurrString = pSeriesFormula
+        
+        Dim iMinCommata As Long
         iMinCommata = 4
     ElseIf Element = eElement.eYValues Then
         sCurrString = pNameXValuesValues
@@ -482,12 +476,18 @@ Private Sub GetValues( _
         iMinCommata = 1
     End If
     
+    Dim LenTitleYXValues As Long
     LenTitleYXValues = Len(sCurrString)
     
     Select Case Right(sCurrString, 1)
         Case "}"    'Literal Array
+            Dim iOpeningBracket As Long
             iOpeningBracket = InStrRev(sCurrString, "{")
+            
+            Dim sOneLess As String
             sOneLess = Left(sCurrString, iOpeningBracket - 2)
+            
+            Dim YXValues As String
             YXValues = Mid( _
                     sCurrString, _
                     iOpeningBracket + 1, _
@@ -513,6 +513,7 @@ Private Sub GetValues( _
             )
     End Select
     
+    Dim DummyElement As tElement
     With DummyElement
         If Len(YXValues) = 0 Then
             .Type = "Empty"
