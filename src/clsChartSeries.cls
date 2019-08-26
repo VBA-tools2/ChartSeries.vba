@@ -83,10 +83,12 @@ Private Enum eElement
 End Enum
 
 Private Type tElement
-    Type  As String      'type of element ("Empty", "String", "Integer",
-                         '"Array", "Named Range", "Range", External Range")
-    Value As Variant     'value of element
-    Range As Range       'if type is "Range" then it stores the range
+    Type  As String             'type of element ("Empty", "String", "Integer",
+                                '"Array", "Named Range", "External Range",
+                                '"Range", "Long Range")
+    Value As Variant            'value of element
+    Range As Range              'if type is "Range" then it stores the range
+    LongRangeString As String   'if type is "Long Range" return the range as string
 End Type
 
 '==============================================================================
@@ -167,6 +169,8 @@ Public Property Get XValues() As Variant
     With CurrData(eElement.eXValues)
         If .Type = "Range" Then
             Set XValues = .Range
+        ElseIf .Type = "Long Range" Then
+            XValues = .LongRangeString
         Else
             XValues = .Value
         End If
@@ -195,6 +199,8 @@ Public Property Get Values() As Variant
     With CurrData(eElement.eYValues)
         If .Type = "Range" Then
             Set Values = .Range
+        ElseIf .Type = "Long Range" Then
+            Values = .LongRangeString
         Else
             Values = .Value
         End If
@@ -527,13 +533,16 @@ Private Sub GetValues( _
             If IsRangeExternal(YXValues) Then
                 .Type = "External Range"
                 Set .Range = Nothing
+            ElseIf IsNamedRange(YXValues) Then
+                .Type = "Named Range"
+                Set .Range = Range(YXValues)
+            ElseIf Len(YXValues) <= 255 Then
+                .Type = "Range"
+                Set .Range = Range(YXValues)
             Else
-                If IsNamedRange(YXValues) Then
-                    .Type = "Named Range"
-                Else
-                    .Type = "Range"
-                End If
-                Set .Range = SetRange(YXValues)
+                HandleLongRangeCase _
+                        YXValues, _
+                        DummyElement
             End If
         End If
         .Value = YXValues
@@ -695,22 +704,10 @@ Private Function IsNamedRange( _
 End Function
 
 
-Private Function SetRange( _
-    ByVal YXValues As String _
-        ) As Range
-
-    If Len(YXValues) <= 255 Then
-        Set SetRange = Range(YXValues)
-    Else
-        Set SetRange = SetLongRange(YXValues)
-    End If
-    
-End Function
-
-
-Private Function SetLongRange( _
-    ByVal YXValues As String _
-        ) As Range
+Private Sub HandleLongRangeCase( _
+    ByVal YXValues As String, _
+    ByRef DummyElement As tElement _
+        )
 
     Dim sWks As String
     sWks = ExtractWorksheetPartOfFullRange(YXValues)
@@ -724,9 +721,29 @@ Private Function SetLongRange( _
             sWks _
     )
     
-    Set SetLongRange = wks.Range(sRng)
+    If Len(sRng) <= 255 Then
+        With DummyElement
+            .Type = "Range"
+            Set .Range = wks.Range(sRng)
+        End With
+    Else
+        Dim arrRanges() As String
+        arrRanges = Split(sRng, ",")
+        
+        Dim i As Long
+        For i = LBound(arrRanges) To UBound(arrRanges)
+            Dim rngUnion As Range
+            Set rngUnion = Union2(rngUnion, wks.Range(arrRanges(i)))
+        Next
+        
+        With DummyElement
+            .Type = "Long Range"
+            Set .Range = rngUnion
+            .LongRangeString = sRng
+        End With
+    End If
     
-End Function
+End Sub
 
 
 Private Function ExtractWorksheetPartOfFullRange( _

@@ -2269,6 +2269,65 @@ TestFail:
 End Sub
 
 
+'------------------------------------------------------------------------------
+'@TestMethod("MaxName")
+Public Sub clsChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As clsChartSeries
+    
+    Dim sType As String
+    Dim rng As Range
+    Dim sValue As String
+    
+    '==========================================================================
+    Set wks = tblMaxName
+    Set cha = wks.ChartObjects("chaMultipleAreas")
+    Const ciSeries As Long = 2
+    '==========================================================================
+    Const aExpectedType As String = "Long Range"
+    Const aExpectedValue As String = _
+            "AAC1000001:AAC1000002,AAC1000005:AAC1000006,AAC1000009:AAC1000010," & _
+            "AAC1000013:AAC1000014,AAC1000017:AAC1000018,AAC1000021:AAC1000022," & _
+            "AAC1000025:AAC1000026,AAC1000029:AAC1000030,AAC1000033:AAC1000034," & _
+            "AAC1000037:AAC1000038,AAC1000041:AAC1000042,AAC1000045:AAC1000046," & _
+            "AAC1000049:AAC1000050"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = New clsChartSeries
+    With MySeries
+        .Chart = cha.Chart
+        .ChartSeries = ciSeries
+    End With
+    
+    'Act:
+    With MySeries
+        sType = .ValuesType
+        If sType = "Range" Then
+            Set rng = .Values
+            sValue = rng.Address(External:=False)
+        Else
+            sValue = .Values
+        End If
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, sType
+        .AreEqual aExpectedValue, sValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
 '==============================================================================
 '@TestMethod
 Public Sub clsChartSeriesYValues_NamedRange_ReturnsAddress()
