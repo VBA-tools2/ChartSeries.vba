@@ -39,7 +39,7 @@ End Sub
 'unit tests for 'clsChartSeries' -- write stuff
 '==============================================================================
 
-'@TestMethod
+'@TestMethod("clsChartSeriesLetPlotOrder")
 Public Sub clsChartSeriesLetPlotOrder_NoSpaceWithNameTwoAreas_ReturnsSetTwo()
     On Error GoTo TestFail
     
@@ -92,7 +92,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartLetSeriesYValues")
 Public Sub clsChartLetSeriesYValues_NoSpaceWithNameTwoAreas_ReturnsSetAddress()
     On Error GoTo TestFail
     
@@ -171,7 +171,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartLetSeriesXValues")
 Public Sub clsChartLetSeriesXValues_NoSpaceWithNameTwoAreas_ReturnsSetAddress()
     On Error GoTo TestFail
     
@@ -250,7 +250,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesLetSeriesName")
 Public Sub clsChartSeriesLetSeriesName_NoSpaceWithNameTwoAreas_ReturnsSetAddress()
     On Error GoTo TestFail
     

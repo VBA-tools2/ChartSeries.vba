@@ -39,7 +39,7 @@ End Sub
 'unit tests for 'clsChartSeries' -- read stuff
 '==============================================================================
 
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_SurfacePlot_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -86,7 +86,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_SurfacePlot_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -133,7 +133,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_SurfacePlot_ReturnsEmpty()
     On Error GoTo TestFail
     
@@ -186,7 +186,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_SurfacePlot_ReturnsEmpty()
     On Error GoTo TestFail
     
@@ -240,7 +240,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesBubbleSizes")
 Public Sub clsChartSeriesBubbleSizes_NoBubbleChart_ReturnsError()
     On Error GoTo TestFail
     
@@ -293,7 +293,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_InvalidSeriesNumber_ReturnsError()
     On Error GoTo TestFail
     
@@ -346,7 +346,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -393,7 +393,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -446,7 +446,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -499,7 +499,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -553,7 +553,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_NoSpaceWithArrayValues_ReturnsArray()
     On Error GoTo TestFail
     
@@ -606,7 +606,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_NoSpaceWithNoXValues_ReturnsEmptyString()
     On Error GoTo TestFail
     
@@ -659,7 +659,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_NoSpaceWithString_ReturnsString()
     On Error GoTo TestFail
     
@@ -713,7 +713,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameFourAreas_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -760,7 +760,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_NoSpaceWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -813,7 +813,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_NoSpaceWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -866,7 +866,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_NoSpaceWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -920,7 +920,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameTwoAreas_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -967,7 +967,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_NoSpaceWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1020,7 +1020,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_NoSpaceWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1073,7 +1073,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_NoSpaceWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1127,7 +1127,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_WithSpaceWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -1174,7 +1174,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_WithSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1227,7 +1227,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_WithSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1280,7 +1280,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_WithSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1334,7 +1334,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_SpaceCommaWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -1381,7 +1381,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_SpaceCommaWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1434,7 +1434,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_SpaceCommaWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1487,7 +1487,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_SpaceCommaWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1541,7 +1541,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_NoSpaceWithStringTitleContainingComma_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1595,7 +1595,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -1642,7 +1642,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1695,7 +1695,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1748,7 +1748,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -1802,7 +1802,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_RoundBracketsWithArrayValues_ReturnsArray()
     On Error GoTo TestFail
     
@@ -1855,7 +1855,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_RoundBracketsWithString_ReturnsString()
     On Error GoTo TestFail
     
@@ -1909,7 +1909,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameFourAreas_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -1956,7 +1956,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2009,7 +2009,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2062,7 +2062,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2116,7 +2116,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameTwoAreas_ReturnsTwo()
     On Error GoTo TestFail
     
@@ -2163,7 +2163,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2216,7 +2216,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2270,7 +2270,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("MaxName")
+'@TestMethod("clsChartSeriesYValues")("MaxName")
 Public Sub clsChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2329,7 +2329,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesYValues")
 Public Sub clsChartSeriesYValues_NamedRange_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2382,7 +2382,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesXValues")
 Public Sub clsChartSeriesXValues_NamedRange_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2436,7 +2436,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesBubbleSizes")
 Public Sub clsChartSeriesBubbleSizes_NoSpaceWithNameAllRangesBubblePlot_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2489,7 +2489,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameAllRangesBubblePlot_ReturnsOne()
     On Error GoTo TestFail
     
@@ -2537,7 +2537,7 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod
+'@TestMethod("clsChartSeriesBubbleSizes")
 Public Sub clsChartSeriesBubbleSizes_SpaceCommaWithNameAllRangesBubblePlot_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2590,7 +2590,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesPlotOrder")
 Public Sub clsChartSeriesPlotOrder_SpaceCommaWithNameAllRangesBubblePlot_ReturnsOne()
     On Error GoTo TestFail
     
@@ -2638,7 +2638,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesSeriesName")
 Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2692,7 +2692,7 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod
+'@TestMethod("clsChartSeriesNoOfPointsY")
 Public Sub clsChartSeriesNoOfPointsY_NoSpaceWithNameAllRanges_ReturnsFour()
     On Error GoTo TestFail
     
@@ -2735,7 +2735,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesNoOfPointsX")
 Public Sub clsChartSeriesNoOfPointsX_NoSpaceWithNameAllRanges_ReturnsFour()
     On Error GoTo TestFail
     
@@ -2778,7 +2778,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesDataSheetY")
 Public Sub clsChartSeriesDataSheetY_NoSpaceWithNameAllRanges_ReturnsWks()
     On Error GoTo TestFail
     
@@ -2822,7 +2822,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesDataSheetX")
 Public Sub clsChartSeriesDataSheetX_NoSpaceWithNameAllRanges_ReturnsWks()
     On Error GoTo TestFail
     
@@ -2866,7 +2866,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesDataSheetX")
 Public Sub clsChartSeriesDataSheetX_RoundBracketsWithNameAllRanges_ReturnsWks()
     On Error GoTo TestFail
     
@@ -2910,7 +2910,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesPointXSourceRange")
 Public Sub clsChartSeriesPointXSourceRange_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
@@ -2955,7 +2955,7 @@ TestFail:
 End Sub
 
 
-'@TestMethod
+'@TestMethod("clsChartSeriesPointYSourceRange")
 Public Sub clsChartSeriesPointYSourceRange_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
