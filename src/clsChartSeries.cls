@@ -60,17 +60,29 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
-Private CurrChart As Chart
-Private CurrSeries As Long
-Private pOldFullSeriesFormula As String
-Private pFullSeriesFormula As String
-Private pSeriesFormula As String
-Private pNameXValuesValuesPlotOrder As String
-Private pNameXValuesValues As String
-Private pNameXValues As String
-Private pName As String
-Private CurrData() As tElement
-Private CurrSheet() As String
+Private Type tElement
+    Type  As String             'type of element ("Empty", "String", "Integer",
+                                '"Array", "Named Range", "External Range",
+                                '"Range", "Long Range")
+    Value As Variant            'value of element
+    Range As Range              'if type is "Range" then it stores the range
+    LongRangeString As String   'if type is "Long Range" return the range as string
+End Type
+
+Private Type TChartSeries
+    CurrChart As Chart
+    CurrSeries As Long
+    OldFullSeriesFormula As String
+    FullSeriesFormula As String
+    SeriesFormula As String
+    NameXValuesValuesPlotOrder As String
+    NameXValuesValues As String
+    NameXValues As String
+    Name As String
+    CurrData() As tElement
+    CurrSheet() As String
+End Type
+Private This As TChartSeries
 
 Private Enum eElement
     [_First] = 1
@@ -81,15 +93,6 @@ Private Enum eElement
     eBubbleSizes
     [_Last] = eElement.eBubbleSizes
 End Enum
-
-Private Type tElement
-    Type  As String             'type of element ("Empty", "String", "Integer",
-                                '"Array", "Named Range", "External Range",
-                                '"Range", "Long Range")
-    Value As Variant            'value of element
-    Range As Range              'if type is "Range" then it stores the range
-    LongRangeString As String   'if type is "Long Range" return the range as string
-End Type
 
 '==============================================================================
 'string to return when a series formula is inaccessible
@@ -107,41 +110,42 @@ Private Const pcsApostrophe As String = "'"
 
 Public Property Get FullFormula() As String
     Call SERIESFormulaElement
-    FullFormula = pFullSeriesFormula
+    FullFormula = This.FullSeriesFormula
 End Property
 
 Public Property Let FullFormula(ByVal sFormula As String)
-    CurrChart.SeriesCollection(CurrSeries).Formula = sFormula
+    With This
+        .CurrChart.SeriesCollection(.CurrSeries).Formula = sFormula
+    End With
 End Property
 
 
 Public Property Get Chart() As Chart
-    Set Chart = CurrChart
+    Set Chart = This.CurrChart
 End Property
 
 Public Property Let Chart(ByVal cht As Chart)
-    Set CurrChart = cht
+    Set This.CurrChart = cht
 End Property
 
 
 Public Property Get ChartSeries() As Long
-    ChartSeries = CurrSeries
+    ChartSeries = This.CurrSeries
 End Property
 
 Public Property Let ChartSeries(ByVal SeriesNum As Long)
-    CurrSeries = SeriesNum
+    This.CurrSeries = SeriesNum
 End Property
 
 
 Public Property Get SeriesNameType() As String
-    Call SERIESFormulaElement
-    SeriesNameType = CurrData(eElement.eName).Type
+    SeriesNameType = This.CurrData(eElement.eName).Type
 End Property
 
 
 Public Property Get SeriesName() As Variant
     Call SERIESFormulaElement
-    With CurrData(eElement.eName)
+    With This.CurrData(eElement.eName)
         If .Type = "Range" Then
             Set SeriesName = .Range
         Else
@@ -154,19 +158,21 @@ End Property
 'With this only a string can be set.
 'How can a range be set?
 Public Property Let SeriesName(ByVal SName As Variant)
-    CurrChart.SeriesCollection(CurrSeries).Name = SName
+    With This
+        .CurrChart.SeriesCollection(.CurrSeries).Name = SName
+    End With
 End Property
 
 
 Public Property Get XValuesType() As String
     Call SERIESFormulaElement
-    XValuesType = CurrData(eElement.eXValues).Type
+    XValuesType = This.CurrData(eElement.eXValues).Type
 End Property
 
 
 Public Property Get XValues() As Variant
     Call SERIESFormulaElement
-    With CurrData(eElement.eXValues)
+    With This.CurrData(eElement.eXValues)
         If .Type = "Range" Then
             Set XValues = .Range
         ElseIf .Type = "Long Range" Then
@@ -178,25 +184,27 @@ Public Property Get XValues() As Variant
 End Property
 
 Public Property Let XValues(ByVal XVals As Variant)
-    If TypeName(XVals) = "Range" Then
-        Dim sRange As String
-        sRange = GetRangeAddress(XVals)
-        CurrChart.SeriesCollection(CurrSeries).XValues = sRange
-    Else
-        CurrChart.SeriesCollection(CurrSeries).XValues = XVals
-    End If
+    With This
+        If TypeName(XVals) = "Range" Then
+            Dim sRange As String
+            sRange = GetRangeAddress(XVals)
+            .CurrChart.SeriesCollection(.CurrSeries).XValues = sRange
+        Else
+            .CurrChart.SeriesCollection(.CurrSeries).XValues = XVals
+        End If
+    End With
 End Property
 
 
 Public Property Get ValuesType() As String
     Call SERIESFormulaElement
-    ValuesType = CurrData(eElement.eYValues).Type
+    ValuesType = This.CurrData(eElement.eYValues).Type
 End Property
 
 
 Public Property Get Values() As Variant
     Call SERIESFormulaElement
-    With CurrData(eElement.eYValues)
+    With This.CurrData(eElement.eYValues)
         If .Type = "Range" Then
             Set Values = .Range
         ElseIf .Type = "Long Range" Then
@@ -208,42 +216,46 @@ Public Property Get Values() As Variant
 End Property
 
 Public Property Let Values(ByVal Vals As Variant)
-    If TypeName(Vals) = "Range" Then
-        Dim sRange As String
-        sRange = GetRangeAddress(Vals)
-        CurrChart.SeriesCollection(CurrSeries).Values = sRange
-    Else
-        CurrChart.SeriesCollection(CurrSeries).Values = Vals
-    End If
+    With This
+        If TypeName(Vals) = "Range" Then
+            Dim sRange As String
+            sRange = GetRangeAddress(Vals)
+            .CurrChart.SeriesCollection(.CurrSeries).Values = sRange
+        Else
+            .CurrChart.SeriesCollection(.CurrSeries).Values = Vals
+        End If
+    End With
 End Property
 
 
 Public Property Get PlotOrderType() As String
     Call SERIESFormulaElement
-    PlotOrderType = CurrData(eElement.ePlotOrder).Type
+    PlotOrderType = This.CurrData(eElement.ePlotOrder).Type
 End Property
 
 
 Public Property Get PlotOrder() As Long
     Call SERIESFormulaElement
-    PlotOrder = CurrData(eElement.ePlotOrder).Value
+    PlotOrder = This.CurrData(eElement.ePlotOrder).Value
 End Property
 
 Public Property Let PlotOrder(ByVal PltOrder As Long)
-    CurrChart.SeriesCollection(CurrSeries).PlotOrder = PltOrder
-    CurrSeries = PltOrder
+    With This
+        .CurrChart.SeriesCollection(.CurrSeries).PlotOrder = PltOrder
+        .CurrSeries = PltOrder
+    End With
 End Property
 
 
 Public Property Get BubbleSizesType() As String
     Call SERIESFormulaElement
-    BubbleSizesType = CurrData(eElement.eBubbleSizes).Type
+    BubbleSizesType = This.CurrData(eElement.eBubbleSizes).Type
 End Property
 
 
 Public Property Get BubbleSizes() As Variant
     Call SERIESFormulaElement
-    With CurrData(eElement.eBubbleSizes)
+    With This.CurrData(eElement.eBubbleSizes)
         If .Type = "Range" Then
             Set BubbleSizes = .Range
         Else
@@ -253,14 +265,16 @@ Public Property Get BubbleSizes() As Variant
 End Property
 
 Public Property Let BubbleSizes(ByVal Vals As Variant)
-    CurrChart.SeriesCollection(CurrSeries).Values = Vals
+    With This
+        .CurrChart.SeriesCollection(.CurrSeries).Values = Vals
+    End With
 End Property
 
 
 'determine Worksheet, where the data of SERIES come from
 Public Property Get DataSheet(ByVal Element As Long) As String
     Call SERIESFormulaElement
-    DataSheet = RemovePossibleApostrophes(CurrSheet(Element))
+    DataSheet = RemovePossibleApostrophes(This.CurrSheet(Element))
 End Property
 
 
@@ -282,8 +296,10 @@ End Property
 
 '==============================================================================
 Private Sub Class_Initialize()
-    ReDim CurrData(eElement.[_First] To eElement.[_Last])
-    ReDim CurrSheet(eElement.[_First] To eElement.[_Last])
+    With This
+        ReDim .CurrData(eElement.[_First] To eElement.[_Last])
+        ReDim .CurrSheet(eElement.[_First] To eElement.[_Last])
+    End With
 End Sub
 
 
@@ -312,17 +328,19 @@ Private Sub SERIESFormulaElement()
     If Not IsCurrSeriesValid Then Exit Sub
     If Not GetFullSeriesFormula Then Exit Sub
     
-    If pOldFullSeriesFormula <> pFullSeriesFormula Then
-        Call GetSeriesFormula
-        
-        Call GetBubbleSizes
-        Call GetPlotOrder
-        Call GetValues(eElement.eYValues)
-        Call GetValues(eElement.eXValues)
-        Call GetSeriesName
-        
-        Call GetWorksheets
-    End If
+    With This
+        If .OldFullSeriesFormula <> .FullSeriesFormula Then
+            Call GetSeriesFormula
+            
+            Call GetBubbleSizes
+            Call GetPlotOrder
+            Call GetValues(eElement.eYValues)
+            Call GetValues(eElement.eXValues)
+            Call GetSeriesName
+            
+            Call GetWorksheets
+        End If
+    End With
     
 End Sub
 
@@ -331,76 +349,80 @@ Private Function IsCurrSeriesValid() As Boolean
 
     IsCurrSeriesValid = False
     
-    If CurrSeries < 1 Or CurrSeries > CurrChart.SeriesCollection.Count Then
-        Dim i As eElement
-        For i = eElement.eName To eElement.eYValues
-            With CurrData(i)
-                .Type = pcsBadSeriesNumber
-                .Value = pcsBadSeriesNumber
-            End With
-        Next
-    Else
-        IsCurrSeriesValid = True
-    End If
+    With This
+        If .CurrSeries < 1 Or .CurrSeries > .CurrChart.SeriesCollection.Count Then
+            Dim i As eElement
+            For i = eElement.eName To eElement.eYValues
+                With .CurrData(i)
+                    .Type = pcsBadSeriesNumber
+                    .Value = pcsBadSeriesNumber
+                End With
+            Next
+        Else
+            IsCurrSeriesValid = True
+        End If
+    End With
 
 End Function
 
 
 Private Function GetFullSeriesFormula() As Boolean
 
-    GetFullSeriesFormula = False
-    pOldFullSeriesFormula = pFullSeriesFormula
-    pFullSeriesFormula = vbNullString
-    
-    With CurrChart
-        'in case some data are currently hidden and thus the formula can't be
-        'accessed, temporarily change '.PlotVisibleOnly' to 'False'
-        Dim bPlotVisible As Boolean
-        bPlotVisible = .PlotVisibleOnly
-        .PlotVisibleOnly = False
+    With This
+        GetFullSeriesFormula = False
+        .OldFullSeriesFormula = .FullSeriesFormula
+        .FullSeriesFormula = vbNullString
         
-        'because there is a possibility that an error is risen, take care of that
-        'situation
-        '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
-        On Error Resume Next
-        pFullSeriesFormula = .SeriesCollection(CurrSeries).Formula
-        'change to column chart if series is inaccessible
-        If Len(pFullSeriesFormula) = 0 Then
-            'reset error number
-            Err.Number = 0
-            'store current 'ChartType' of series ...
-            Dim iChartType As XlChartType
-            iChartType = .SeriesCollection(CurrSeries).ChartType
-            '... and change it temporarily to a column chart
-            .SeriesCollection(CurrSeries).ChartType = xlColumnClustered
+        With .CurrChart
+            'in case some data are currently hidden and thus the formula can't be
+            'accessed, temporarily change '.PlotVisibleOnly' to 'False'
+            Dim bPlotVisible As Boolean
+            bPlotVisible = .PlotVisibleOnly
+            .PlotVisibleOnly = False
             
-            'now try to read the formula again
-            pFullSeriesFormula = .SeriesCollection(CurrSeries).Formula
-            
-            'restore original 'ChartType'
-            .SeriesCollection(CurrSeries).ChartType = iChartType
-            
-            'if still an error is returned, the formula is inaccessible
-            '(this e.g. can be the case if there are #REF errors inside the given ranges)
-            If Err.Number <> 0 Then
-                Dim i As eElement
-                For i = eElement.eName To eElement.eYValues
-                    With CurrData(i)
-                        .Type = pcsInaccessible
-                        .Value = pcsInaccessible
-                    End With
-                Next
-                pFullSeriesFormula = pcsInaccessible
-                GoTo Exit_Function
+            'because there is a possibility that an error is risen, take care of that
+            'situation
+            '(inspired by <https://peltiertech.com/change-series-formula-improved-routines/>)
+            On Error Resume Next
+            This.FullSeriesFormula = .SeriesCollection(This.CurrSeries).Formula
+            'change to column chart if series is inaccessible
+            If Len(This.FullSeriesFormula) = 0 Then
+                'reset error number
+                Err.Number = 0
+                'store current 'ChartType' of series ...
+                Dim iChartType As XlChartType
+                iChartType = .SeriesCollection(This.CurrSeries).ChartType
+                '... and change it temporarily to a column chart
+                .SeriesCollection(This.CurrSeries).ChartType = xlColumnClustered
+                
+                'now try to read the formula again
+                This.FullSeriesFormula = .SeriesCollection(This.CurrSeries).Formula
+                
+                'restore original 'ChartType'
+                .SeriesCollection(This.CurrSeries).ChartType = iChartType
+                
+                'if still an error is returned, the formula is inaccessible
+                '(this e.g. can be the case if there are #REF errors inside the given ranges)
+                If Err.Number <> 0 Then
+                    Dim i As eElement
+                    For i = eElement.eName To eElement.eYValues
+                        With This.CurrData(i)
+                            .Type = pcsInaccessible
+                            .Value = pcsInaccessible
+                        End With
+                    Next
+                    This.FullSeriesFormula = pcsInaccessible
+                    GoTo Exit_Function
+                End If
             End If
-        End If
-        On Error GoTo 0
+            On Error GoTo 0
+        End With
     End With
     
     GetFullSeriesFormula = True
     
 Exit_Function:
-    CurrChart.PlotVisibleOnly = bPlotVisible
+    This.CurrChart.PlotVisibleOnly = bPlotVisible
 
 End Function
 
@@ -416,29 +438,31 @@ Private Sub GetSeriesFormula()
     Dim iLenPrefix As Long
     iLenPrefix = Len(csPrefix)
     
-    Dim iLenSeriesFormula As Long
-    iLenSeriesFormula = Len(pFullSeriesFormula)
-    
-    pSeriesFormula = _
-            Mid$( _
-                    pFullSeriesFormula, _
+    With This
+        Dim iLenSeriesFormula As Long
+        iLenSeriesFormula = Len(.FullSeriesFormula)
+        
+        .SeriesFormula = _
+                Mid$( _
+                    .FullSeriesFormula, _
                     iLenPrefix + 1, _
                     iLenSeriesFormula - iLenPrefix - ciSuffix _
-            )
+                )
+    End With
 
 End Sub
 
 
 Private Sub GetBubbleSizes()
     
-    With CurrChart
-        Select Case .ChartType
+    With This
+        Select Case .CurrChart.ChartType
             Case xlBubble, xlBubble3DEffect
                 Call GetValues(eElement.eBubbleSizes)
             Case Else
-                pNameXValuesValuesPlotOrder = pSeriesFormula
+                .NameXValuesValuesPlotOrder = .SeriesFormula
                 
-                With CurrData(eElement.eBubbleSizes)
+                With This.CurrData(eElement.eBubbleSizes)
                     Set .Range = Nothing
                     .Type = pcsBadBubbleChart
                     .Value = pcsBadBubbleChart
@@ -451,14 +475,16 @@ End Sub
 
 Private Sub GetPlotOrder()
 
-    Dim LastComma As Long
-    LastComma = InStrRev(pNameXValuesValuesPlotOrder, pcsSep)
-    
-    pNameXValuesValues = Left$(pNameXValuesValuesPlotOrder, LastComma - 1)
-    With CurrData(eElement.ePlotOrder)
-        .Type = "Integer"
-        .Value = Mid$(pNameXValuesValuesPlotOrder, LastComma + 1)
-        Set .Range = Nothing
+    With This
+        Dim LastComma As Long
+        LastComma = InStrRev(.NameXValuesValuesPlotOrder, pcsSep)
+        
+        .NameXValuesValues = Left$(.NameXValuesValuesPlotOrder, LastComma - 1)
+        With .CurrData(eElement.ePlotOrder)
+            .Type = "Integer"
+            .Value = Mid$(This.NameXValuesValuesPlotOrder, LastComma + 1)
+            Set .Range = Nothing
+        End With
     End With
 
 End Sub
@@ -468,19 +494,21 @@ Private Sub GetValues( _
     ByVal Element As eElement _
 )
     
-    If Element = eElement.eBubbleSizes Then
-        Dim sCurrString As String
-        sCurrString = pSeriesFormula
-        
-        Dim iMinCommata As Long
-        iMinCommata = 4
-    ElseIf Element = eElement.eYValues Then
-        sCurrString = pNameXValuesValues
-        iMinCommata = 2
-    ElseIf Element = eElement.eXValues Then
-        sCurrString = pNameXValues
-        iMinCommata = 1
-    End If
+    With This
+        If Element = eElement.eBubbleSizes Then
+            Dim sCurrString As String
+            sCurrString = .SeriesFormula
+            
+            Dim iMinCommata As Long
+            iMinCommata = 4
+        ElseIf Element = eElement.eYValues Then
+            sCurrString = .NameXValuesValues
+            iMinCommata = 2
+        ElseIf Element = eElement.eXValues Then
+            sCurrString = .NameXValues
+            iMinCommata = 1
+        End If
+    End With
     
     Dim LenTitleYXValues As Long
     LenTitleYXValues = Len(sCurrString)
@@ -548,16 +576,18 @@ Private Sub GetValues( _
         .Value = YXValues
     End With
     
-    If Element = eElement.eBubbleSizes Then
-        CurrData(eElement.eBubbleSizes) = DummyElement
-        pNameXValuesValuesPlotOrder = sOneLess
-    ElseIf Element = eElement.eYValues Then
-        CurrData(eElement.eYValues) = DummyElement
-        pNameXValues = sOneLess
-    ElseIf Element = eElement.eXValues Then
-        CurrData(eElement.eXValues) = DummyElement
-        pName = sOneLess
-    End If
+    With This
+        If Element = eElement.eBubbleSizes Then
+            .CurrData(eElement.eBubbleSizes) = DummyElement
+            .NameXValuesValuesPlotOrder = sOneLess
+        ElseIf Element = eElement.eYValues Then
+            .CurrData(eElement.eYValues) = DummyElement
+            .NameXValues = sOneLess
+        ElseIf Element = eElement.eXValues Then
+            .CurrData(eElement.eXValues) = DummyElement
+            .Name = sOneLess
+        End If
+    End With
 
 End Sub
 
@@ -819,19 +849,19 @@ Private Sub GetSeriesName()
     Dim SeriesName As String
     
     
-    LenName = Len(pName)
+    LenName = Len(This.Name)
     
-    With CurrData(eElement.eName)
+    With This.CurrData(eElement.eName)
         If LenName = 0 Then
             SeriesName = vbNullString
             .Type = "Empty"
             Set .Range = Nothing
-        ElseIf Left$(pName, 1) = Chr$(34) Then
-            SeriesName = Mid$(pName, 2, LenName - 2)
+        ElseIf Left$(This.Name, 1) = Chr$(34) Then
+            SeriesName = Mid$(This.Name, 2, LenName - 2)
             .Type = "String"
             Set .Range = Nothing
         Else
-            SeriesName = pName
+            SeriesName = This.Name
             'external ranges can crash Excel (at least when the file is not open)
             'thus only set the range when it is an "internal" range
             If IsRangeExternal(SeriesName) Then
@@ -850,29 +880,29 @@ End Sub
 
 Private Sub GetWorksheets()
     
-    Dim Element As eElement
     Dim sChartWkb As String
-    
-    
     sChartWkb = GetChartWkb
     
-    For Element = LBound(CurrSheet) To UBound(CurrSheet)
-        'exit if x or y values are not given as a range
-        If CurrData(Element).Type <> "Range" Then
-            Select Case Element
-                Case eElement.eName
-                    CurrSheet(Element) = "ERROR - TITLE IS NOT A RANGE"
-                Case eElement.eXValues
-                    CurrSheet(Element) = "ERROR - XVALUES ARE NOT A RANGE"
-                Case eElement.eYValues
-                    CurrSheet(Element) = "ERROR - VALUES ARE NOT A RANGE"
-                Case eElement.eBubbleSizes
-                    CurrSheet(Element) = pcsBadBubbleChart
-            End Select
-        Else
-            CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
-        End If
-    Next
+    With This
+        Dim Element As eElement
+        For Element = LBound(.CurrSheet) To UBound(.CurrSheet)
+            'exit if x or y values are not given as a range
+            If .CurrData(Element).Type <> "Range" Then
+                Select Case Element
+                    Case eElement.eName
+                        .CurrSheet(Element) = "ERROR - TITLE IS NOT A RANGE"
+                    Case eElement.eXValues
+                        .CurrSheet(Element) = "ERROR - XVALUES ARE NOT A RANGE"
+                    Case eElement.eYValues
+                        .CurrSheet(Element) = "ERROR - VALUES ARE NOT A RANGE"
+                    Case eElement.eBubbleSizes
+                        .CurrSheet(Element) = pcsBadBubbleChart
+                End Select
+            Else
+                .CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
+            End If
+        Next
+    End With
     
 End Sub
 
@@ -883,7 +913,7 @@ Private Function GetChartWkb() As String
     Dim wks As Worksheet
     Dim wkb As Workbook
     
-    With CurrChart
+    With This.CurrChart
         On Error Resume Next
         Set wkb = .Parent
         
@@ -905,7 +935,7 @@ Private Function GetCurrWorksheet( _
     ByVal sChartWkb As String _
         ) As String
 
-    With CurrData(Element)
+    With This.CurrData(Element)
         If .Range Is Nothing Then
             GetCurrWorksheet = "External Range"
             Exit Function
@@ -951,12 +981,14 @@ Private Function GetApostrophe( _
     ByVal Element As eElement _
         ) As String
 
-    If Left$(CurrData(Element).Value, 2) = "(" & pcsApostrophe Or _
-            Left$(CurrData(Element).Value, 1) = pcsApostrophe Then
-        GetApostrophe = pcsApostrophe
-    Else
-        GetApostrophe = vbNullString
-    End If
+    With This
+        If Left$(This.CurrData(Element).Value, 2) = "(" & pcsApostrophe Or _
+                Left$(This.CurrData(Element).Value, 1) = pcsApostrophe Then
+            GetApostrophe = pcsApostrophe
+        Else
+            GetApostrophe = vbNullString
+        End If
+    End With
 
 End Function
 
@@ -964,7 +996,9 @@ End Function
 '------------------------------------------------------------------------------
 'returns the number of (data) points in the chart's SERIES
 Private Function SERIESFormulaDataPoints() As Long
-    SERIESFormulaDataPoints = CurrChart.SeriesCollection(CurrSeries).Points.Count
+    With This
+        SERIESFormulaDataPoints = .CurrChart.SeriesCollection(.CurrSeries).Points.Count
+    End With
 End Function
 
 
@@ -990,21 +1024,24 @@ Private Function PointRange( _
     
     'exit if x or y values are not given as a range
     Call SERIESFormulaElement
-    If CurrData(Element).Type <> "Range" Then
-        If Element = eElement.eXValues Then
-            PointRange = "ERROR - XVALUES ARE NOT A RANGE"
-        ElseIf Element = eElement.eYValues Then
-            PointRange = "ERROR - VALUES ARE NOT A RANGE"
+    
+    With This
+        If .CurrData(Element).Type <> "Range" Then
+            If Element = eElement.eXValues Then
+                PointRange = "ERROR - XVALUES ARE NOT A RANGE"
+            ElseIf Element = eElement.eYValues Then
+                PointRange = "ERROR - VALUES ARE NOT A RANGE"
+            End If
+            Exit Function
         End If
-        Exit Function
-    End If
-    
-    'store the 'Worksheet.Name'
-    sWorksheetName = CurrSheet(Element)
-    
-    'get the range string to parse for the address and store only the
-    'range without the 'Worksheet.Name'
-    Set rng = CurrData(Element).Range
+        
+        'store the 'Worksheet.Name'
+        sWorksheetName = .CurrSheet(Element)
+        
+        'get the range string to parse for the address and store only the
+        'range without the 'Worksheet.Name'
+        Set rng = .CurrData(Element).Range
+    End With
     sSeries = rng.Address(RowAbsolute:=False, ColumnAbsolute:=False)
     
     'get an array with all cells of the SERIES
