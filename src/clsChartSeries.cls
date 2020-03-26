@@ -63,6 +63,7 @@ Option Explicit
 Private Type tElement
     Type  As String             'type of element ("Empty", "String", "Integer",
                                 '"Array", "Named Range", "External Range",
+                                '"Open External Range", "Closed External Range",
                                 '"Range", "Long Range")
     Value As Variant            'value of element
     Range As Range              'if type is "Range" then it stores the range
@@ -146,11 +147,14 @@ End Property
 Public Property Get SeriesName() As Variant
     Call SERIESFormulaElement
     With This.CurrData(eElement.eName)
-        If .Type = "Range" Then
-            Set SeriesName = .Range
-        Else
-            SeriesName = .Value
-        End If
+        Select Case .Type
+            Case "Range", "Named Range", "Open External Range"
+                Set SeriesName = .Range
+            Case "Long Range"
+                SeriesName = .LongRangeString
+            Case Else
+                SeriesName = .Value
+        End Select
     End With
 End Property
 
@@ -173,13 +177,14 @@ End Property
 Public Property Get XValues() As Variant
     Call SERIESFormulaElement
     With This.CurrData(eElement.eXValues)
-        If .Type = "Range" Then
-            Set XValues = .Range
-        ElseIf .Type = "Long Range" Then
-            XValues = .LongRangeString
-        Else
-            XValues = .Value
-        End If
+        Select Case .Type
+            Case "Range", "Named Range", "Open External Range"
+                Set XValues = .Range
+            Case "Long Range"
+                XValues = .LongRangeString
+            Case Else
+                XValues = .Value
+        End Select
     End With
 End Property
 
@@ -205,13 +210,14 @@ End Property
 Public Property Get Values() As Variant
     Call SERIESFormulaElement
     With This.CurrData(eElement.eYValues)
-        If .Type = "Range" Then
-            Set Values = .Range
-        ElseIf .Type = "Long Range" Then
-            Values = .LongRangeString
-        Else
-            Values = .Value
-        End If
+        Select Case .Type
+            Case "Range", "Named Range", "Open External Range"
+                Set Values = .Range
+            Case "Long Range"
+                Values = .LongRangeString
+            Case Else
+                Values = .Value
+        End Select
     End With
 End Property
 
@@ -556,11 +562,10 @@ Private Sub GetValues( _
             .Type = "Array"
             Set .Range = Nothing
         Else
-            'external ranges can crash Excel (at least when the file is not open)
-            'thus only set the range when it is an "internal" range
             If IsRangeExternal(YXValues) Then
-                .Type = "External Range"
-                Set .Range = Nothing
+                HandleExternalRange _
+                        YXValues, _
+                        DummyElement
             ElseIf IsNamedRange(YXValues) Then
                 .Type = "Named Range"
                 Set .Range = Range(YXValues)
@@ -710,13 +715,13 @@ End Function
 
 
 Private Function IsNamedRange( _
-    ByVal YXValues As String _
+    ByVal RangeString As String _
         ) As Boolean
 
-    If InStr(YXValues, "$") > 0 Then Exit Function
+    If InStr(RangeString, "$") > 0 Then Exit Function
     
     Dim rng As Range
-    Set rng = Range(YXValues)
+    Set rng = Range(RangeString)
     
     Dim wks As Worksheet
     On Error Resume Next
@@ -729,25 +734,83 @@ Private Function IsNamedRange( _
         Set wkb = wks.Parent
     End If
     
-    IsNamedRange = RangeExists(wkb, YXValues)
+    IsNamedRange = RangeExists(wkb, RangeString)
 
 End Function
 
 
-Private Sub HandleLongRangeCase( _
-    ByVal YXValues As String, _
+'external ranges can crash Excel (at least when the file is not open)
+'thus only set the range when the source file is open
+Private Sub HandleExternalRange( _
+    ByVal RangeString As String, _
     ByRef DummyElement As tElement _
-        )
+)
+
+    Dim sWkbWks As String
+    sWkbWks = ExtractWkbWksPartOfFullRange(RangeString)
+    
+    If InStr(sWkbWks, "\") = 0 Then
+        HandleOpenExternalRange _
+                sWkbWks, _
+                RangeString, _
+                DummyElement
+    Else
+        HandleClosedExternalRange _
+                DummyElement
+    End If
+
+End Sub
+
+
+Private Sub HandleOpenExternalRange( _
+    ByVal sWkbWks As String, _
+    ByVal RangeString As String, _
+    ByRef DummyElement As tElement _
+)
+
+    Dim wks As Worksheet
+    Set wks = SetWorksheet(sWkbWks)
+    
+    Dim sRng As String
+    sRng = ExtractRange( _
+            RangeString, _
+            sWkbWks _
+    )
+    
+    With DummyElement
+        .Type = "Open External Range"
+        Set .Range = wks.Range(sRng)
+    End With
+
+End Sub
+
+
+Private Sub HandleClosedExternalRange( _
+    ByRef DummyElement As tElement _
+)
+
+    With DummyElement
+        .Type = "Closed External Range"
+        Set .Range = Nothing
+    End With
+
+End Sub
+
+
+Private Sub HandleLongRangeCase( _
+    ByVal RangeString As String, _
+    ByRef DummyElement As tElement _
+)
 
     Dim sWks As String
-    sWks = ExtractWorksheetPartOfFullRange(YXValues)
+    sWks = ExtractWkbWksPartOfFullRange(RangeString)
     
     Dim wks As Worksheet
     Set wks = SetWorksheet(sWks)
     
     Dim sRng As String
     sRng = ExtractRange( _
-            YXValues, _
+            RangeString, _
             sWks _
     )
     
@@ -776,12 +839,12 @@ Private Sub HandleLongRangeCase( _
 End Sub
 
 
-Private Function ExtractWorksheetPartOfFullRange( _
-    ByVal YXValues As String _
+Private Function ExtractWkbWksPartOfFullRange( _
+    ByVal RangeString As String _
         ) As String
     
     Dim sApostrophe As String
-    If Left$(YXValues, 1) = pcsApostrophe Then
+    If Left$(RangeString, 1) = pcsApostrophe Then
         sApostrophe = pcsApostrophe
     End If
     
@@ -789,14 +852,18 @@ Private Function ExtractWorksheetPartOfFullRange( _
     sSeparator = sApostrophe & "!$"
     
     Dim iSeparator As Long
-    iSeparator = InStr(YXValues, sSeparator)
+    iSeparator = InStr(RangeString, sSeparator)
     
     If iSeparator = 0 Then Exit Function
     
-    Dim sWorksheet As String
-    sWorksheet = Left$(YXValues, iSeparator)
+    If Len(sApostrophe) = 0 Then
+        Dim sWkbWks As String
+        sWkbWks = Left$(RangeString, iSeparator - 1)
+    Else
+        sWkbWks = Mid$(RangeString, 2, iSeparator - 2)
+    End If
     
-    ExtractWorksheetPartOfFullRange = sWorksheet
+    ExtractWkbWksPartOfFullRange = sWkbWks
     
 End Function
 
@@ -809,12 +876,20 @@ Private Function SetWorksheet( _
         Dim iLenWksName As Long
         iLenWksName = Len(sWks)
         
-        Dim sWorksheet As String
-        sWorksheet = Mid$(sWks, 2, iLenWksName - 2)
+        Dim sWkbWks As String
+        sWkbWks = Mid$(sWks, 2, iLenWksName - 2)
+    Else
+        sWkbWks = sWks
     End If
     
     Dim wkb As Workbook
-    Set wkb = ActiveWorkbook
+    Set wkb = SetWorkbook(sWkbWks)
+    
+    Dim iClosingBracketPos As Long
+    iClosingBracketPos = InStr(2, sWkbWks, "]")
+    
+    Dim sWorksheet As String
+    sWorksheet = Right$(sWkbWks, Len(sWkbWks) - iClosingBracketPos)
     
     Dim wks As Worksheet
     Set wks = wkb.Worksheets(sWorksheet)
@@ -824,19 +899,46 @@ Private Function SetWorksheet( _
 End Function
 
 
+Private Function SetWorkbook( _
+    ByVal sWkbWks As String _
+        ) As Workbook
+
+    If Left$(sWkbWks, 1) <> "[" Then
+        Set SetWorkbook = ActiveWorkbook
+    Else
+        Dim iClosingBracketPos As Long
+        iClosingBracketPos = InStr(2, sWkbWks, "]")
+        
+        Dim sWorkbook As String
+        sWorkbook = Mid$(sWkbWks, 2, iClosingBracketPos - 2)
+        
+        Set SetWorkbook = Workbooks(sWorkbook)
+    End If
+
+End Function
+
+
 Private Function ExtractRange( _
-    ByVal YXValues As String, _
-    ByVal sWks As String _
+    ByVal RangeString As String, _
+    ByVal sWkbWks As String _
         ) As String
     
-    Dim sWorksheet As String
-    sWorksheet = sWks & "!"
+    Dim sApostrophe As String
+    If Left$(RangeString, 1) = pcsApostrophe Then
+        sApostrophe = pcsApostrophe
+    End If
     
-    Dim sRngWithoutWksNames As String
-    sRngWithoutWksNames = Replace(YXValues, sWorksheet, vbNullString)
+    Dim sSeparator As String
+    sSeparator = sApostrophe & "!$"
+    
+    Dim sRangePrefix As String
+    sRangePrefix = sApostrophe & sWkbWks & sApostrophe & "!"
+    
+    Dim sRngWithoutWkbWksName As String
+    sRngWithoutWkbWksName = Replace(RangeString, sRangePrefix, vbNullString)
     
     Dim sRng As String
-    sRng = Replace(sRngWithoutWksNames, "$", vbNullString)
+    sRng = Replace(sRngWithoutWkbWksName, "$", vbNullString)
     
     ExtractRange = sRng
     
@@ -862,11 +964,10 @@ Private Sub GetSeriesName()
             Set .Range = Nothing
         Else
             SeriesName = This.Name
-            'external ranges can crash Excel (at least when the file is not open)
-            'thus only set the range when it is an "internal" range
             If IsRangeExternal(SeriesName) Then
-                .Type = "External Range"
-                Set .Range = Nothing
+                HandleExternalRange _
+                        SeriesName, _
+                        This.CurrData(eElement.eName)
             Else
                 .Type = "Range"
                 Set .Range = Range(SeriesName)
@@ -886,21 +987,22 @@ Private Sub GetWorksheets()
     With This
         Dim Element As eElement
         For Element = LBound(.CurrSheet) To UBound(.CurrSheet)
-            'exit if x or y values are not given as a range
-            If .CurrData(Element).Type <> "Range" Then
-                Select Case Element
-                    Case eElement.eName
-                        .CurrSheet(Element) = "ERROR - TITLE IS NOT A RANGE"
-                    Case eElement.eXValues
-                        .CurrSheet(Element) = "ERROR - XVALUES ARE NOT A RANGE"
-                    Case eElement.eYValues
-                        .CurrSheet(Element) = "ERROR - VALUES ARE NOT A RANGE"
-                    Case eElement.eBubbleSizes
-                        .CurrSheet(Element) = pcsBadBubbleChart
-                End Select
-            Else
-                .CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
-            End If
+            'exit if SeriesName, x or y values are not given as a range
+            Select Case .CurrData(Element).Type
+                Case "Range", "Open External Range"
+                    .CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
+                Case Else
+                    Select Case Element
+                        Case eElement.eName
+                            .CurrSheet(Element) = "ERROR - TITLE IS NOT A RANGE"
+                        Case eElement.eXValues
+                            .CurrSheet(Element) = "ERROR - XVALUES ARE NOT A RANGE"
+                        Case eElement.eYValues
+                            .CurrSheet(Element) = "ERROR - VALUES ARE NOT A RANGE"
+                        Case eElement.eBubbleSizes
+                            .CurrSheet(Element) = pcsBadBubbleChart
+                    End Select
+            End Select
         Next
     End With
     
@@ -960,19 +1062,19 @@ Private Function GetCurrWorksheet( _
     Dim sApostrophe As String
     sApostrophe = GetApostrophe(Element)
     
-    Dim sWorksheet As String
-    sWorksheet = sApostrophe
+    Dim sWkbWks As String
+    sWkbWks = sApostrophe
     
 '---
 '2do: could be superfluous, because external ranges are not possible here
 '     any more
     If sWkb <> sChartWkb Then
-        sWorksheet = sWorksheet & "[" & sWkb & "]"
+        sWkbWks = sWkbWks & "[" & sWkb & "]"
     End If
 '---
     
-    sWorksheet = sWorksheet & sWks & sApostrophe
-    GetCurrWorksheet = sWorksheet
+    sWkbWks = sWkbWks & sWks & sApostrophe
+    GetCurrWorksheet = sWkbWks
 
 End Function
 
