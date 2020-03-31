@@ -82,6 +82,7 @@ Private Type TChartSeries
     Name As String
     CurrData() As tElement
     CurrSheet() As String
+    CurrBook() As String
 End Type
 Private This As TChartSeries
 
@@ -284,6 +285,13 @@ Public Property Get DataSheet(ByVal Element As Long) As String
 End Property
 
 
+'determine Workbook, where the data of SERIES come from
+Public Property Get DataBook(ByVal Element As Long) As String
+    Call SERIESFormulaElement
+    DataBook = RemovePossibleApostrophes(This.CurrBook(Element))
+End Property
+
+
 'determine number of data points in SERIES
 Public Property Get NoOfPoints() As Long
     NoOfPoints = SERIESFormulaDataPoints()
@@ -305,6 +313,7 @@ Private Sub Class_Initialize()
     With This
         ReDim .CurrData(eElement.[_First] To eElement.[_Last])
         ReDim .CurrSheet(eElement.[_First] To eElement.[_Last])
+        ReDim .CurrBook(eElement.[_First] To eElement.[_Last])
     End With
 End Sub
 
@@ -344,6 +353,7 @@ Private Sub SERIESFormulaElement()
             Call GetValues(eElement.eXValues)
             Call GetSeriesName
             
+            Call GetWorkbooks
             Call GetWorksheets
         End If
     End With
@@ -979,6 +989,36 @@ Private Sub GetSeriesName()
 End Sub
 
 
+Private Sub GetWorkbooks()
+    
+    Dim sChartWkb As String
+    sChartWkb = GetChartWkb
+    
+    With This
+        Dim Element As eElement
+        For Element = LBound(.CurrBook) To UBound(.CurrBook)
+            'exit if SeriesName, x or y values are not given as a range
+            Select Case .CurrData(Element).Type
+                Case "Range", "Open External Range"
+                    .CurrBook(Element) = GetCurrWorksheetOrBook(Element, sChartWkb, True)
+                Case Else
+                    Select Case Element
+                        Case eElement.eName
+                            .CurrBook(Element) = "ERROR - TITLE IS NOT A RANGE"
+                        Case eElement.eXValues
+                            .CurrBook(Element) = "ERROR - XVALUES ARE NOT A RANGE"
+                        Case eElement.eYValues
+                            .CurrBook(Element) = "ERROR - VALUES ARE NOT A RANGE"
+                        Case eElement.eBubbleSizes
+                            .CurrBook(Element) = pcsBadBubbleChart
+                    End Select
+            End Select
+        Next
+    End With
+    
+End Sub
+
+
 Private Sub GetWorksheets()
     
     Dim sChartWkb As String
@@ -990,7 +1030,7 @@ Private Sub GetWorksheets()
             'exit if SeriesName, x or y values are not given as a range
             Select Case .CurrData(Element).Type
                 Case "Range", "Open External Range"
-                    .CurrSheet(Element) = GetCurrWorksheet(Element, sChartWkb)
+                    .CurrSheet(Element) = GetCurrWorksheetOrBook(Element, sChartWkb, False)
                 Case Else
                     Select Case Element
                         Case eElement.eName
@@ -1032,14 +1072,15 @@ Private Function GetChartWkb() As String
 End Function
 
 
-Private Function GetCurrWorksheet( _
+Private Function GetCurrWorksheetOrBook( _
     ByVal Element As eElement, _
-    ByVal sChartWkb As String _
+    ByVal sChartWkb As String, _
+    Optional ByVal SheetOrBook As Boolean = False _
         ) As String
 
     With This.CurrData(Element)
         If .Range Is Nothing Then
-            GetCurrWorksheet = "External Range"
+            GetCurrWorksheetOrBook = "External Range"
             Exit Function
         Else
             Dim rng As Range
@@ -1050,31 +1091,13 @@ Private Function GetCurrWorksheet( _
     Dim wks As Worksheet
     Set wks = rng.Parent
     
-    Dim wkb As Workbook
-    Set wkb = wks.Parent
-    
-    Dim sWks As String
-    sWks = wks.Name
-    
-    Dim sWkb As String
-    sWkb = wkb.Name
-    
-    Dim sApostrophe As String
-    sApostrophe = GetApostrophe(Element)
-    
-    Dim sWkbWks As String
-    sWkbWks = sApostrophe
-    
-'---
-'2do: could be superfluous, because external ranges are not possible here
-'     any more
-    If sWkb <> sChartWkb Then
-        sWkbWks = sWkbWks & "[" & sWkb & "]"
+    If Not SheetOrBook Then
+        GetCurrWorksheetOrBook = wks.Name
+    Else
+        Dim wkb As Workbook
+        Set wkb = wks.Parent
+        GetCurrWorksheetOrBook = wkb.Name
     End If
-'---
-    
-    sWkbWks = sWkbWks & sWks & sApostrophe
-    GetCurrWorksheet = sWkbWks
 
 End Function
 
