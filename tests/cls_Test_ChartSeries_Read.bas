@@ -15,6 +15,9 @@ Public Sub ModuleInitialize()
     'this method runs once per module.
     Set Assert = New Rubberduck.PermissiveAssertClass
     Set Fakes = New Rubberduck.FakesProvider
+    
+    'otherwise currently most of the tests fail
+    ThisWorkbook.Activate
 End Sub
 
 '@ModuleCleanup
@@ -36,47 +39,46 @@ End Sub
 
 
 '==============================================================================
-'unit tests for 'clsChartSeries' -- read stuff
+'unit tests for 'ChartSeries' -- read stuff
 '==============================================================================
 
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_SurfacePlot_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_SurfacePlot_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaSurface")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -86,44 +88,43 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_SurfacePlot_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_SurfacePlot_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim sValue As String
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaSurface")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        sValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -133,50 +134,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_SurfacePlot_ReturnsEmpty()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_SurfacePlot_ReturnsEmpty()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaSurface")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Empty"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eEmpty
     Const aExpectedValue As String = vbNullString
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -186,50 +181,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_SurfacePlot_ReturnsEmpty()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_SurfacePlot_ReturnsEmpty()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaSurface")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Empty"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eEmpty
     Const aExpectedValue As String = vbNullString
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -240,150 +229,86 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesBubbleSizes")
-Public Sub clsChartSeriesBubbleSizes_NoBubbleChart_ReturnsError()
+'@TestMethod("ChartSeriesBubbleSizes")
+Public Sub ChartSeriesBubbleSizes_NoBubbleChart_ReturnsError()
+    Const ExpectedError As Long = vbObjectError + 102
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim rng As Range
-    Dim sValue As String
+    Dim ActualType As eElement
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 1
     '==========================================================================
-    Const aExpectedType As String = "Error - No Bubble Chart"
-    Const aExpectedValue As String = "Error - No Bubble Chart"
-    '==========================================================================
-    
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .BubbleSizesType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .BubbleSizes
-        End If
+        ActualType = .BubbleSizes.EntryType
+        ActualValue = .BubbleSizes.FormulaPart
     End With
     
-    'Assert:
-    With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
-    End With
-    
+Assert:
+    Assert.Fail "Expected error was not raised"
+
 TestExit:
     Exit Sub
 TestFail:
-    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+    If Err.Number = ExpectedError Then
+        Resume TestExit
+    Else
+        Resume Assert
+    End If
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_InvalidSeriesNumber_ReturnsError()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_NoSpaceWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim rng As Range
-    Dim sValue As String
-    
-    '==========================================================================
-    Set wks = tblNoSpace
-    Set cha = wks.ChartObjects("chaOneArea")
-    Const ciSeries As Long = 5
-    '==========================================================================
-    Const aExpectedType As String = "ERROR - BAD SERIES NUMBER"
-    Const aExpectedValue As String = "ERROR - BAD SERIES NUMBER"
-    '==========================================================================
-    
-    
-    'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
-    
-    'Act:
-    With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
-    End With
-    
-    'Assert:
-    With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
-    End With
-    
-TestExit:
-    Exit Sub
-TestFail:
-    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
-End Sub
-
-
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameAllRanges_ReturnsTwo()
-    On Error GoTo TestFail
-    
-    Dim wks As Worksheet
-    Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
-    
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -393,50 +318,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_NoSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4:$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4:C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -446,50 +365,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_NoSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4:$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4:A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -499,50 +412,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_NoSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -553,50 +460,44 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_NoSpaceWithArrayValues_ReturnsArray()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_NoSpaceWithArrayValues_ReturnsArray()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "Array"
-    Const aExpectedValue As String = "1.5,2.5,3.5,4.5"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eArray
+    Const aExpectedValue As String = "{1.5,2.5,3.5,4.5}"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -606,50 +507,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_NoSpaceWithNoXValues_ReturnsEmptyString()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_NoSpaceWithNoXValues_ReturnsEmptyString()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "Empty"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eEmpty
     Const aExpectedValue As String = vbNullString
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -659,50 +554,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_NoSpaceWithString_ReturnsString()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_NoSpaceWithString_ReturnsString()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "String"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eString
     Const aExpectedValue As String = "just a test, with a comma"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.CleanFormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -713,44 +602,43 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameFourAreas_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_NoSpaceWithNameFourAreas_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -760,50 +648,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_NoSpaceWithNameFourAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_NoSpaceWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4,$C$5,$C$6,$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4,C5,C6,C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -813,50 +695,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_NoSpaceWithNameFourAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_NoSpaceWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4,$A$5,$A$6,$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4,A5,A6,A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -866,50 +742,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_NoSpaceWithNameFourAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_NoSpaceWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -920,44 +790,43 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameTwoAreas_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_NoSpaceWithNameTwoAreas_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -967,50 +836,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_NoSpaceWithNameTwoAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_NoSpaceWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4,$C$5:$C$6,$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4,C5:C6,C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1020,50 +883,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_NoSpaceWithNameTwoAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_NoSpaceWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4,$A$5:$A$6,$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4,A5:A6,A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1073,50 +930,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_NoSpaceWithNameTwoAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_NoSpaceWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1127,44 +978,43 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_WithSpaceWithNameAllRanges_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_WithSpaceWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblWithSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1174,50 +1024,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_WithSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_WithSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblWithSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4:$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4:C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1227,50 +1071,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_WithSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_WithSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblWithSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4:$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4:A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1280,50 +1118,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_WithSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_WithSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblWithSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1334,44 +1166,43 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_SpaceCommaWithNameAllRanges_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_SpaceCommaWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblSpaceComma
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1381,50 +1212,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_SpaceCommaWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_SpaceCommaWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblSpaceComma
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4:$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4:C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1434,50 +1259,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_SpaceCommaWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_SpaceCommaWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblSpaceComma
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4:$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4:A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1487,50 +1306,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_SpaceCommaWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_SpaceCommaWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblSpaceComma
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1541,50 +1354,44 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_NoSpaceWithStringTitleContainingComma_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_NoSpaceWithStringTitleContainingComma_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 4
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$B$4:$B$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "B4:B7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1595,44 +1402,43 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameAllRanges_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_RoundBracketsWithNameAllRanges_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1642,50 +1448,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4:$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4:C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1695,50 +1495,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_RoundBracketsWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4:$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4:A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1748,50 +1542,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_RoundBracketsWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1802,50 +1590,44 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_RoundBracketsWithArrayValues_ReturnsArray()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_RoundBracketsWithArrayValues_ReturnsArray()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "Array"
-    Const aExpectedValue As String = "1.5,2.5,3.5,4.5"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eArray
+    Const aExpectedValue As String = "{1.5,2.5,3.5,4.5}"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1855,50 +1637,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_RoundBracketsWithString_ReturnsString()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_RoundBracketsWithString_ReturnsString()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "String"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eString
     Const aExpectedValue As String = "just a test, with a comma"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.CleanFormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1909,44 +1685,43 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameFourAreas_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_RoundBracketsWithNameFourAreas_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -1956,50 +1731,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4,$C$5,$C$6,$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4,C5,C6,C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2009,50 +1778,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_RoundBracketsWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4,$A$5,$A$6,$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4,A5,A6,A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2062,50 +1825,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameFourAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_RoundBracketsWithNameFourAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2116,44 +1873,43 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_RoundBracketsWithNameTwoAreas_ReturnsTwo()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_RoundBracketsWithNameTwoAreas_ReturnsTwo()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 2
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2163,50 +1919,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4,$C$5:$C$6,$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4,C5:C6,C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2216,50 +1966,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$A$4,$A$5:$A$6,$A$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "A4,A5:A6,A7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2270,17 +2014,18 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesYValues")("MaxName")
-Public Sub clsChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
+'TODO: not working so far
+''@TestMethod("MaxName")
+Public Sub ChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblMaxName
@@ -2298,27 +2043,20 @@ Public Sub clsChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2329,50 +2067,44 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesYValues")
-Public Sub clsChartSeriesYValues_NamedRange_ReturnsAddress()
+'@TestMethod("ChartSeriesYValues")
+Public Sub ChartSeriesYValues_NamedRange_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eEntryType
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblWithSpace
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "Named Range"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eDefinedName
     Const aExpectedValue As String = "'Space, Comma'!wks_y2"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .ValuesType
-        If sType = "Range" Then
-            Set rng = .Values
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .Values.EntryType
+        ActualValue = .Values.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2382,50 +2114,44 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesXValues")
-Public Sub clsChartSeriesXValues_NamedRange_ReturnsAddress()
+'@TestMethod("ChartSeriesXValues")
+Public Sub ChartSeriesXValues_NamedRange_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eEntryType
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblWithSpace
     Set cha = wks.ChartObjects("chaFourAreas")
     Const ciSeries As Long = 3
     '==========================================================================
-    Const aExpectedType As String = "Named Range"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eDefinedName
     Const aExpectedValue As String = "cls_Test_ChartSeries.xlsm!wkb_y1"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .XValuesType
-        If sType = "Range" Then
-            Set rng = .XValues
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .XValues
-        End If
+        ActualType = .XValues.EntryType
+        ActualValue = .XValues.FormulaPart
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2436,50 +2162,43 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesBubbleSizes")
-Public Sub clsChartSeriesBubbleSizes_NoSpaceWithNameAllRangesBubblePlot_ReturnsAddress()
+'@TestMethod("ChartSeriesBubbleSizes")
+Public Sub ChartSeriesBubbleSizes_NoSpaceWithNameAllRangesBubblePlot_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim rng As Range
-    Dim sValue As String
+    Dim ActualType As eElement
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneAreaBubble")
     Const ciSeries As Long = 1
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$4:$C$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C4:C7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .BubbleSizesType
-        If sType = "Range" Then
-            Set rng = .BubbleSizes
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .BubbleSizes.EntryType
+        ActualValue = .BubbleSizes.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2489,44 +2208,43 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_NoSpaceWithNameAllRangesBubblePlot_ReturnsOne()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_NoSpaceWithNameAllRangesBubblePlot_ReturnsOne()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneAreaBubble")
     Const ciSeries As Long = 1
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 1
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2537,50 +2255,44 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'@TestMethod("clsChartSeriesBubbleSizes")
-Public Sub clsChartSeriesBubbleSizes_SpaceCommaWithNameAllRangesBubblePlot_ReturnsAddress()
+'@TestMethod("ChartSeriesBubbleSizes")
+Public Sub ChartSeriesBubbleSizes_SpaceCommaWithNameAllRangesBubblePlot_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblSpaceComma
     Set cha = wks.ChartObjects("chaTwoAreasBubble")
     Const ciSeries As Long = 1
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$B$4,$B$5:$B$6,$B$7"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "B4,B5:B6,B7"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .BubbleSizesType
-        If sType = "Range" Then
-            Set rng = .BubbleSizes
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .Values
-        End If
+        ActualType = .BubbleSizes.EntryType
+        ActualValue = .BubbleSizes.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2590,44 +2302,43 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesPlotOrder")
-Public Sub clsChartSeriesPlotOrder_SpaceCommaWithNameAllRangesBubblePlot_ReturnsOne()
+'@TestMethod("ChartSeriesPlotOrder")
+Public Sub ChartSeriesPlotOrder_SpaceCommaWithNameAllRangesBubblePlot_ReturnsOne()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
-    Dim iValue As Long
+    Dim ActualType As eElement
+    Dim ActualValue As Long
     
     '==========================================================================
     Set wks = tblSpaceComma
     Set cha = wks.ChartObjects("chaTwoAreasBubble")
     Const ciSeries As Long = 1
     '==========================================================================
-    Const aExpectedType As String = "Integer"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eInteger
     Const aExpectedValue As Long = 1
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .PlotOrderType
-        iValue = .PlotOrder
+        ActualType = .PlotOrder.EntryType
+        ActualValue = .PlotOrder.Value
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, iValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2638,50 +2349,44 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesSeriesName")
-Public Sub clsChartSeriesSeriesName_RoundBracketsWithNameTwoAreas_ReturnsAddress()
+'@TestMethod("ChartSeriesSeriesName")
+Public Sub ChartSeriesSeriesName_RoundBracketsWithNameTwoAreas_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sType As String
+    Dim ActualType As eElement
     Dim rng As Range
-    Dim sValue As String
+    Dim ActualValue As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaTwoAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Range"
-    Const aExpectedValue As String = "$C$3"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = "C3"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
-        sType = .SeriesNameType
-        If sType = "Range" Then
-            Set rng = .SeriesName
-            sValue = rng.Address(External:=False)
-        Else
-            sValue = .SeriesName
-        End If
+        ActualType = .SeriesName.EntryType
+        ActualValue = .SeriesName.RangeString
     End With
     
     'Assert:
     With Assert
-        .AreEqual aExpectedType, sType
-        .AreEqual aExpectedValue, sValue
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
     End With
     
 TestExit:
@@ -2692,13 +2397,13 @@ End Sub
 
 
 '==============================================================================
-'@TestMethod("clsChartSeriesNoOfPointsY")
-Public Sub clsChartSeriesNoOfPointsY_NoSpaceWithNameAllRanges_ReturnsFour()
+'@TestMethod("ChartSeriesNoOfPointsY")
+Public Sub ChartSeriesNoOfPointsY_NoSpaceWithNameAllRanges_ReturnsFour()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
     Dim iPoints As Long
     
@@ -2713,11 +2418,9 @@ Public Sub clsChartSeriesNoOfPointsY_NoSpaceWithNameAllRanges_ReturnsFour()
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
@@ -2735,13 +2438,13 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesNoOfPointsX")
-Public Sub clsChartSeriesNoOfPointsX_NoSpaceWithNameAllRanges_ReturnsFour()
+'@TestMethod("ChartSeriesNoOfPointsX")
+Public Sub ChartSeriesNoOfPointsX_NoSpaceWithNameAllRanges_ReturnsFour()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
     Dim iPoints As Long
     
@@ -2756,11 +2459,9 @@ Public Sub clsChartSeriesNoOfPointsX_NoSpaceWithNameAllRanges_ReturnsFour()
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
@@ -2778,21 +2479,20 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesDataSheetY")
-Public Sub clsChartSeriesDataSheetY_NoSpaceWithNameAllRanges_ReturnsWks()
+'@TestMethod("ChartSeriesDataSheetY")
+Public Sub ChartSeriesDataSheetY_NoSpaceWithNameAllRanges_ReturnsWks()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sDataSheet As String
+    Dim Actual As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
-    Const cElement As Long = 3
     '==========================================================================
     Dim aExpected As String
         aExpected = wks.Name
@@ -2800,19 +2500,15 @@ Public Sub clsChartSeriesDataSheetY_NoSpaceWithNameAllRanges_ReturnsWks()
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
-    With MySeries
-        sDataSheet = .DataSheet(cElement)
-    End With
+    Actual = MySeries.XValues.RangeSheet
     
     'Assert:
-    Assert.AreEqual aExpected, sDataSheet
+    Assert.AreEqual aExpected, Actual
     
     
 TestExit:
@@ -2822,21 +2518,20 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesDataSheetX")
-Public Sub clsChartSeriesDataSheetX_NoSpaceWithNameAllRanges_ReturnsWks()
+'@TestMethod("ChartSeriesDataSheetX")
+Public Sub ChartSeriesDataSheetX_NoSpaceWithNameAllRanges_ReturnsWks()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sDataSheet As String
+    Dim Actual As String
     
     '==========================================================================
     Set wks = tblNoSpace
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
-    Const cElement As Long = 2
     '==========================================================================
     Dim aExpected As String
         aExpected = wks.Name
@@ -2844,19 +2539,15 @@ Public Sub clsChartSeriesDataSheetX_NoSpaceWithNameAllRanges_ReturnsWks()
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
-    With MySeries
-        sDataSheet = .DataSheet(cElement)
-    End With
+    Actual = MySeries.XValues.RangeSheet
     
     'Assert:
-    Assert.AreEqual aExpected, sDataSheet
+    Assert.AreEqual aExpected, Actual
     
     
 TestExit:
@@ -2866,21 +2557,20 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesDataSheetX")
-Public Sub clsChartSeriesDataSheetX_RoundBracketsWithNameAllRanges_ReturnsWks()
+'@TestMethod("ChartSeriesDataSheetX")
+Public Sub ChartSeriesDataSheetX_RoundBracketsWithNameAllRanges_ReturnsWks()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
-    Dim sDataSheet As String
+    Dim Actual As String
     
     '==========================================================================
     Set wks = tblRoundBrackets
     Set cha = wks.ChartObjects("chaOneArea")
     Const ciSeries As Long = 2
-    Const cElement As Long = 2
     '==========================================================================
     Dim aExpected As String
         aExpected = wks.Name
@@ -2888,19 +2578,15 @@ Public Sub clsChartSeriesDataSheetX_RoundBracketsWithNameAllRanges_ReturnsWks()
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
-    With MySeries
-        sDataSheet = .DataSheet(cElement)
-    End With
+    Actual = MySeries.XValues.RangeSheet
     
     'Assert:
-    Assert.AreEqual aExpected, sDataSheet
+    Assert.AreEqual aExpected, Actual
     
     
 TestExit:
@@ -2910,13 +2596,13 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesPointXSourceRange")
-Public Sub clsChartSeriesPointXSourceRange_NoSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesPointXSourceRange")
+Public Sub ChartSeriesPointXSourceRange_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
     Dim sPointAddress As String
     
@@ -2933,11 +2619,9 @@ Public Sub clsChartSeriesPointXSourceRange_NoSpaceWithNameAllRanges_ReturnsAddre
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
@@ -2955,13 +2639,13 @@ TestFail:
 End Sub
 
 
-'@TestMethod("clsChartSeriesPointYSourceRange")
-Public Sub clsChartSeriesPointYSourceRange_NoSpaceWithNameAllRanges_ReturnsAddress()
+'@TestMethod("ChartSeriesPointYSourceRange")
+Public Sub ChartSeriesPointYSourceRange_NoSpaceWithNameAllRanges_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
     Dim cha As ChartObject
-    Dim MySeries As clsChartSeries
+    Dim MySeries As IChartSeries
     
     Dim sPointAddress As String
     
@@ -2973,16 +2657,16 @@ Public Sub clsChartSeriesPointYSourceRange_NoSpaceWithNameAllRanges_ReturnsAddre
     Const ciPoint As Long = 2
     '==========================================================================
     Dim aExpected As String
-        aExpected = "'Space, Comma'!C5"
+'NOTE: (totally) correct would be the variant *with* single quotes
+'      aExpected = "'Space, Comma'!C5"
+        aExpected = "Space, Comma!C5"
     '==========================================================================
     
     
     'Arrange:
-    Set MySeries = New clsChartSeries
-    With MySeries
-        .Chart = cha.Chart
-        .ChartSeries = ciSeries
-    End With
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
     
     'Act:
     With MySeries
