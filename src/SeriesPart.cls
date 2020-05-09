@@ -106,10 +106,6 @@ Private Property Get ISeriesPart_Range() As Range
     Set ISeriesPart_Range = This.Range
 End Property
 
-Private Property Set ISeriesPart_Range(ByVal Value As Range)
-    Set This.Range = Value
-End Property
-
 
 '@Description("Return the range (string) where data are in")
 Private Property Get ISeriesPart_RangeString() As String

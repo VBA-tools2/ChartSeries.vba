@@ -39,9 +39,6 @@ End Property
 Public Property Get Range() As Range
 End Property
 
-Public Property Set Range(ByVal Value As Range)
-End Property
-
 Public Property Get RangeString() As String
 End Property
 
