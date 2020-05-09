@@ -390,15 +390,15 @@ Private Sub GetRangeWorkbook()
     
     With This
         Dim iEnd As Long
-        iEnd = InStr(.FormulaPart, "]")
+        iEnd = InStr(.CleanWkbWksPart, "]")
         
         If iEnd = 0 Then
             .RangeBook = .ChartWorkbookName
         Else
             Dim iStart As Long
-            iStart = InStr(.FormulaPart, "[") + 1
+            iStart = InStr(.CleanWkbWksPart, "[") + 1
             
-            .RangeBook = Mid$(.FormulaPart, iStart, iEnd - iStart)
+            .RangeBook = Mid$(.CleanWkbWksPart, iStart, iEnd - iStart)
         End If
     End With
     
@@ -409,10 +409,10 @@ Private Sub GetRangePath()
     
     With This
         Dim iEnd As Long
-        iEnd = InStrRev(.FormulaPart, "\")
+        iEnd = InStrRev(.CleanWkbWksPart, "\")
         
         If iEnd > 0 Then
-            .RangePath = Mid$(.FormulaPart, 2, iEnd - 1)
+            .RangePath = Left$(.CleanWkbWksPart, iEnd - 1)
         End If
     End With
     
