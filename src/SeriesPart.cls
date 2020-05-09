@@ -33,6 +33,7 @@ Private Type TSeriesPart
     FormulaPart As String
     CleanFormulaPart As String
     EntryType As eEntryType
+    IsRange As Boolean
     Range As Range
     
     RangeString As String
@@ -49,7 +50,6 @@ Private Type TSeriesPart
     RawRangeString As String
     
     IsDefinedNameRange As Boolean
-    IsRange As Boolean
 End Type
 Private This As TSeriesPart
 
@@ -153,6 +153,11 @@ Private Property Get ISeriesPart_RangePath() As String
         End If
     End With
 End Property
+
+
+Private Function ISeriesPart_IsRange() As Boolean
+    ISeriesPart_IsRange = This.IsRange
+End Function
 
 
 Private Function ISeriesPart_IsDefinedNameRange() As Boolean

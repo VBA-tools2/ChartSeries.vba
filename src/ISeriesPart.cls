@@ -51,5 +51,8 @@ End Property
 Public Property Get RangePath() As String
 End Property
 
+Public Function IsRange() As Boolean
+End Function
+
 Public Function IsDefinedNameRange() As Boolean
 End Function
