@@ -12,6 +12,12 @@ Attribute VB_Exposed = False
 '@Folder("ChartSeries")
 '@ModuleDescription("A class to handle each part of the SERIES string.")
 
+'==============================================================================
+'TODO: try to get a series by using 'FullSeriesCollection' instead of
+'      'SeriesCollection'
+'      - what is 'PlotOrder'?
+'==============================================================================
+
 Option Explicit
 
 Implements ISeriesPart
@@ -362,8 +368,6 @@ Private Sub GetMultiAreaRawRangeString()
 End Sub
 
 
-'NOTE: still needed?
-'      Was intended to find out if the range is a named range
 Private Sub GetRangeString()
     With This
         .RangeString = Replace(.RawRangeString, "$", vbNullString)
@@ -441,31 +445,6 @@ Private Function IsExternalRangeClosed() As Boolean
 End Function
 
 
-''TODO: maybe this can be merged with 'HandleClosedExternalRange'
-'Private Sub HandleOpenExternalRange( _
-'    ByVal RangeString As String _
-')
-'
-'    Dim sWkbWks As String
-'    sWkbWks = ExtractWkbWksPartOfFullRange(RangeString)
-'
-'    Dim wks As Worksheet
-'    Set wks = SetWorksheet(sWkbWks)
-'
-'    Dim sRng As String
-'    sRng = ExtractRange( _
-'            RangeString, _
-'            sWkbWks _
-'    )
-'
-'    With This
-''        .Type = "Open External Range"
-'        Set .Range = wks.Range(sRng)
-'    End With
-'
-'End Sub
-
-
 'TODO: not sure if something is left here to do
 'external ranges can crash Excel (2010) (at least when the file is not open)
 'thus only set the range when the source file is open
@@ -511,10 +490,7 @@ Private Sub HandleLongRangeCase()
     )
     
     If Len(sRng) <= 255 Then
-        With This
-'            .Type = "Range"
-            Set .Range = wks.Range(sRng)
-        End With
+        Set This.Range = wks.Range(sRng)
     Else
         Dim arrRanges() As String
         arrRanges = Split(sRng, ",")
@@ -525,11 +501,7 @@ Private Sub HandleLongRangeCase()
             Set rngUnion = Union2(rngUnion, wks.Range(arrRanges(i)))
         Next
         
-        With This
-'            .Type = "Long Range"
-            Set .Range = rngUnion
-'            .LongRangeString = sRng
-        End With
+        Set This.Range = rngUnion
     End If
     
 End Sub
@@ -610,26 +582,6 @@ End Function
 
 
 '==============================================================================
-'This is the tuffest decision to make.
-'- Without testing it is not clear if the defined name is a range or not.
-'- But it *looks* like a range und thus could shown in the 'Range...' fields
-'  (although then a proper new name for these Properties must be found).
-'- *If* this is done nonetheless:
-'  - Closed External Defined Names lead to an inaccessible 'Series.Formula'.
-'  - There *can* be identical names for local and global scope defined names
-'    (e.g. 'test.xlsm!foo').
-'    (If there should be a global and local defined name having the same name
-'     this seems to confuse a chart when it is used, at least when both of
-'     them are used in the same 'Series'.)
-'NOTE: refine this item again if Excel is also confused if only one of them
-'      then is used
-'  - If it should be a global name, one would not know if this is "internal"
-'    or "external" (meaning if this is the Workbook where the 'Series' is
-'    in or not. (For that the 'Series' object would be needed as well.)
-'
-'------------------------------------------------------------------------------
-'Just a collection of other thoughts/ideas
-'------------------------------------------------------------------------------
 Private Sub HandleDefinedNameCase()
     
     'multiple areas with defined names seem not to be allowed
@@ -654,23 +606,6 @@ Private Sub HandleDefinedNameCase()
             End With
         End If
     End If
-    
-    
-'TODO: try to get a series by using 'FullSeriesCollection' instead of
-'      'SeriesCollection'
-'      - what is 'PlotOrder'?
-    
-'    If CouldWkbWksPartBeAWorkbookOnly Then
-'        'What to do in this case?
-'    '---
-'    'either it is an internal or external local defined name,
-'    'that means that at the left or middle part is the 'Worksheet'
-'    Else
-'        GetRangeWorksheet
-'        GetRangeWorkbook
-'        '(it is impossible that the '.RangePart' is given, because then
-'        ' the '.Formula' would be inaccessible)
-'    End If
     
 End Sub
 
@@ -700,76 +635,6 @@ Private Function IsInternalLocalScopeDefinedName() As Boolean
                 )
     End With
 End Function
-
-
-'Private Function CouldWkbWksPartBeAWorkbookOnly() As Boolean
-'
-'    CouldWkbWksPartBeAWorkbookOnly = False
-'
-'    Dim CleanWkbWksPart As String
-'    CleanWkbWksPart = This.CleanWkbWksPart
-'
-'    'it is an external local defined name
-'    If InStr(CleanWkbWksPart, "]") > 0 Then Exit Function
-'
-'    Dim Length As Long
-'    Length = Len(CleanWkbWksPart)
-'
-'    'assuming at least 1 char as name, 1 dot and at a 3 char extension
-'    If Length < 5 Then Exit Function
-'
-'    If Mid$(CleanWkbWksPart, Length - 3, 3) = ".xl" Then
-'        Dim PossibleExtension As String
-'        PossibleExtension = Right$(CleanWkbWksPart, 3)
-'
-'        CouldWkbWksPartBeAWorkbookOnly = _
-'                IsOldExcelExtension(PossibleExtension)
-'    End If
-'    If CouldWkbWksPartBeAWorkbookOnly Then Exit Function
-'
-'    If Length < 6 Then Exit Function
-'    If Mid$(CleanWkbWksPart, Length - 4, 3) = ".xl" Then
-'        PossibleExtension = Right$(CleanWkbWksPart, 4)
-'
-'        CouldWkbWksPartBeAWorkbookOnly = _
-'                IsNewExcelExtension(PossibleExtension)
-'    End If
-'
-'End Function
-'
-'
-'Private Function IsOldExcelExtension( _
-'    ByVal PossibleExtension As String _
-'        ) As Boolean
-'
-'    IsOldExcelExtension = False
-'
-'    If PossibleExtension Like "xl[sat]" Then
-'    Else
-'        Exit Function
-'    End If
-'
-'    IsOldExcelExtension = True
-'
-'End Function
-'
-'
-'Private Function IsNewExcelExtension( _
-'    ByVal PossibleExtension As String _
-'        ) As Boolean
-'
-'    IsNewExcelExtension = False
-'
-'    If PossibleExtension Like "xls[xmb]" Then
-'    ElseIf PossibleExtension = "xlam" Then
-'    ElseIf PossibleExtension Like "xlt[xm]" Then
-'    Else
-'        Exit Function
-'    End If
-'
-'    IsNewExcelExtension = True
-'
-'End Function
 
 
 Private Sub GetIsDefinedNameRange()

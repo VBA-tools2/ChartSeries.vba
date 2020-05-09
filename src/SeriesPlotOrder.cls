@@ -67,10 +67,3 @@ Private Sub Run()
         .Value = CByte(.FormulaPart)
     End With
 End Sub
-
-
-'Private Function IsSeriesValid( _
-'    ByVal Value As Byte _
-'        ) As Boolean
-'    IsSeriesValid = (Value >= 0)
-'End Function
