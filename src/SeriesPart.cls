@@ -12,12 +12,6 @@ Attribute VB_Exposed = False
 '@Folder("ChartSeries")
 '@ModuleDescription("A class to handle each part of the SERIES string.")
 
-'==============================================================================
-'TODO: try to get a series by using 'FullSeriesCollection' instead of
-'      'SeriesCollection'
-'      - what is 'PlotOrder'?
-'==============================================================================
-
 Option Explicit
 
 Implements ISeriesPart
