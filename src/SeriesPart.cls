@@ -312,6 +312,36 @@ End Sub
 
 
 Private Sub GetWkbWksPart()
+    If Left$(This.CleanFormulaPart, 1) = SingleQuote Then
+        HandleWkbWksPartWithSingleQuotes
+    Else
+        HandleWkbWksPartWithoutSingleQuotes
+    End If
+End Sub
+
+
+Private Sub HandleWkbWksPartWithSingleQuotes()
+    
+    Const CriticalString As String = "''!"
+    'replace with a char that is not allowed in 'Worksheet.Name's ...
+    Const ReplacementString As String = "?"
+    
+    '... in case there is a "'!" in a Worksheet name
+    Dim TempString As String
+    TempString = Replace(This.CleanFormulaPart, CriticalString, ReplacementString)
+    
+    Dim iSeparator As Long
+    iSeparator = InStr(TempString, "'!")
+    
+    Dim sWkbWksPart As String
+    sWkbWksPart = Left$(TempString, iSeparator)
+    
+    This.WkbWksPart = Replace(sWkbWksPart, ReplacementString, CriticalString)
+    
+End Sub
+
+
+Private Sub HandleWkbWksPartWithoutSingleQuotes()
     With This
         Dim iSeparator As Long
         iSeparator = InStr(.CleanFormulaPart, "!")
