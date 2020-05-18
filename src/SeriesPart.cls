@@ -416,7 +416,12 @@ Private Sub GetRangeWorksheet()
     Dim iStart As Long
     iStart = InStr(sWkbWks, "]")
     
-    This.RangeSheet = Right$(sWkbWks, iLen - iStart)
+    Dim TempString As String
+    TempString = Right$(sWkbWks, iLen - iStart)
+    
+    'SingleQuotes are shown as double SingleQuotes in the SeriesFormula
+    '(when they are part of a Worksheet.Name or string)
+    This.RangeSheet = Replace(TempString, SingleQuote & SingleQuote, SingleQuote)
     
 End Sub
 
