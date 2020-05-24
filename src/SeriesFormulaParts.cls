@@ -389,6 +389,7 @@ Private Function GetNoOfSeparatorsInPossibleStringTitle( _
         'more quotes
         '--> return a negative value and hope that it will work
         GetNoOfSeparatorsInPossibleStringTitle = -1
+        Stop
     End If
     
 End Function
