@@ -9,27 +9,33 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 
 '@Folder("ChartSeries")
+'@ModuleDescription("Describes an extension of the 'Series' object.")
 '@Interface
 '@Exposed
 
 Option Explicit
 
-'@Description("Return the full series formula ('IChartSeries')")
+'@Description("Returns the full series formula")
 Public Property Get FullFormula() As String
 End Property
 
+'@Description("Returns the series 'Name' extended object")
 Public Property Get SeriesName() As ISeriesPart
 End Property
 
+'@Description("Returns the series 'XValues' extended object")
 Public Property Get XValues() As ISeriesPart
 End Property
 
+'@Description("Returns the series 'Values' extended object")
 Public Property Get Values() As ISeriesPart
 End Property
 
+'@Description("Returns the series 'PlotOrder' object")
 Public Property Get PlotOrder() As ISeriesPlotOrder
 End Property
 
+'@Description("Returns the series 'BubbleSize' extended object")
 Public Property Get BubbleSizes() As ISeriesPart
 End Property
 
@@ -42,8 +48,10 @@ Public Property Get PointSourceRange( _
         ) As Variant
 End Property
 
+'@Description("Returns 'True' if the series is accessible")
 Public Function IsSeriesAccessible() As Boolean
 End Function
 
+'@Description("Returns 'True' if the series is in a Bubble Chart")
 Public Function IsSeriesInBubbleChart() As Boolean
 End Function

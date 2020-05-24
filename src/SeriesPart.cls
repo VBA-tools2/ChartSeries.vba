@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 '@Folder("ChartSeries")
-'@ModuleDescription("A class to handle each part of the SERIES string.")
+'@ModuleDescription("An object to handle each part of the SERIES string.")
 '@PredeclaredId
 
 Option Explicit
@@ -54,6 +54,7 @@ End Type
 Private This As TSeriesPart
 
 
+'@Description("Factory method to create this object")
 Public Function Create( _
     ByVal ChartWorkbookName As String, _
     ByVal FormulaPart As String _
@@ -69,20 +70,21 @@ Public Function Create( _
 End Function
 
 
+'@Description("Returns the object (itself)")
 Public Property Get Self() As ISeriesPart
     Set Self = Me
 End Property
 
 
-'@Description("...")
+'@Description("Stores the 'Workbook.Name' where the chart is placed in")
 Public Property Let ChartWorkbookName(ByVal Value As String)
     This.ChartWorkbookName = Value
 End Property
 
 
+'@Description("Sets the series formula part")
 Public Property Let FormulaPart(ByVal Value As String)
     This.FormulaPart = Value
-'    Run
 End Property
 
 
@@ -96,7 +98,6 @@ Private Property Get ISeriesPart_CleanFormulaPart() As String
 End Property
 
 
-'@Description("Returns the Enum of the 'PartType'")
 Private Property Get ISeriesPart_EntryType() As eEntryType
     ISeriesPart_EntryType = This.EntryType
 End Property
@@ -107,7 +108,6 @@ Private Property Get ISeriesPart_Range() As Range
 End Property
 
 
-'@Description("Return the range (string) where data are in")
 Private Property Get ISeriesPart_RangeString() As String
     With This
         If .IsRange Then
@@ -119,7 +119,6 @@ Private Property Get ISeriesPart_RangeString() As String
 End Property
 
 
-'@Description("Return the name (string) of the 'Worksheet', where the (range) data are on")
 Private Property Get ISeriesPart_RangeSheet() As String
     With This
         If .IsRange Then
@@ -131,7 +130,6 @@ Private Property Get ISeriesPart_RangeSheet() As String
 End Property
 
 
-'@Description("Return the name (string) of the 'Workbook', where the (range) data are on")
 Private Property Get ISeriesPart_RangeBook() As String
     With This
         If .IsRange Then
@@ -143,7 +141,6 @@ Private Property Get ISeriesPart_RangeBook() As String
 End Property
 
 
-'@Description("Return the path (string) of the 'Workbook', where the (range) data are on")
 Private Property Get ISeriesPart_RangePath() As String
     With This
         If .IsRange Then

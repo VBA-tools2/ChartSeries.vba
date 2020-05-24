@@ -9,6 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 
 '@Folder("ChartSeries")
+'@ModuleDescription("Describes an object to separate the string parts of the 'Series.Formula'.")
 '@Interface
 '@Exposed
 
@@ -24,6 +25,6 @@ Public Enum eElement
     [_Last] = eElement.eBubbleSizes
 End Enum
 
-'@Description("fill me")
+'@Description("Returns the full series formula")
 Public Property Get PartSeriesFormula(ByVal Element As eElement) As String
 End Property

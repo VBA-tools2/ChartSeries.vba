@@ -8,9 +8,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-'@PredeclaredId
 '@Folder("ChartSeries")
-'@ModuleDescription("A class to handle each part of the SERIES string.")
+'@ModuleDescription("An object that only handles the 'PlotOrder' part of a Series.")
+'@PredeclaredId
 
 Option Explicit
 
@@ -24,22 +24,22 @@ End Type
 Private This As TSeriesPart
 
 
+'@Description("Returns the series formula part")
 Private Property Get FormulaPart() As String
     FormulaPart = This.FormulaPart
 End Property
 
 
-'@Description("...")
 Private Property Let ISeriesPlotOrder_FormulaPart(ByVal Value As String)
     This.FormulaPart = Value
     Run
 End Property
 
 
-'@Description("Returns the Enum of the 'PartType'")
 Private Property Get ISeriesPlotOrder_EntryType() As eEntryType
     ISeriesPlotOrder_EntryType = This.EntryType
 End Property
+
 
 Private Property Get ISeriesPlotOrder_Value() As Byte
     ISeriesPlotOrder_Value = This.Value

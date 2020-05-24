@@ -8,8 +8,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-'@PredeclaredId
 '@Folder("ChartSeries")
+'@ModuleDescription("An object separating the string parts of the 'Series.Formula'.")
+'@PredeclaredId
 
 Option Explicit
 
@@ -34,6 +35,7 @@ End Type
 Private This As TSeriesFormulaParts
 
 
+'@Description("Factory method to create this object")
 Public Function Create( _
     ByVal FullSeriesFormula As String, _
     Optional ByVal IsSeriesInBubbleChart As Boolean = False _
@@ -50,17 +52,20 @@ Public Function Create( _
     
 End Function
 
+
+'@Description("Returns the object (itself)")
 Public Property Get Self() As ISeriesFormulaParts
     Set Self = Me
 End Property
 
 
-'@Description("Set the full series formula ('ChartSeries')")
+'@Description("Sets the full series formula")
 Public Property Let FullSeriesFormula(ByVal Value As String)
     This.FullSeriesFormula = Value
 End Property
 
 
+'@Description("Sets if the 'Series(.Formula)' is in a bubble chart")
 Public Property Let IsSeriesInBubbleChart(ByVal Value As Boolean)
     This.IsSeriesInBubbleChart = Value
 End Property
