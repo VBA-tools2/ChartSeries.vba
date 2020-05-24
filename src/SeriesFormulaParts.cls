@@ -44,9 +44,7 @@ Public Function Create( _
     With New SeriesFormulaParts
         .FullSeriesFormula = FullSeriesFormula
         .IsSeriesInBubbleChart = IsSeriesInBubbleChart
-        
-        .Run
-        
+        .GetSeriesFormulaParts
         Set Create = .Self
     End With
     
@@ -77,7 +75,7 @@ End Property
 
 
 '==============================================================================
-Public Sub Run()
+Public Sub GetSeriesFormulaParts()
     
     If This.WasRunCalled Then Exit Sub
     
