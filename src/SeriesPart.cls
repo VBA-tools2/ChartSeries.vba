@@ -63,7 +63,7 @@ Public Function Create( _
     With New SeriesPart
         .ChartWorkbookName = ChartWorkbookName
         .FormulaPart = FormulaPart
-        .Run
+        .RefreshCachedProperties
         Set Create = .Self
     End With
     
@@ -175,7 +175,7 @@ End Sub
 
 
 '==============================================================================
-Public Sub Run()
+Public Sub RefreshCachedProperties()
     
     SetEntryTypes
     

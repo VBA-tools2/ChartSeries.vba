@@ -32,7 +32,7 @@ End Property
 
 Private Property Let ISeriesPlotOrder_FormulaPart(ByVal Value As String)
     This.FormulaPart = Value
-    Run
+    RefreshCachedProperties
 End Property
 
 
@@ -53,10 +53,10 @@ End Sub
 
 
 '==============================================================================
-Private Sub Run()
+Private Sub RefreshCachedProperties()
     With This
         If Not IsNumeric(.FormulaPart) Then
-'NOTE: refactor Description
+'TODO: refactor Description
             Err.Raise _
                 Number:=vbObjectError + 10, _
                 Description:="It should never happen that we land here"
