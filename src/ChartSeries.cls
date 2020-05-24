@@ -8,8 +8,10 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-'@PredeclaredId
 '@Folder("ChartSeries")
+'@ModuleDescription("An object extending the 'Series' with the main purpose to access the 'Series.Formula' parts.")
+'@PredeclaredId
+
 
 'This Class module provides an easy way to access the items in a
 'chart's SERIES formula. It can be exported and then imported into
@@ -89,6 +91,7 @@ End Type
 Private This As TChartSeries
 
 
+'@Description("Factory method to create the extended 'Series' object (itself)")
 Public Function Create(ByVal Value As Series) As IChartSeries
     With New ChartSeries
         Set .Series = Value
@@ -98,11 +101,13 @@ Public Function Create(ByVal Value As Series) As IChartSeries
 End Function
 
 
+'@Description("Sets the 'Series' object (itself)")
 Public Property Get Self() As IChartSeries
     Set Self = Me
 End Property
 
 
+'@Description("Sets the 'Series' object (itself)")
 Friend Property Set Series(ByVal Value As Series)
     Set This.Series = Value
 End Property
@@ -155,12 +160,13 @@ Private Property Get IChartSeries_BubbleSizes() As ISeriesPart
 End Property
 
 
-'@Description("Return number of data points in SERIES")
+'@Description("Returns the number of data points in the 'Series'")
 Private Property Get IChartSeries_NoOfPoints() As Long
     IChartSeries_NoOfPoints = SERIESFormulaDataPoints()
 End Property
 
 
+'TODO: still needs to be refactored
 'determine the source range of Point 'PointNumber' of SERIES
 'the order of the points is as stated in the SERIES, not as shown in the graph
 Private Property Get IChartSeries_PointSourceRange( _

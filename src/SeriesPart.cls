@@ -8,9 +8,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-'@PredeclaredId
 '@Folder("ChartSeries")
 '@ModuleDescription("A class to handle each part of the SERIES string.")
+'@PredeclaredId
 
 Option Explicit
 
