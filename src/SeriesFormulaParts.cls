@@ -273,9 +273,12 @@ Private Sub HandleWithSingleQuoteCase( _
     ByRef YXValues As String _
 )
     
+    '==========================================================================
     Const CriticalString As String = ",(''"
     'replace with a char that is not allowed in 'Worksheet.Name's
     Const ReplacementString As String = "?"
+    '==========================================================================
+    
     Dim TempString As String
     TempString = Replace(sCurrString, CriticalString, ReplacementString)
     
