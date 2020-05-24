@@ -453,8 +453,8 @@ Private Function SplitRangeToSingleCells( _
         If InStr(arRange(i), ":") Then
             'extract the numbers from the (continuous) range
             arCRange = Split(arRange(i), ":")
-            iStartRC = ExtractNumber(arCRange(LBound(arCRange)))
-            iEndRC = ExtractNumber(arCRange(UBound(arCRange)))
+            iStartRC = OnlyDigits(arCRange(LBound(arCRange)))
+            iEndRC = OnlyDigits(arCRange(UBound(arCRange)))
             'test if given row by row
             If iStartRC <> iEndRC Then
                 'find column
@@ -508,52 +508,25 @@ End Function
 
 
 '==============================================================================
-'' slightly modified version from
-'' <http://www.ozgrid.com/VBA/ExtractNum.htm>
-'' the string is not given as a range but directly as string
-'Extracts a number from a string containing text and numbers.
-Private Function ExtractNumber( _
-    ByVal sText As String, _
-    Optional ByVal Take_decimal As Boolean = False, _
-    Optional ByVal Take_negative As Boolean = False _
-        ) As Double
+'inspired by <https://stackoverflow.com/a/7239408/5776000>
+Private Function OnlyDigits( _
+    sText As String _
+        ) As Long
     
-    Dim iCount As Long
+    Dim Digits As String
+    Digits = vbNullString
+    
     Dim i As Long
-    Dim iLoop As Long
-    Dim strNeg As String
-    Dim strDec As String
-    Dim lNum As String
-    Dim vVal As Variant
-    
-    
-    If Take_decimal = True And Take_negative = True Then
-        strNeg = "-" 'Negative Sign MUST be before 1st number.
-        strDec = "."
-    ElseIf Take_decimal = True And Take_negative = False Then
-        strNeg = vbNullString
-        strDec = "."
-    ElseIf Take_decimal = False And Take_negative = True Then
-        strNeg = "-"
-        strDec = vbNullString
-    End If
-    iLoop = Len(sText)
-    
-    For iCount = iLoop To 1 Step -1
-        vVal = Mid$(sText, iCount, 1)
-        If IsNumeric(vVal) Or vVal = strNeg Or vVal = strDec Then
-            i = i + 1
-            lNum = Mid$(sText, iCount, 1) & lNum
-            If IsNumeric(lNum) Then
-                If CDbl(lNum) < 0 Then Exit For
-            Else
-                lNum = Replace(lNum, Left$(lNum, 1), vbNullString, , 1)
+    For i = 1 To Len(sText)
+'NOTE: test if these two tests are faster than 'If IsNumeric(sText, i, 1)'
+        If Mid(sText, i, 1) >= "0" Then
+            If Mid(sText, i, 1) <= "9" Then
+                Digits = Digits + Mid(sText, i, 1)
             End If
         End If
-        If i = 1 And lNum <> vbNullString Then lNum = CDbl(Mid$(lNum, 1, 1))
     Next
     
-    ExtractNumber = CDbl(lNum)
+    OnlyDigits = CLng(Digits)
     
 End Function
 
