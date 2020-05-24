@@ -2014,9 +2014,8 @@ End Sub
 
 
 '------------------------------------------------------------------------------
-'TODO: not working so far
-''@TestMethod("MaxName")
-Public Sub ChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
+'@TestMethod("MaxName")
+Public Sub ChartSeriesYValues_MaxNameWithLongArrayLong_ReturnsAddress()
     On Error GoTo TestFail
     
     Dim wks As Worksheet
@@ -2032,7 +2031,8 @@ Public Sub ChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
     Set cha = wks.ChartObjects("chaMultipleAreas")
     Const ciSeries As Long = 2
     '==========================================================================
-    Const aExpectedType As String = "Long Range"
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
     Const aExpectedValue As String = _
             "AAC1000001:AAC1000002,AAC1000005:AAC1000006,AAC1000009:AAC1000010," & _
             "AAC1000013:AAC1000014,AAC1000017:AAC1000018,AAC1000021:AAC1000022," & _
@@ -2050,7 +2050,58 @@ Public Sub ChartSeriesYValues_MaxNameWithLongArray_ReturnsAddress()
     'Act:
     With MySeries
         ActualType = .Values.EntryType
-        ActualValue = .Values.FormulaPart
+        ActualValue = .Values.RangeString
+    End With
+    
+    'Assert:
+    With Assert
+        .AreEqual aExpectedType, ActualType
+        .AreEqual aExpectedValue, ActualValue
+    End With
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod("MaxName")
+Public Sub ChartSeriesYValues_MaxNameWithLongArrayShort_ReturnsAddress()
+    On Error GoTo TestFail
+    
+    Dim wks As Worksheet
+    Dim cha As ChartObject
+    Dim MySeries As IChartSeries
+    
+    Dim ActualType As eElement
+    Dim rng As Range
+    Dim ActualValue As String
+    
+    '==========================================================================
+    Set wks = tblMaxName
+    Set cha = wks.ChartObjects("chaMultipleAreas")
+    Const ciSeries As Long = 3
+    '==========================================================================
+    Dim aExpectedType As eEntryType
+    aExpectedType = eRange
+    Const aExpectedValue As String = _
+            "AAC1000001:AAC1000002,AAC1000005:AAC1000006,AAC1000009:AAC1000010," & _
+            "AAC1000013:AAC1000014,AAC1000017:AAC1000018,AAC1000021:AAC1000022," & _
+            "AAC1000025:AAC1000026,AAC1000029:AAC1000030,AAC1000033:AAC1000034," & _
+            "AAC1000037:AAC1000038,AAC1000041:AAC1000042"
+    '==========================================================================
+    
+    
+    'Arrange:
+    Set MySeries = ChartSeries.Create( _
+        cha.Chart.SeriesCollection(ciSeries) _
+    )
+    
+    'Act:
+    With MySeries
+        ActualType = .Values.EntryType
+        ActualValue = .Values.RangeString
     End With
     
     'Assert:

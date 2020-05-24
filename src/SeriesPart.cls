@@ -503,35 +503,32 @@ End Sub
 
 Private Sub HandleLongRangeCase()
     
-    Dim sWks As String
-    sWks = This.CleanWkbWksPart
-    
-    Dim wks As Worksheet
-    Set wks = SetWorksheet(sWks)
-    
-    Dim RangeString As String
-    RangeString = This.FormulaPart
-    
-    Dim sRng As String
-    sRng = ExtractRange( _
-            RangeString, _
-            sWks _
-    )
-    
-    If Len(sRng) <= 255 Then
-        Set This.Range = wks.Range(sRng)
-    Else
-        Dim arrRanges() As String
-        arrRanges = Split(sRng, ",")
+    With This
+        Dim wkb As Workbook
+        Set wkb = Workbooks(.RangeBook)
         
-        Dim i As Long
-        For i = LBound(arrRanges) To UBound(arrRanges)
-            Dim rngUnion As Range
-            Set rngUnion = Union2(rngUnion, wks.Range(arrRanges(i)))
-        Next
+        Dim wks As Worksheet
+        Set wks = wkb.Worksheets(.RangeSheet)
         
-        Set This.Range = rngUnion
-    End If
+        Dim sRng As String
+        sRng = .RangeString
+        
+        If Len(sRng) <= 255 Then
+            Dim rng As Range
+            Set .Range = wks.Range(sRng)
+        Else
+            Dim arrRanges() As String
+            arrRanges = Split(sRng, ",")
+            
+            Dim i As Long
+            For i = LBound(arrRanges) To UBound(arrRanges)
+                Dim rngUnion As Range
+                Set rngUnion = Union2(rngUnion, wks.Range(arrRanges(i)))
+            Next
+            
+            Set .Range = rngUnion
+        End If
+    End With
     
 End Sub
 
