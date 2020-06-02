@@ -465,15 +465,9 @@ Private Function IsExternalRangeClosed() As Boolean
 End Function
 
 
-'TODO: not sure if something is left here to do
 'external ranges can crash Excel (2010) (at least when the file is not open)
 'thus only set the range when the source file is open
 Private Sub HandleClosedExternalRange()
-    
-    With This
-'        .Type = "Closed External Range"
-    End With
-    
 End Sub
 
 
