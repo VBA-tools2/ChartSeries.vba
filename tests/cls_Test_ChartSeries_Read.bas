@@ -4,7 +4,7 @@ Option Explicit
 Option Private Module
 
 '@TestModule
-'@Folder("Tests")
+'@Folder("ChartSeries.Tests")
 
 Private Assert As Rubberduck.PermissiveAssertClass
 Private Fakes As Rubberduck.FakesProvider
@@ -2184,7 +2184,7 @@ Public Sub ChartSeriesXValues_NamedRange_ReturnsAddress()
     '==========================================================================
     Dim aExpectedType As eEntryType
     aExpectedType = eDefinedName
-    Const aExpectedValue As String = "cls_Test_ChartSeries.xlsm!wkb_y1"
+    Const aExpectedValue As String = "ChartSeriesTest_Master.xlsm!wkb_y1"
     '==========================================================================
     
     

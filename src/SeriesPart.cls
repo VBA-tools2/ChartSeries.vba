@@ -525,24 +525,24 @@ Private Sub HandleDefinedNameCase()
     GetSingleAreaRawRangeString
     GetRangeString
     
-    GetIsDefinedNameRange
-    SetDefinedNameRange
+    GetWkbWksPart
+    GetCleanWkbWksPart
     
-    If This.IsDefinedNameRange Then
-        GetWkbWksPart
-        GetCleanWkbWksPart
-        
-        GetRangeWorksheet
-        GetRangeWorkbook
-        
-        'check if external local range
-        If Not IsLocalScopeDefinedName Then
-            With This
-                .RangeBook = .RangeSheet
-                .RangeSheet = vbNullString
-            End With
-        End If
+    GetRangeWorksheet
+    GetRangeWorkbook
+    GetRangePath
+    
+    'closed external global scope defined names lead to
+    'an inaccessible 'Series.Formula' (in Excel 2010)
+    If Not IsLocalScopeDefinedName Then
+        With This
+            .RangeBook = .RangeSheet
+            .RangeSheet = vbNullString
+        End With
     End If
+    
+    TrySettingRangeFromDefinedName
+    GetIsDefinedNameRange
     
 End Sub
 
@@ -574,27 +574,28 @@ Private Function IsInternalLocalScopeDefinedName() As Boolean
 End Function
 
 
-Private Sub GetIsDefinedNameRange()
-    
+Private Sub TrySettingRangeFromDefinedName()
     With This
-        On Error Resume Next
-        Dim rng As Range
-        Set rng = Application.Range(.FormulaPart)
-        On Error GoTo 0
+        'can't be checked for closed workbooks
+        If Len(.RangePath) > 0 Then
+            Set .Range = Nothing
+            Exit Sub
+        End If
         
-        .IsDefinedNameRange = (Not rng Is Nothing)
+        On Error Resume Next
+        If Len(.RangeSheet) > 0 Then
+            Set .Range = Workbooks(.RangeBook).Worksheets(.RangeSheet).Range(.RangeString)
+        Else
+            Set .Range = Application.Range(.FormulaPart)
+        End If
+        On Error GoTo 0
     End With
-    
 End Sub
 
 
-Private Sub SetDefinedNameRange()
+Private Sub GetIsDefinedNameRange()
     With This
-        If .IsDefinedNameRange Then
-            Set .Range = Application.Range(.FormulaPart)
-        Else
-            Set .Range = Nothing
-        End If
+        .IsDefinedNameRange = (Not .Range Is Nothing)
     End With
 End Sub
 
@@ -616,28 +617,28 @@ End Sub
 Private Sub RaiseErrorChartWorkbookNameEmpty()
     Err.Raise _
             Source:=TypeName(Me), _
-            Number:=ErrChartWorkbookNameEmpty, _
+            Number:=eSeriesPartError.ErrChartWorkbookNameEmpty, _
             Description:= _
                     "This error should never be raised." & vbCrLf & _
-                    "The 'ChartWorkbookName' is given."
+                    "The 'ChartWorkbookName' is empty, which is impossible."
 End Sub
 
 
 Private Sub RaiseErrorNotARange()
     Err.Raise _
             Source:=TypeName(Me), _
-            Number:=ErrNotARange, _
+            Number:=eSeriesPartError.ErrNotARange, _
             Description:= _
                     "This element is neither a range nor a defined name." & vbCrLf & _
-                    "Check with property 'EntryType'."
+                    "Check with property 'EntryType' first."
 End Sub
 
 
 Private Sub RaiseErrorNotADefinedName()
     Err.Raise _
             Source:=TypeName(Me), _
-            Number:=ErrNotADefinedName, _
+            Number:=eSeriesPartError.ErrNotADefinedName, _
             Description:= _
                     "This element is not a defined name." & vbCrLf & _
-                    "Check with property 'EntryType'."
+                    "Check with property 'EntryType' first."
 End Sub
