@@ -27,6 +27,12 @@ Public Enum eEntryType
     [_Last] = eEntryType.eRange
 End Enum
 
+Public Enum eSeriesPartError
+    ErrChartWorkbookNameEmpty = vbObjectError + 1
+    ErrNotARange
+    ErrNotADefinedName
+End Enum
+
 '@Description("Returns the series formula part")
 Public Property Get FormulaPart() As String
 End Property

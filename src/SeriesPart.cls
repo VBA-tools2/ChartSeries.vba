@@ -19,13 +19,6 @@ Implements ISeriesPart
 '==============================================================================
 Private Const SingleQuote As String = "'"
 Private Const DoubleQuote As String = """"
-
-Private Const pcsErrNotARange As String = _
-        "This element is neither a range nor a defined name." & vbCrLf & _
-        "Check with property 'EntryType'."
-Private Const pcsErrNotADefinedName As String = _
-        "This element is not a defined name." & vbCrLf & _
-        "Check with property 'EntryType'."
 '==============================================================================
 
 Private Type TSeriesPart
@@ -78,6 +71,7 @@ End Property
 
 '@Description("Stores the 'Workbook.Name' where the chart is placed in")
 Public Property Let ChartWorkbookName(ByVal Value As String)
+    If Len(Value) = 0 Then RaiseErrorChartWorkbookNameEmpty
     This.ChartWorkbookName = Value
 End Property
 
@@ -699,15 +693,31 @@ End Sub
 
 
 '==============================================================================
+Private Sub RaiseErrorChartWorkbookNameEmpty()
+    Err.Raise _
+            Source:=TypeName(Me), _
+            Number:=ErrChartWorkbookNameEmpty, _
+            Description:= _
+                    "This error should never be raised." & vbCrLf & _
+                    "The 'ChartWorkbookName' is given."
+End Sub
+
+
 Private Sub RaiseErrorNotARange()
     Err.Raise _
-            Number:=vbObjectError + 102, _
-            Description:=pcsErrNotARange
+            Source:=TypeName(Me), _
+            Number:=ErrNotARange, _
+            Description:= _
+                    "This element is neither a range nor a defined name." & vbCrLf & _
+                    "Check with property 'EntryType'."
 End Sub
 
 
 Private Sub RaiseErrorNotADefinedName()
     Err.Raise _
-            Number:=vbObjectError + 103, _
-            Description:=pcsErrNotADefinedName
+            Source:=TypeName(Me), _
+            Number:=ErrNotADefinedName, _
+            Description:= _
+                    "This element is not a defined name." & vbCrLf & _
+                    "Check with property 'EntryType'."
 End Sub
