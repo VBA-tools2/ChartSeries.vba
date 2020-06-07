@@ -185,7 +185,7 @@ Private Sub GetValues( _
                 sOneLess = Left$(sCurrString, LenTitleYXValues - 1)
                 YXValues = vbNullString
             Case Else                              'Single Area Range
-                GetSingleRangeYXValues _
+                GetSingleAreaRangeYXValues _
                         LenTitleYXValues, _
                         iMinCommata, _
                         sCurrString, _
@@ -321,8 +321,7 @@ Private Sub HandleWithoutSingleQuoteCase( _
 End Sub
 
 
-'NOTE: refactor
-Private Sub GetSingleRangeYXValues( _
+Private Sub GetSingleAreaRangeYXValues( _
     ByVal LenTitleYXValues As Long, _
     ByVal iMinCommata As Long, _
     ByVal sCurrString As String, _
@@ -340,16 +339,8 @@ Private Sub GetSingleRangeYXValues( _
         Dim iTotalNoOfSeparators As Long
         iTotalNoOfSeparators = NoOfOccurrencesInString(sCurrString, pcsSep)
         
-        Dim iNoOfSeparatorsInPossibleStringTitle As Long
-        iNoOfSeparatorsInPossibleStringTitle = _
-                GetNoOfSeparatorsInPossibleStringTitle(sCurrString)
-        
-        Dim iNoOfSeparatorsWOTheOnesInPossibleStringTitle As Long
-        iNoOfSeparatorsWOTheOnesInPossibleStringTitle = _
-                iTotalNoOfSeparators - iNoOfSeparatorsInPossibleStringTitle
-        
         Dim iComma As Long
-        If iNoOfSeparatorsWOTheOnesInPossibleStringTitle = iMinCommata Then
+        If iTotalNoOfSeparators = iMinCommata Then
             iComma = InStrRev(sCurrString, pcsSep)
         Else
             iComma = InStrRev(sCurrString, pcsSep & SingleQuote, iExclMark)
@@ -369,49 +360,6 @@ Private Sub GetSingleRangeYXValues( _
     End If
     
 End Sub
-
-
-Private Function GetNoOfSeparatorsInPossibleStringTitle( _
-    ByVal sCurrString As String _
-        ) As Long
-    
-    'no string title
-    If Left$(sCurrString, 1) <> DoubleQuote Then Exit Function
-    
-    Dim iNoOfQuotes As Long
-    iNoOfQuotes = NoOfOccurrencesInString(sCurrString, DoubleQuote)
-    
-    If iNoOfQuotes = 2 Then
-        Dim sTitleString As String
-        sTitleString = GetStringTitle(sCurrString)
-        
-        GetNoOfSeparatorsInPossibleStringTitle = _
-                NoOfOccurrencesInString(sTitleString, pcsSep)
-    Else
-        'then it gets complicated, because either the string title itself
-        'contains one or more quotes or the 'Worksheet.Name' contains one or
-        'more quotes
-        '--> return a negative value and hope that it will work
-        GetNoOfSeparatorsInPossibleStringTitle = -1
-        Stop
-    End If
-    
-End Function
-
-
-Private Function GetStringTitle( _
-    ByVal sCurrString As String _
-        ) As String
-    
-    Dim iLastQuotePos As Long
-    iLastQuotePos = InStrRev(sCurrString, DoubleQuote)
-    
-    Dim sTitleString As String
-    sTitleString = Mid$(sCurrString, 2, iLastQuotePos - 2)
-    
-    GetStringTitle = sTitleString
-    
-End Function
 
 
 Private Sub GetSeriesName()
