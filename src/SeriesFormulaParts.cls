@@ -59,6 +59,7 @@ End Property
 
 '@Description("Sets the full series formula")
 Public Property Let FullSeriesFormula(ByVal Value As String)
+    If Len(Value) = 0 Then RaiseErrorFullSeriesFormulaEmpty
     This.FullSeriesFormula = Value
 End Property
 
@@ -435,3 +436,15 @@ Private Function NoOfOccurrencesInString( _
     NoOfOccurrencesInString = iNoOfOccurrencesInString
     
 End Function
+
+
+'=============================================================================
+Private Sub RaiseErrorFullSeriesFormulaEmpty()
+    Err.Raise _
+            Source:=TypeName(Me), _
+            Number:=eSeriesFormulaPartsError.ErrFullSeriesFormulaEmpty, _
+            Description:= _
+                    "This error should never be raised." & vbCrLf & _
+                    "The 'FullSeriesFormula' is empty, " & _
+                    "which should be caught by the calling routine."
+End Sub

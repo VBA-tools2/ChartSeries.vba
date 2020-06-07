@@ -25,6 +25,10 @@ Public Enum eElement
     [_Last] = eElement.eBubbleSizes
 End Enum
 
+Public Enum eSeriesFormulaPartsError
+    ErrFullSeriesFormulaEmpty = vbObjectError + 1
+End Enum
+
 '@Description("Returns the full series formula")
 Public Property Get PartSeriesFormula(ByVal Element As eElement) As String
 End Property
