@@ -231,7 +231,7 @@ End Sub
 '==============================================================================
 '@TestMethod("ChartSeriesBubbleSizes")
 Public Sub ChartSeriesBubbleSizes_NoBubbleChart_ReturnsError()
-    Const ExpectedError As Long = vbObjectError + 102
+    Const ExpectedError As Long = eChartSeriesError.ErrNotInBubbleChart
     On Error GoTo TestFail
     
     Dim wks As Worksheet

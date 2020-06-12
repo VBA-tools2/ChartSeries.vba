@@ -15,6 +15,13 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
+Public Enum eChartSeriesError
+    [_First] = vbObjectError + 1
+    ErrNotAccessible = [_First]
+    ErrNotInBubbleChart
+    [_Last] = ErrNotInBubbleChart
+End Enum
+
 '@Description("Returns the full series formula")
 Public Property Get FullFormula() As String
 End Property

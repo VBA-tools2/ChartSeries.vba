@@ -129,32 +129,44 @@ Private Property Get IChartSeries_XValues() As ISeriesPart
         If .IsSeriesAccessible Then
             Set IChartSeries_XValues = .SeriesParts(eElement.eXValues)
         Else
-            RaiseError
+            RaiseErrorNotAccessible
         End If
     End With
 End Property
 
 
 Private Property Get IChartSeries_Values() As ISeriesPart
-    Set IChartSeries_Values = This.SeriesParts(eElement.eYValues)
+    With This
+        If .IsSeriesAccessible Then
+            Set IChartSeries_Values = .SeriesParts(eElement.eYValues)
+        Else
+            RaiseErrorNotAccessible
+        End If
+    End With
 End Property
 
 
 Private Property Get IChartSeries_PlotOrder() As ISeriesPlotOrder
     With This
-        .PlotOrder.FormulaPart = _
-                .SeriesParts(eElement.ePlotOrder).FormulaPart
-        Set IChartSeries_PlotOrder = .PlotOrder
+        If .IsSeriesAccessible Then
+            .PlotOrder.FormulaPart = _
+                    .SeriesParts(eElement.ePlotOrder).FormulaPart
+            Set IChartSeries_PlotOrder = .PlotOrder
+        Else
+            RaiseErrorNotAccessible
+        End If
     End With
 End Property
 
 
 Private Property Get IChartSeries_BubbleSizes() As ISeriesPart
     With This
-        If .IsSeriesInBubbleChart Then
+        If Not .IsSeriesAccessible Then
+            RaiseErrorNotAccessible
+        ElseIf .IsSeriesInBubbleChart Then
             Set IChartSeries_BubbleSizes = .SeriesParts(eElement.eBubbleSizes)
         Else
-            RaiseError
+            RaiseErrorNotBubbleChart
         End If
     End With
 End Property
@@ -538,24 +550,25 @@ End Function
 
 
 '=============================================================================
-Private Sub RaiseError()
-    With This
-        If Not .IsSeriesAccessible Then
-            Err.Raise _
-                Number:=vbObjectError + 101, _
-                Description:= _
-                        "The 'Series.Formula' is not accessible." & _
-                        vbCrLf & _
-                        "Hence, you can't access any property." & _
-                        vbCrLf & _
-                        "Please first check with '.IsSeriesAccessible'."
-        ElseIf Not .IsSeriesInBubbleChart Then
-            Err.Raise _
-                Number:=vbObjectError + 102, _
-                Description:= _
-                        "The Series is not in a Bubble Chart." & _
-                        vbCrLf & _
-                        "Please first check with '.IsSeriesInBubbleChart'."
-        End If
-    End With
+Private Sub RaiseErrorNotAccessible()
+    Err.Raise _
+            Source:=TypeName(Me), _
+            Number:=eChartSeriesError.ErrNotAccessible, _
+            Description:= _
+                    "The 'Series.Formula' is not accessible." & _
+                    vbCrLf & _
+                    "Hence, you can't access any property." & _
+                    vbCrLf & _
+                    "Please first check with '.IsSeriesAccessible'."
+End Sub
+
+
+Private Sub RaiseErrorNotBubbleChart()
+    Err.Raise _
+            Source:=TypeName(Me), _
+            Number:=eChartSeriesError.ErrNotInBubbleChart, _
+            Description:= _
+                    "The Series is not in a Bubble Chart." & _
+                    vbCrLf & _
+                    "Please first check with '.IsSeriesInBubbleChart'."
 End Sub
