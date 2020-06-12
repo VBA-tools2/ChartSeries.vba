@@ -32,11 +32,13 @@ Attribute VB_Exposed = False
 '    '(with 'srs' being a 'Series' object)
 '    Dim MySeries As IChartSeries
 '    Set MySeries = ChartSeries.Create(srs)
-'    With MySeries.XValues
-'        If .EntryType = eEntryType.eRange Then
-'            MsgBox .RangeString & " with " & .NoOfPoints & " points"
+'    With MySeries
+'        If Not .IsSeriesAccessible Then Exit Sub
+'
+'        If .XValues.EntryType = eEntryType.eRange Then
+'            MsgBox .XValues.RangeString & " with " & .NoOfPoints & " points"
 '        Else
-'            MsgBox .FormulaPart
+'            MsgBox .XValues.FormulaPart
 '        End If
 '    End With
 'End Sub
