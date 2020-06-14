@@ -151,9 +151,10 @@ End Property
 Private Property Get IChartSeries_PlotOrder() As ISeriesPlotOrder
     With This
         If .IsSeriesAccessible Then
-            .PlotOrder.FormulaPart = _
-                    .SeriesParts(eElement.ePlotOrder).FormulaPart
-            Set IChartSeries_PlotOrder = .PlotOrder
+            Set IChartSeries_PlotOrder = _
+                    SeriesPlotOrder.Create( _
+                            .SeriesParts(eElement.ePlotOrder).FormulaPart _
+                    )
         Else
             RaiseErrorNotAccessible
         End If
@@ -202,11 +203,6 @@ End Function
 
 
 '==============================================================================
-Private Sub Class_Initialize()
-    Set This.PlotOrder = New SeriesPlotOrder
-End Sub
-
-
 Private Sub Class_Terminate()
     With This
         Dim Element As Long

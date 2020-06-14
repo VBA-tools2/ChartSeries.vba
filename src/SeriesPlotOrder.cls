@@ -24,15 +24,29 @@ End Type
 Private This As TSeriesPart
 
 
-'@Description("Returns the series formula part")
-Private Property Get FormulaPart() As String
-    FormulaPart = This.FormulaPart
+'@Description("Factory method to create this object")
+Public Function Create( _
+    ByVal FormulaPart As String _
+        ) As ISeriesPlotOrder
+    
+    With New SeriesPlotOrder
+        .FormulaPart = FormulaPart
+        .RefreshCachedProperties
+        Set Create = .Self
+    End With
+    
+End Function
+
+
+'@Description("Returns the object (itself)")
+Friend Property Get Self() As ISeriesPlotOrder
+    Set Self = Me
 End Property
 
 
-Private Property Let ISeriesPlotOrder_FormulaPart(ByVal Value As String)
+'@Description("Sets the series formula part")
+Friend Property Let FormulaPart(ByVal Value As String)
     This.FormulaPart = Value
-    RefreshCachedProperties
 End Property
 
 
@@ -53,17 +67,26 @@ End Sub
 
 
 '==============================================================================
-Private Sub RefreshCachedProperties()
+Friend Sub RefreshCachedProperties()
     With This
         If Not IsNumeric(.FormulaPart) Then
-'TODO: refactor Description
-            Err.Raise _
-                Number:=vbObjectError + 10, _
-                Description:="It should never happen that we land here"
+            RaiseErrorNotNumericFormulaPart
             Exit Sub
         End If
         
         .EntryType = eInteger
         .Value = CByte(.FormulaPart)
     End With
+End Sub
+
+
+'==============================================================================
+Private Sub RaiseErrorNotNumericFormulaPart()
+    Err.Raise _
+            Source:=TypeName(Me), _
+            Number:=eSeriesPlotOrderError.ErrNotNumericFormulaPart, _
+            Description:= _
+                    "This error should never be raised." & vbCrLf & _
+                    "It seems you have found either an unhandled case " & _
+                    "or a bug in the 'SeriesFormulaParts' class."
 End Sub

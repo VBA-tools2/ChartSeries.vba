@@ -15,9 +15,9 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
-'@Description("Sets the series formula part")
-Public Property Let FormulaPart(ByVal Value As String)
-End Property
+Public Enum eSeriesPlotOrderError
+    ErrNotNumericFormulaPart = vbObjectError + 1
+End Enum
 
 '@Description("Returns the type of the series formula part (e.g. Empty, Range, String)")
 Public Property Get EntryType() As eEntryType
