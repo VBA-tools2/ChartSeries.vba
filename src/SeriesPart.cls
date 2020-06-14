@@ -64,20 +64,20 @@ End Function
 
 
 '@Description("Returns the object (itself)")
-Public Property Get Self() As ISeriesPart
+Friend Property Get Self() As ISeriesPart
     Set Self = Me
 End Property
 
 
 '@Description("Stores the 'Workbook.Name' where the chart is placed in")
-Public Property Let ChartWorkbookName(ByVal Value As String)
+Friend Property Let ChartWorkbookName(ByVal Value As String)
     If Len(Value) = 0 Then RaiseErrorChartWorkbookNameEmpty
     This.ChartWorkbookName = Value
 End Property
 
 
 '@Description("Sets the series formula part")
-Public Property Let FormulaPart(ByVal Value As String)
+Friend Property Let FormulaPart(ByVal Value As String)
     This.FormulaPart = Value
 End Property
 
@@ -169,7 +169,7 @@ End Sub
 
 
 '==============================================================================
-Public Sub RefreshCachedProperties()
+Friend Sub RefreshCachedProperties()
     
     SetEntryTypes
     

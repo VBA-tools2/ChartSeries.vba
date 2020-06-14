@@ -52,20 +52,20 @@ End Function
 
 
 '@Description("Returns the object (itself)")
-Public Property Get Self() As ISeriesFormulaParts
+Friend Property Get Self() As ISeriesFormulaParts
     Set Self = Me
 End Property
 
 
 '@Description("Sets the full series formula")
-Public Property Let FullSeriesFormula(ByVal Value As String)
+Friend Property Let FullSeriesFormula(ByVal Value As String)
     If Len(Value) = 0 Then RaiseErrorFullSeriesFormulaEmpty
     This.FullSeriesFormula = Value
 End Property
 
 
 '@Description("Sets if the 'Series(.Formula)' is in a bubble chart")
-Public Property Let IsSeriesInBubbleChart(ByVal Value As Boolean)
+Friend Property Let IsSeriesInBubbleChart(ByVal Value As Boolean)
     This.IsSeriesInBubbleChart = Value
 End Property
 
@@ -76,7 +76,7 @@ End Property
 
 
 '==============================================================================
-Public Sub GetSeriesFormulaParts()
+Friend Sub GetSeriesFormulaParts()
     
     If This.WasRunCalled Then Exit Sub
     

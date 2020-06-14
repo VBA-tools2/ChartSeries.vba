@@ -104,7 +104,7 @@ End Function
 
 
 '@Description("Sets the 'Series' object (itself)")
-Public Property Get Self() As IChartSeries
+Friend Property Get Self() As IChartSeries
     Set Self = Me
 End Property
 
@@ -221,7 +221,7 @@ End Sub
 
 '==============================================================================
 'get meta data from Series
-Public Sub RefreshCachedProperties()
+Friend Sub RefreshCachedProperties()
     
     GetChart
     GetChartWorkbookName
