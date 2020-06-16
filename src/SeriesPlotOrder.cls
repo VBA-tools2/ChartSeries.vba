@@ -69,10 +69,7 @@ End Sub
 '==============================================================================
 Friend Sub RefreshCachedProperties()
     With This
-        If Not IsNumeric(.FormulaPart) Then
-            RaiseErrorNotNumericFormulaPart
-            Exit Sub
-        End If
+        If Not IsNumeric(.FormulaPart) Then RaiseErrorNotNumericFormulaPart
         
         .EntryType = eInteger
         .Value = CByte(.FormulaPart)

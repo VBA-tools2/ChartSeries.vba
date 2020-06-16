@@ -111,82 +111,67 @@ End Property
 
 '@Description("Sets the 'Series' object (itself)")
 Friend Property Set Series(ByVal Value As Series)
-    If Value Is Nothing Then
-        RaiseErrorIsNothing
-    Else
-        Set This.Series = Value
-    End If
+    If Value Is Nothing Then RaiseErrorIsNothing
+    
+    Set This.Series = Value
 End Property
 
 
 '@Description("Return the full series formula ('ChartSeries')")
 Private Property Get IChartSeries_FullFormula() As String
     With This
-        If Not .IsSeriesAccessible Then
-            RaiseErrorNotAccessible
-        Else
-            IChartSeries_FullFormula = This.FullSeriesFormula
-        End If
+        If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
+        
+        IChartSeries_FullFormula = .FullSeriesFormula
     End With
 End Property
 
 
 Private Property Get IChartSeries_SeriesName() As ISeriesPart
     With This
-        If .IsSeriesAccessible Then
-            Set IChartSeries_SeriesName = This.SeriesParts(eElement.eName)
-        Else
-            RaiseErrorNotAccessible
-        End If
+        If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
+        
+        Set IChartSeries_SeriesName = .SeriesParts(eElement.eName)
     End With
 End Property
 
 
 Private Property Get IChartSeries_XValues() As ISeriesPart
     With This
-        If .IsSeriesAccessible Then
-            Set IChartSeries_XValues = .SeriesParts(eElement.eXValues)
-        Else
-            RaiseErrorNotAccessible
-        End If
+        If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
+        
+        Set IChartSeries_XValues = .SeriesParts(eElement.eXValues)
     End With
 End Property
 
 
 Private Property Get IChartSeries_Values() As ISeriesPart
     With This
-        If .IsSeriesAccessible Then
-            Set IChartSeries_Values = .SeriesParts(eElement.eYValues)
-        Else
-            RaiseErrorNotAccessible
-        End If
+        If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
+        
+        Set IChartSeries_Values = .SeriesParts(eElement.eYValues)
     End With
 End Property
 
 
 Private Property Get IChartSeries_PlotOrder() As ISeriesPlotOrder
     With This
-        If .IsSeriesAccessible Then
-            Set IChartSeries_PlotOrder = _
-                    SeriesPlotOrder.Create( _
-                            .SeriesParts(eElement.ePlotOrder).FormulaPart _
-                    )
-        Else
-            RaiseErrorNotAccessible
-        End If
+        If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
+        
+        Set IChartSeries_PlotOrder = _
+                SeriesPlotOrder.Create( _
+                        .SeriesParts(eElement.ePlotOrder).FormulaPart _
+                )
     End With
 End Property
 
 
 Private Property Get IChartSeries_BubbleSizes() As ISeriesPart
     With This
-        If Not .IsSeriesAccessible Then
-            RaiseErrorNotAccessible
-        ElseIf .IsSeriesInBubbleChart Then
-            Set IChartSeries_BubbleSizes = .SeriesParts(eElement.eBubbleSizes)
-        Else
-            RaiseErrorNotBubbleChart
-        End If
+        If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
+        If Not .IsSeriesInBubbleChart Then RaiseErrorNotBubbleChart
+        
+        Set IChartSeries_BubbleSizes = .SeriesParts(eElement.eBubbleSizes)
     End With
 End Property
 

@@ -60,6 +60,7 @@ End Property
 '@Description("Sets the full series formula")
 Friend Property Let FullSeriesFormula(ByVal Value As String)
     If Len(Value) = 0 Then RaiseErrorFullSeriesFormulaEmpty
+    
     This.FullSeriesFormula = Value
 End Property
 

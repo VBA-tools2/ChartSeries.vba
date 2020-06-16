@@ -72,6 +72,7 @@ End Property
 '@Description("Stores the 'Workbook.Name' where the chart is placed in")
 Friend Property Let ChartWorkbookName(ByVal Value As String)
     If Len(Value) = 0 Then RaiseErrorChartWorkbookNameEmpty
+    
     This.ChartWorkbookName = Value
 End Property
 
@@ -104,44 +105,36 @@ End Property
 
 Private Property Get ISeriesPart_RangeString() As String
     With This
-        If .IsRange Then
-            ISeriesPart_RangeString = .RangeString
-        Else
-            RaiseErrorNotARange
-        End If
+        If Not .IsRange Then RaiseErrorNotARange
+        
+        ISeriesPart_RangeString = .RangeString
     End With
 End Property
 
 
 Private Property Get ISeriesPart_RangeSheet() As String
     With This
-        If .IsRange Then
-            ISeriesPart_RangeSheet = .RangeSheet
-        Else
-            RaiseErrorNotARange
-        End If
+        If Not .IsRange Then RaiseErrorNotARange
+        
+        ISeriesPart_RangeSheet = .RangeSheet
     End With
 End Property
 
 
 Private Property Get ISeriesPart_RangeBook() As String
     With This
-        If .IsRange Then
-            ISeriesPart_RangeBook = .RangeBook
-        Else
-            RaiseErrorNotARange
-        End If
+        If Not .IsRange Then RaiseErrorNotARange
+        
+        ISeriesPart_RangeBook = .RangeBook
     End With
 End Property
 
 
 Private Property Get ISeriesPart_RangePath() As String
     With This
-        If .IsRange Then
-            ISeriesPart_RangePath = .RangePath
-        Else
-            RaiseErrorNotARange
-        End If
+        If Not .IsRange Then RaiseErrorNotARange
+        
+        ISeriesPart_RangePath = .RangePath
     End With
 End Property
 
@@ -153,11 +146,9 @@ End Function
 
 Private Function ISeriesPart_IsDefinedNameRange() As Boolean
     With This
-        If .EntryType = eDefinedName Then
-            ISeriesPart_IsDefinedNameRange = .IsDefinedNameRange
-        Else
-            RaiseErrorNotADefinedName
-        End If
+        If Not .EntryType = eDefinedName Then RaiseErrorNotADefinedName
+        
+        ISeriesPart_IsDefinedNameRange = .IsDefinedNameRange
     End With
 End Function
 
