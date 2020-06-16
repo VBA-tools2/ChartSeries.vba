@@ -111,18 +111,34 @@ End Property
 
 '@Description("Sets the 'Series' object (itself)")
 Friend Property Set Series(ByVal Value As Series)
-    Set This.Series = Value
+    If Value Is Nothing Then
+        RaiseErrorIsNothing
+    Else
+        Set This.Series = Value
+    End If
 End Property
 
 
 '@Description("Return the full series formula ('ChartSeries')")
 Private Property Get IChartSeries_FullFormula() As String
-    IChartSeries_FullFormula = This.FullSeriesFormula
+    With This
+        If Not .IsSeriesAccessible Then
+            RaiseErrorNotAccessible
+        Else
+            IChartSeries_FullFormula = This.FullSeriesFormula
+        End If
+    End With
 End Property
 
 
 Private Property Get IChartSeries_SeriesName() As ISeriesPart
-    Set IChartSeries_SeriesName = This.SeriesParts(eElement.eName)
+    With This
+        If .IsSeriesAccessible Then
+            Set IChartSeries_SeriesName = This.SeriesParts(eElement.eName)
+        Else
+            RaiseErrorNotAccessible
+        End If
+    End With
 End Property
 
 
@@ -548,6 +564,17 @@ End Function
 
 
 '=============================================================================
+Private Sub RaiseErrorIsNothing()
+    Err.Raise _
+            Source:=TypeName(Me), _
+            Number:=eChartSeriesError.ErrIsNothing, _
+            Description:= _
+                    "The 'Series' is 'Nothing'." & _
+                    vbCrLf & _
+                    "Please check beforehand for that."
+End Sub
+
+
 Private Sub RaiseErrorNotAccessible()
     Err.Raise _
             Source:=TypeName(Me), _
