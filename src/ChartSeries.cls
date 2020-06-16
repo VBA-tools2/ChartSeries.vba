@@ -245,19 +245,31 @@ Private Sub GetChartWorkbookName()
     Dim ChartParent As Object
     Set ChartParent = This.Chart.Parent
     
-    'if Chart sheet
     If TypeOf ChartParent Is Workbook Then
-        This.ChartWorkbookName = ChartParent.Name
-    'if embedded Chart (on Worksheet)
+        GetWorkbookNameOfChartSheet ChartParent
     Else
-        Dim ChartWorksheet As Worksheet
-        Set ChartWorksheet = ChartParent.Parent
-        
-        Dim ChartWorkbook As Workbook
-        Set ChartWorkbook = ChartWorksheet.Parent
-        
-        This.ChartWorkbookName = ChartWorkbook.Name
+        GetWorkbookNameOfChartObject ChartParent
     End If
+End Sub
+
+
+Private Sub GetWorkbookNameOfChartSheet( _
+    ByVal ChartParent As Workbook _
+)
+    This.ChartWorkbookName = ChartParent.Name
+End Sub
+
+
+Private Sub GetWorkbookNameOfChartObject( _
+    ByVal ChartParent As ChartObject _
+)
+    Dim ChartWorksheet As Worksheet
+    Set ChartWorksheet = ChartParent.Parent
+    
+    Dim ChartWorkbook As Workbook
+    Set ChartWorkbook = ChartWorksheet.Parent
+    
+    This.ChartWorkbookName = ChartWorkbook.Name
 End Sub
 
 
