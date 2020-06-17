@@ -33,25 +33,6 @@ Public Function Union2( _
 End Function
 
 
-Public Function ColumnLetterToNumber(ByVal strLetter As String) As Long
-    ColumnLetterToNumber = ThisWorkbook.Worksheets(1).Columns(strLetter).Column
-End Function
-
-
-Public Function ColumnNumberToLetter( _
-    ByVal lngNumber As Long, _
-    Optional ByVal bAbsolute As Boolean = False _
-        ) As String
-    
-    Dim sDummy As String
-    sDummy = Split(ThisWorkbook.Worksheets(1).Columns(lngNumber).Address, ":")(0)
-    
-    If Not bAbsolute Then sDummy = Right$(sDummy, Len(sDummy) - 1)
-    ColumnNumberToLetter = sDummy
-    
-End Function
-
-
 '==============================================================================
 'inspired by: <https://stackoverflow.com/a/21633724/5776000>
 '1. to find out if name exists use 'Workbook' as 'Object'

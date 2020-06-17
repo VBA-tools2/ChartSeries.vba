@@ -24,10 +24,6 @@ Attribute VB_Exposed = False
 'new website:
 '<http://spreadsheetpage.com/index.php/file/a_class_module_to_manipulate_a_chart_series/>
 
-'===================================
-' PROPERTIES FOR CHARTSERIES OBJECT
-'===================================
-
 'Sub ExampleUsage()
 '    '(with 'srs' being a 'Series' object)
 '    Dim MySeries As IChartSeries
@@ -36,36 +32,12 @@ Attribute VB_Exposed = False
 '        If Not .IsSeriesAccessible Then Exit Sub
 '
 '        If .XValues.EntryType = eEntryType.eRange Then
-'            MsgBox .XValues.RangeString & " with " & .NoOfPoints & " points"
+'            MsgBox .XValues.RangeString
 '        Else
 '            MsgBox .XValues.FormulaPart
 '        End If
 '    End With
 'End Sub
-
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'2do:
-'- "Modify an existing VBA class" --> Series
-'  <https://stackoverflow.com/q/42590434>
-'- add a 'Parent' property? (maybe other interesting stuff in this post)
-'  <https://stackoverflow.com/a/9688292>
-'- add a 'ChartSeriesCollection' class?
-'  <https://stackoverflow.com/a/46936029>
-'- idea for error numbers
-'  <https://codereview.stackexchange.com/a/157444>
-'  without having a look at it:
-'  - make an enum with error numbers and create a dedicated 'RaiseError'
-'    function in each class
-'---
-'- "Cloning Class Instances"
-'  <http://dailydoseofexcel.com/archives/2012/10/09/cloning-class-instances/>
-'---
-'? is it possible to use a "Factory Method" when Chart.Type is known?
-'  <https://stackoverflow.com/a/50968991>
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'- get data labels via '.DataLabel.Formula'
-'  (see e.g. <https://www.get-digital-help.com/custom-data-labels-in-x-y-scatter-chart/>
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Option Explicit
 
@@ -173,23 +145,6 @@ Private Property Get IChartSeries_BubbleSizes() As ISeriesPart
         
         Set IChartSeries_BubbleSizes = .SeriesParts(eElement.eBubbleSizes)
     End With
-End Property
-
-
-'@Description("Returns the number of data points in the 'Series'")
-Private Property Get IChartSeries_NoOfPoints() As Long
-    IChartSeries_NoOfPoints = SERIESFormulaDataPoints()
-End Property
-
-
-'TODO: still needs to be refactored
-'determine the source range of Point 'PointNumber' of SERIES
-'the order of the points is as stated in the SERIES, not as shown in the graph
-Private Property Get IChartSeries_PointSourceRange( _
-    ByVal Element As Long, _
-    ByVal PointNumber As Long _
-        ) As Variant
-    IChartSeries_PointSourceRange = PointRange(Element, PointNumber)
 End Property
 
 
@@ -386,178 +341,6 @@ Private Sub GetSeriesFormulaParts()
     Set MySeries = Nothing
     
 End Sub
-
-
-'------------------------------------------------------------------------------
-'returns the number of (data) points in the chart's SERIES
-Private Function SERIESFormulaDataPoints() As Long
-    With This
-        SERIESFormulaDataPoints = .Series.Points.Count
-    End With
-End Function
-
-
-'returns the range of the given point
-Private Function PointRange( _
-    ByVal Element As eElement, _
-    ByVal PointNumber As Long _
-        ) As Variant
-    
-    Dim sSeries As String
-    Dim rng As Range
-    Dim sWorksheetName As String
-    Dim arRange() As String
-    
-    
-    'exit if PointNumber is greater than the number of points existent
-    'in 'SeriesNumber'
-    If PointNumber > SERIESFormulaDataPoints() Then
-        PointRange = "ERROR - BAD POINTNUMBER"
-        Exit Function
-    End If
-    
-    'exit if x or y values are not given as a range
-    RefreshCachedProperties
-    
-    With This.SeriesParts(Element)
-        If .EntryType <> eRange Then
-'---
-'TODO: raise an error (5?)
-'      (otherwise is BubbleChart missing)
-            If Element = eElement.eXValues Then
-                PointRange = "ERROR - XVALUES ARE NOT A RANGE"
-            ElseIf Element = eElement.eYValues Then
-                PointRange = "ERROR - VALUES ARE NOT A RANGE"
-            End If
-'---
-            Exit Function
-        End If
-        
-        'store the 'Worksheet.Name'
-        sWorksheetName = .RangeSheet
-        
-        'get the range string to parse for the address and store only the
-        'range without the 'Worksheet.Name'
-        Set rng = .Range
-    End With
-    sSeries = rng.Address(RowAbsolute:=False, ColumnAbsolute:=False)
-    
-    'get an array with all cells of the SERIES
-    arRange = SplitRangeToSingleCells(sSeries)
-    
-    PointRange = sWorksheetName & "!" & arRange(PointNumber - 1)
-    
-End Function
-
-
-'NOTE: simplify using <https://stackoverflow.com/a/50062705/5776000>???
-'
-'function that returns an array where all cells of a range are separated
-Private Function SplitRangeToSingleCells( _
-    ByVal sRange As String _
-        ) As Variant
-    
-    Dim arRange() As String
-    Dim arRangeNew() As String
-    Dim arCRange() As String
-    Dim i As Long
-    Dim j As Long
-    Dim k As Long     'counter for number of elements
-    Dim iStartRC As Long
-    Dim iEndRC As Long
-    Dim iRow As Long
-    Dim sColumn As String
-    
-    
-    'first split the 'Areas'
-    arRange = Split(sRange, pcsSep)
-    
-    'initialize 'k'
-    k = 0
-    
-    'now test, if in the areas are (continuous) ranges
-    'if so, further split them
-    For i = LBound(arRange) To UBound(arRange)
-'NOTE: account for intersection ranges (space as separator)?
-        If InStr(arRange(i), ":") Then
-            'extract the numbers from the (continuous) range
-            arCRange = Split(arRange(i), ":")
-            iStartRC = OnlyDigits(arCRange(LBound(arCRange)))
-            iEndRC = OnlyDigits(arCRange(UBound(arCRange)))
-            'test if given row by row
-            If iStartRC <> iEndRC Then
-                'find column
-                sColumn = Left$(arCRange(LBound(arCRange)), Len(arCRange(LBound(arCRange))) - Len(CStr(iStartRC)))
-                
-                'now create all the cells in the range
-                If i = LBound(arRange) Then
-                    ReDim arRangeNew(iEndRC - iStartRC)
-                Else
-                    ReDim Preserve arRangeNew(UBound(arRangeNew) + iEndRC - iStartRC + 1)
-                End If
-                For j = iStartRC To iEndRC
-                    arRangeNew(k) = sColumn & CStr(j)
-                    k = k + 1
-                Next
-            'else given column by column
-            Else
-                'store row number
-                iRow = iStartRC
-                'extract column (numbers)
-                sColumn = Left$(arCRange(LBound(arCRange)), Len(arCRange(LBound(arCRange))) - Len(CStr(iRow)))
-                iStartRC = ColumnLetterToNumber(sColumn)
-                sColumn = Left$(arCRange(UBound(arCRange)), Len(arCRange(UBound(arCRange))) - Len(CStr(iRow)))
-                iEndRC = ColumnLetterToNumber(sColumn)
-                
-                'now create all the cells in the range
-                If i = LBound(arRange) Then
-                    ReDim arRangeNew(iEndRC - iStartRC)
-                Else
-                    ReDim Preserve arRangeNew(UBound(arRangeNew) + iEndRC - iStartRC + 1)
-                End If
-                For j = iStartRC To iEndRC
-                    arRangeNew(k) = ColumnNumberToLetter(j) & CStr(iRow)
-                    k = k + 1
-                Next
-            End If
-        Else
-            If i = LBound(arRange) Then
-                ReDim arRangeNew(k)
-            Else
-                ReDim Preserve arRangeNew(k)
-            End If
-            arRangeNew(k) = arRange(i)
-            k = k + 1
-        End If
-    Next
-    
-    SplitRangeToSingleCells = arRangeNew
-    
-End Function
-
-
-'==============================================================================
-'inspired by <https://stackoverflow.com/a/7239408/5776000>
-Private Function OnlyDigits( _
-    sText As String _
-        ) As Long
-    
-    Dim Digits As String
-    Digits = vbNullString
-    
-    Dim i As Long
-    For i = 1 To Len(sText)
-'NOTE: test if these two tests are faster than 'If IsNumeric(sText, i, 1)'
-        If Mid(sText, i, 1) >= "0" Then
-            If Mid(sText, i, 1) <= "9" Then
-                Digits = Digits + Mid(sText, i, 1)
-            End If
-        End If
-    Next
-    
-    OnlyDigits = CLng(Digits)
-    
-End Function
 
 
 '=============================================================================

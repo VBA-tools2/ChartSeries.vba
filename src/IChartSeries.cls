@@ -47,15 +47,6 @@ End Property
 Public Property Get BubbleSizes() As ISeriesPart
 End Property
 
-Public Property Get NoOfPoints() As Long
-End Property
-
-Public Property Get PointSourceRange( _
-    ByVal Element As Long, _
-    ByVal PointNumber As Long _
-        ) As Variant
-End Property
-
 '@Description("Returns 'True' if the series is accessible")
 Public Function IsSeriesAccessible() As Boolean
 End Function
