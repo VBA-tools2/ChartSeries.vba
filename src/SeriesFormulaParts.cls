@@ -252,8 +252,8 @@ Private Sub GetMultiAreaRange( _
                 CurrentPartString
     Else
         HandleWithoutSingleQuoteCase _
-                CurrentStringLength, _
                 CurrentString, _
+                CurrentStringLength, _
                 RemainingString, _
                 CurrentPartString
     End If
@@ -312,8 +312,8 @@ End Sub
 
 
 Private Sub HandleWithoutSingleQuoteCase( _
-    ByVal CurrentStringLength As Long, _
     ByVal CurrentString As String, _
+    ByVal CurrentStringLength As Long, _
     ByRef RemainingString As String, _
     ByRef CurrentPartString As String _
 )
