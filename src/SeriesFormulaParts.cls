@@ -107,18 +107,18 @@ Private Sub GetSeriesFormula()
     '==========================================================================
     
     
-    Dim iLenPrefix As Long
-    iLenPrefix = Len(csPrefix)
+    Dim PrefixLength As Long
+    PrefixLength = Len(csPrefix)
     
     With This
-        Dim iLenSeriesFormula As Long
-        iLenSeriesFormula = Len(.FullSeriesFormula)
+        Dim SeriesFormulaLength As Long
+        SeriesFormulaLength = Len(.FullSeriesFormula)
         
         .SeriesFormula = _
                 Mid$( _
                         .FullSeriesFormula, _
-                        iLenPrefix + 1, _
-                        iLenSeriesFormula - iLenPrefix - ciSuffix _
+                        PrefixLength + 1, _
+                        SeriesFormulaLength - PrefixLength - ciSuffix _
                 )
     End With
     
@@ -162,65 +162,65 @@ Private Sub GetValues( _
     ByVal Element As eElement _
 )
     
-    Dim iMinCommata As Long
-    iMinCommata = Element - 1
-    
     With This
-        Dim sCurrString As String
-        sCurrString = .RemainingFormulaPart(Element + 1)
+        Dim CurrentString As String
+        CurrentString = .RemainingFormulaPart(Element + 1)
         
-        Dim LenTitleYXValues As Long
-        LenTitleYXValues = Len(sCurrString)
+        Dim CurrentStringLength As Long
+        CurrentStringLength = Len(CurrentString)
         
-        Select Case Right$(sCurrString, 1)
+        Select Case Right$(CurrentString, 1)
             Case "}"                               'Literal Array
-                Dim sOneLess As String
-                Dim YXValues As String
-                GetLiteralArrayYXValues _
-                        sCurrString, _
-                        LenTitleYXValues, _
-                        sOneLess, _
-                        YXValues
+                Dim RemainingString As String
+                Dim CurrentPartString As String
+                GetLiteralArray _
+                        CurrentString, _
+                        CurrentStringLength, _
+                        RemainingString, _
+                        CurrentPartString
             Case ")"                               'Multi Area Range
-                GetMultiAreaRangeYXValues _
-                        LenTitleYXValues, _
-                        sCurrString, _
-                        sOneLess, _
-                        YXValues
+                GetMultiAreaRange _
+                        CurrentString, _
+                        CurrentStringLength, _
+                        RemainingString, _
+                        CurrentPartString
             Case pcsSep                            'Empty
-                sOneLess = Left$(sCurrString, LenTitleYXValues - 1)
-                YXValues = vbNullString
+                RemainingString = Left$(CurrentString, CurrentStringLength - 1)
+                CurrentPartString = vbNullString
             Case Else                              'Single Area Range
-                GetSingleAreaRangeYXValues _
-                        LenTitleYXValues, _
-                        iMinCommata, _
-                        sCurrString, _
-                        sOneLess, _
-                        YXValues
+                Dim MinCommataCount As Long
+                MinCommataCount = Element - 1
+                
+                GetSingleAreaRange _
+                        MinCommataCount, _
+                        CurrentString, _
+                        CurrentStringLength, _
+                        RemainingString, _
+                        CurrentPartString
         End Select
-        .PartSeriesFormula(Element) = YXValues
-        .RemainingFormulaPart(Element) = sOneLess
+        .PartSeriesFormula(Element) = CurrentPartString
+        .RemainingFormulaPart(Element) = RemainingString
     End With
     
 End Sub
 
 
-Private Sub GetLiteralArrayYXValues( _
-    ByVal sCurrString As String, _
-    ByVal LenTitleYXValues As String, _
-    ByRef sOneLess As String, _
-    ByRef YXValues As String _
+Private Sub GetLiteralArray( _
+    ByVal CurrentString As String, _
+    ByVal CurrentStringLength As String, _
+    ByRef RemainingString As String, _
+    ByRef CurrentPartString As String _
 )
     
-    Dim iOpeningBracket As Long
-    iOpeningBracket = InStrRev(sCurrString, "{")
+    Dim OpeningBracketPosition As Long
+    OpeningBracketPosition = InStrRev(CurrentString, "{")
     
-    sOneLess = Left$(sCurrString, iOpeningBracket - 2)
+    RemainingString = Left$(CurrentString, OpeningBracketPosition - 2)
     
-    YXValues = Mid$( _
-            sCurrString, _
-            iOpeningBracket, _
-            LenTitleYXValues - iOpeningBracket + 1 _
+    CurrentPartString = Mid$( _
+            CurrentString, _
+            OpeningBracketPosition, _
+            CurrentStringLength - OpeningBracketPosition + 1 _
     )
     
 End Sub
@@ -232,41 +232,41 @@ End Sub
 '    ' ,!,",#,$,%,&,',(,),*,+,,,-,;,<,=,>,?,@,^,`,{,|,},~,,?,‚,„,‹,?,?,?,‘,’,”,•,›,?, ,¢,£,¥,¦,©,«,¬,®,»'
 'Corresponding character numbers:
 '    '32,33,34,35,36,37,38,39,40,41,42,43,44,45,59,60,61,62,63,64,94,96,123,124,125,126,127,129,130,132,139,141,143,144,145,146,148,149,155,157,160,162,163,165,166,169,171,172,174,187'
-Private Sub GetMultiAreaRangeYXValues( _
-    ByVal LenTitleYXValues As Long, _
-    ByVal sCurrString As String, _
-    ByRef sOneLess As String, _
-    ByRef YXValues As String _
+Private Sub GetMultiAreaRange( _
+    ByVal CurrentString As String, _
+    ByVal CurrentStringLength As Long, _
+    ByRef RemainingString As String, _
+    ByRef CurrentPartString As String _
 )
     
-    Dim iExclMarkPos As Long
-    iExclMarkPos = InStrRev(sCurrString, "!")
+    Dim ExclMarkPosition As Long
+    ExclMarkPosition = InStrRev(CurrentString, "!")
     
     If IsCharBeforeExclMarkSingleQuote( _
-            sCurrString, _
-            iExclMarkPos _
+            CurrentString, _
+            ExclMarkPosition _
     ) Then
         HandleWithSingleQuoteCase _
-                sCurrString, _
-                sOneLess, _
-                YXValues
+                CurrentString, _
+                RemainingString, _
+                CurrentPartString
     Else
         HandleWithoutSingleQuoteCase _
-                LenTitleYXValues, _
-                sCurrString, _
-                sOneLess, _
-                YXValues
+                CurrentStringLength, _
+                CurrentString, _
+                RemainingString, _
+                CurrentPartString
     End If
 End Sub
 
 
 Private Function IsCharBeforeExclMarkSingleQuote( _
-    ByVal sCurrString As String, _
-    ByVal iExclMarkPos As Long _
+    ByVal CurrentString As String, _
+    ByVal ExclMarkPosition As Long _
         ) As Boolean
     
     IsCharBeforeExclMarkSingleQuote = _
-            (Mid$(sCurrString, iExclMarkPos - 1, 1) = "'")
+            (Mid$(CurrentString, ExclMarkPosition - 1, 1) = "'")
 End Function
 
 
@@ -275,9 +275,9 @@ End Function
 'So in case ",('" is used in a 'Worksheet.Name' they will be shown as
 '",(''".
 Private Sub HandleWithSingleQuoteCase( _
-    ByVal sCurrString As String, _
-    ByRef sOneLess As String, _
-    ByRef YXValues As String _
+    ByVal CurrentString As String, _
+    ByRef RemainingString As String, _
+    ByRef CurrentPartString As String _
 )
     
     '==========================================================================
@@ -287,82 +287,86 @@ Private Sub HandleWithSingleQuoteCase( _
     '==========================================================================
     
     Dim TempString As String
-    TempString = Replace(sCurrString, CriticalString, ReplacementString)
+    TempString = Replace(CurrentString, CriticalString, ReplacementString)
     
-    Dim iOpeningBracket As Long
-    iOpeningBracket = InStrRev(TempString, ",('")
+    Dim OpeningBracketPosition As Long
+    OpeningBracketPosition = InStrRev(TempString, ",('")
     
-    Dim sTempOneLess As String
-    sTempOneLess = Left$(TempString, iOpeningBracket - 1)
-    sOneLess = Replace(sTempOneLess, ReplacementString, CriticalString)
+    Dim TempRemainingString As String
+    TempRemainingString = Left$(TempString, OpeningBracketPosition - 1)
+    RemainingString = Replace(TempRemainingString, ReplacementString, CriticalString)
     
-    Dim sTempYXValues As String
-    sTempYXValues = Mid$( _
+    Dim TempCurrentPartString As String
+    TempCurrentPartString = Mid$( _
             TempString, _
-            iOpeningBracket + 1, _
-            Len(TempString) - iOpeningBracket _
+            OpeningBracketPosition + 1, _
+            Len(TempString) - OpeningBracketPosition _
     )
-    YXValues = Replace(sTempYXValues, ReplacementString, CriticalString)
+    CurrentPartString = Replace( _
+            TempCurrentPartString, _
+            ReplacementString, _
+            CriticalString _
+    )
     
 End Sub
 
 
 Private Sub HandleWithoutSingleQuoteCase( _
-    ByVal LenTitleYXValues As Long, _
-    ByVal sCurrString As String, _
-    ByRef sOneLess As String, _
-    ByRef YXValues As String _
+    ByVal CurrentStringLength As Long, _
+    ByVal CurrentString As String, _
+    ByRef RemainingString As String, _
+    ByRef CurrentPartString As String _
 )
     
-    Dim iOpeningBracket As Long
-    iOpeningBracket = InStrRev(sCurrString, ",(")
+    Dim OpeningBracketPosition As Long
+    OpeningBracketPosition = InStrRev(CurrentString, ",(")
     
-    sOneLess = Left$(sCurrString, iOpeningBracket - 1)
-    YXValues = Mid$( _
-            sCurrString, _
-            iOpeningBracket + 1, _
-            LenTitleYXValues - iOpeningBracket _
+    RemainingString = Left$(CurrentString, OpeningBracketPosition - 1)
+    CurrentPartString = Mid$( _
+            CurrentString, _
+            OpeningBracketPosition + 1, _
+            CurrentStringLength - OpeningBracketPosition _
     )
     
 End Sub
 
 
-Private Sub GetSingleAreaRangeYXValues( _
-    ByVal LenTitleYXValues As Long, _
-    ByVal iMinCommata As Long, _
-    ByVal sCurrString As String, _
-    ByRef sOneLess As String, _
-    ByRef YXValues As String _
+Private Sub GetSingleAreaRange( _
+    ByVal MinCommataCount As Long, _
+    ByVal CurrentString As String, _
+    ByVal CurrentStringLength As Long, _
+    ByRef RemainingString As String, _
+    ByRef CurrentPartString As String _
 )
     
-    Dim PosOfLastExclMark As Long
-    PosOfLastExclMark = InStrRev(sCurrString, "!")
+    Dim LastExclMarkPosition As Long
+    LastExclMarkPosition = InStrRev(CurrentString, "!")
     
-    If Mid$(sCurrString, PosOfLastExclMark - 1, 1) = SingleQuote Then
-        Dim iExclMark As Long
-        iExclMark = InStrRev(sCurrString, "'!")
+    If Mid$(CurrentString, LastExclMarkPosition - 1, 1) = SingleQuote Then
+        Dim ExclMarkPosition As Long
+        ExclMarkPosition = InStrRev(CurrentString, "'!")
         
-        Dim iTotalNoOfSeparators As Long
-        iTotalNoOfSeparators = NoOfOccurrencesInString(sCurrString, pcsSep)
+        Dim TotalNoOfSeparators As Long
+        TotalNoOfSeparators = NoOfOccurrencesInString(CurrentString, pcsSep)
         
-        Dim iComma As Long
-        If iTotalNoOfSeparators = iMinCommata Then
-            iComma = InStrRev(sCurrString, pcsSep)
+        Dim CommaPosition As Long
+        If TotalNoOfSeparators = MinCommataCount Then
+            CommaPosition = InStrRev(CurrentString, pcsSep)
         Else
-            iComma = InStrRev(sCurrString, pcsSep & SingleQuote, iExclMark)
+            CommaPosition = InStrRev(CurrentString, pcsSep & SingleQuote, ExclMarkPosition)
         End If
         
-        sOneLess = Left$(sCurrString, iComma - 1)
-        YXValues = Right$( _
-                sCurrString, _
-                LenTitleYXValues - iComma _
+        RemainingString = Left$(CurrentString, CommaPosition - 1)
+        CurrentPartString = Right$( _
+                CurrentString, _
+                CurrentStringLength - CommaPosition _
         )
     Else
-        Dim iNextComma As Long
-        iNextComma = InStrRev(sCurrString, pcsSep)
+        Dim NextCommaPosition As Long
+        NextCommaPosition = InStrRev(CurrentString, pcsSep)
         
-        sOneLess = Left$(sCurrString, iNextComma - 1)
-        YXValues = Right$(sCurrString, LenTitleYXValues - iNextComma)
+        RemainingString = Left$(CurrentString, NextCommaPosition - 1)
+        CurrentPartString = Right$(CurrentString, CurrentStringLength - NextCommaPosition)
     End If
     
 End Sub
@@ -383,11 +387,8 @@ Private Function NoOfOccurrencesInString( _
     ByVal ToSearch As String _
         ) As Long
     
-    Dim iNoOfOccurrencesInString As Long
-    iNoOfOccurrencesInString = _
+    NoOfOccurrencesInString = _
             Len(Expression) - Len(Replace(Expression, ToSearch, vbNullString))
-    
-    NoOfOccurrencesInString = iNoOfOccurrencesInString
     
 End Function
 

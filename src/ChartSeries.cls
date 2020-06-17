@@ -254,15 +254,15 @@ Private Sub GetFullSeriesFormula()
         With .Chart
             'in case some data are currently hidden and thus the formula can't be
             'accessed, temporarily change '.PlotVisibleOnly' to 'False'
-            Dim bPlotVisible As Boolean
-            bPlotVisible = .PlotVisibleOnly
+            Dim IsPlotVisible As Boolean
+            IsPlotVisible = .PlotVisibleOnly
             .PlotVisibleOnly = False
         End With
         
         GetFullSeriesFormulaUsualAttempt
         GetFullSeriesFormulaSpecialAttempt
         
-        .Chart.PlotVisibleOnly = bPlotVisible
+        .Chart.PlotVisibleOnly = IsPlotVisible
     End With
     
 End Sub
