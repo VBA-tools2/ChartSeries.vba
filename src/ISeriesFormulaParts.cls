@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
+Attribute VB_Description = "Describes an object to separate the string parts of the 'Series.Formula'."
 
 '@Folder("ChartSeries")
 '@ModuleDescription("Describes an object to separate the string parts of the 'Series.Formula'.")
@@ -31,4 +32,5 @@ End Enum
 
 '@Description("Returns the full series formula")
 Public Property Get PartSeriesFormula(ByVal Element As eElement) As String
+Attribute PartSeriesFormula.VB_Description = "Returns the full series formula"
 End Property

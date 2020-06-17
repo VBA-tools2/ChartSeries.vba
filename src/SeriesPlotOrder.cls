@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Attribute VB_Description = "An object that only handles the 'PlotOrder' part of a Series."
 
 '@Folder("ChartSeries")
 '@ModuleDescription("An object that only handles the 'PlotOrder' part of a Series.")
@@ -28,6 +29,7 @@ Private This As TSeriesPart
 Public Function Create( _
     ByVal FormulaPart As String _
         ) As ISeriesPlotOrder
+Attribute Create.VB_Description = "Factory method to create this object"
     
     With New SeriesPlotOrder
         .FormulaPart = FormulaPart
@@ -40,12 +42,14 @@ End Function
 
 '@Description("Returns the object (itself)")
 Friend Property Get Self() As ISeriesPlotOrder
+Attribute Self.VB_Description = "Returns the object (itself)"
     Set Self = Me
 End Property
 
 
 '@Description("Sets the series formula part")
 Friend Property Let FormulaPart(ByVal Value As String)
+Attribute FormulaPart.VB_Description = "Sets the series formula part"
     This.FormulaPart = Value
 End Property
 

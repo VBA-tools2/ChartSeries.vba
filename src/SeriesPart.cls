@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Attribute VB_Description = "An object to handle each part of the SERIES string."
 
 '@Folder("ChartSeries")
 '@ModuleDescription("An object to handle each part of the SERIES string.")
@@ -52,6 +53,7 @@ Public Function Create( _
     ByVal ChartWorkbookName As String, _
     ByVal FormulaPart As String _
         ) As ISeriesPart
+Attribute Create.VB_Description = "Factory method to create this object"
     
     With New SeriesPart
         .ChartWorkbookName = ChartWorkbookName
@@ -65,12 +67,14 @@ End Function
 
 '@Description("Returns the object (itself)")
 Friend Property Get Self() As ISeriesPart
+Attribute Self.VB_Description = "Returns the object (itself)"
     Set Self = Me
 End Property
 
 
 '@Description("Stores the 'Workbook.Name' where the chart is placed in")
 Friend Property Let ChartWorkbookName(ByVal Value As String)
+Attribute ChartWorkbookName.VB_Description = "Stores the 'Workbook.Name' where the chart is placed in"
     If Len(Value) = 0 Then RaiseErrorChartWorkbookNameEmpty
     
     This.ChartWorkbookName = Value
@@ -79,6 +83,7 @@ End Property
 
 '@Description("Sets the series formula part")
 Friend Property Let FormulaPart(ByVal Value As String)
+Attribute FormulaPart.VB_Description = "Sets the series formula part"
     This.FormulaPart = Value
 End Property
 

@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Attribute VB_Description = "An object extending the 'Series' with the main purpose to access the 'Series.Formula' parts."
 
 '@Folder("ChartSeries")
 '@ModuleDescription("An object extending the 'Series' with the main purpose to access the 'Series.Formula' parts.")
@@ -67,6 +68,7 @@ Private This As TChartSeries
 
 '@Description("Factory method to create the extended 'Series' object (itself)")
 Public Function Create(ByVal Value As Series) As IChartSeries
+Attribute Create.VB_Description = "Factory method to create the extended 'Series' object (itself)"
     With New ChartSeries
         Set .Series = Value
         .RefreshCachedProperties
@@ -77,12 +79,14 @@ End Function
 
 '@Description("Sets the 'Series' object (itself)")
 Friend Property Get Self() As IChartSeries
+Attribute Self.VB_Description = "Sets the 'Series' object (itself)"
     Set Self = Me
 End Property
 
 
 '@Description("Sets the 'Series' object (itself)")
 Friend Property Set Series(ByVal Value As Series)
+Attribute Series.VB_Description = "Sets the 'Series' object (itself)"
     If Value Is Nothing Then RaiseErrorIsNothing
     
     Set This.Series = Value
@@ -91,6 +95,7 @@ End Property
 
 '@Description("Return the full series formula ('ChartSeries')")
 Private Property Get IChartSeries_FullFormula() As String
+Attribute IChartSeries_FullFormula.VB_Description = "Return the full series formula ('ChartSeries')"
     With This
         If Not .IsSeriesAccessible Then RaiseErrorNotAccessible
         

@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Attribute VB_Description = "An object separating the string parts of the 'Series.Formula'."
 
 '@Folder("ChartSeries")
 '@ModuleDescription("An object separating the string parts of the 'Series.Formula'.")
@@ -40,6 +41,7 @@ Public Function Create( _
     ByVal FullSeriesFormula As String, _
     Optional ByVal IsSeriesInBubbleChart As Boolean = False _
         ) As ISeriesFormulaParts
+Attribute Create.VB_Description = "Factory method to create this object"
     
     With New SeriesFormulaParts
         .FullSeriesFormula = FullSeriesFormula
@@ -53,12 +55,14 @@ End Function
 
 '@Description("Returns the object (itself)")
 Friend Property Get Self() As ISeriesFormulaParts
+Attribute Self.VB_Description = "Returns the object (itself)"
     Set Self = Me
 End Property
 
 
 '@Description("Sets the full series formula")
 Friend Property Let FullSeriesFormula(ByVal Value As String)
+Attribute FullSeriesFormula.VB_Description = "Sets the full series formula"
     If Len(Value) = 0 Then RaiseErrorFullSeriesFormulaEmpty
     
     This.FullSeriesFormula = Value
@@ -67,6 +71,7 @@ End Property
 
 '@Description("Sets if the 'Series(.Formula)' is in a bubble chart")
 Friend Property Let IsSeriesInBubbleChart(ByVal Value As Boolean)
+Attribute IsSeriesInBubbleChart.VB_Description = "Sets if the 'Series(.Formula)' is in a bubble chart"
     This.IsSeriesInBubbleChart = Value
 End Property
 

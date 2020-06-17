@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
+Attribute VB_Description = "Describes an object of the series formula part 'PlotOrder'."
 
 '@Folder("ChartSeries")
 '@ModuleDescription("Describes an object of the series formula part 'PlotOrder'.")
@@ -21,8 +22,10 @@ End Enum
 
 '@Description("Returns the type of the series formula part (e.g. Empty, Range, String)")
 Public Property Get EntryType() As eEntryType
+Attribute EntryType.VB_Description = "Returns the type of the series formula part (e.g. Empty, Range, String)"
 End Property
 
 '@Description("Returns the PlotOrder value")
 Public Property Get Value() As Byte
+Attribute Value.VB_Description = "Returns the PlotOrder value"
 End Property
