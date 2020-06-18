@@ -17,10 +17,6 @@ Option Explicit
 
 Implements ISeriesPart
 
-'==============================================================================
-Private Const SingleQuote As String = "'"
-Private Const DoubleQuote As String = """"
-'==============================================================================
 
 Private Type TSeriesPart
     'Properties, Functions, Subs
@@ -196,7 +192,7 @@ Private Sub SetEntryTypes()
         
         If Len(sFormulaPart) = 0 Then               'Empty
             .EntryType = eEmpty
-        ElseIf Left$(sFormulaPart, 1) = DoubleQuote Then 'String
+        ElseIf Left$(sFormulaPart, 1) = """" Then   'String
             .EntryType = eString
         ElseIf Left$(sFormulaPart, 1) = "{" Then    'Literal Array
             .EntryType = eArray
@@ -293,7 +289,7 @@ End Sub
 
 
 Private Sub GetWkbWksPart()
-    If Left$(This.CleanFormulaPart, 1) = SingleQuote Then
+    If Left$(This.CleanFormulaPart, 1) = "'" Then
         HandleWkbWksPartWithSingleQuotes
     Else
         HandleWkbWksPartWithoutSingleQuotes
@@ -334,7 +330,7 @@ End Sub
 
 Private Sub GetCleanWkbWksPart()
     With This
-        If Left$(.WkbWksPart, 1) = SingleQuote Then
+        If Left$(.WkbWksPart, 1) = "'" Then
             .CleanWkbWksPart = Mid$(.WkbWksPart, 2, Len(.WkbWksPart) - 2)
         Else
             .CleanWkbWksPart = .WkbWksPart
@@ -402,7 +398,7 @@ Private Sub GetRangeWorksheet()
     
     'SingleQuotes are shown as double SingleQuotes in the SeriesFormula
     '(when they are part of a Worksheet.Name or string)
-    This.RangeSheet = Replace(TempString, SingleQuote & SingleQuote, SingleQuote)
+    This.RangeSheet = Replace(TempString, "''", "'")
     
 End Sub
 

@@ -17,10 +17,6 @@ Option Explicit
 
 Implements ISeriesFormulaParts
 
-'==============================================================================
-Private Const pcsSep As String = ","
-Private Const SingleQuote As String = "'"
-'==============================================================================
 
 Private Type TSeriesFormulaParts
     FullSeriesFormula As String
@@ -146,7 +142,7 @@ Private Sub GetPlotOrder()
     
     With This
         Dim LastComma As Long
-        LastComma = InStrRev(.RemainingFormulaPart(Element + 1), pcsSep)
+        LastComma = InStrRev(.RemainingFormulaPart(Element + 1), ",")
         
         .RemainingFormulaPart(Element) = _
                 Left$(.RemainingFormulaPart(Element + 1), LastComma - 1)
@@ -183,7 +179,7 @@ Private Sub GetValues( _
                         CurrentStringLength, _
                         RemainingString, _
                         CurrentPartString
-            Case pcsSep                            'Empty
+            Case ","                               'Empty
                 RemainingString = Left$(CurrentString, CurrentStringLength - 1)
                 CurrentPartString = vbNullString
             Case Else                              'Single Area Range
@@ -341,18 +337,18 @@ Private Sub GetSingleAreaRange( _
     Dim LastExclMarkPosition As Long
     LastExclMarkPosition = InStrRev(CurrentString, "!")
     
-    If Mid$(CurrentString, LastExclMarkPosition - 1, 1) = SingleQuote Then
+    If Mid$(CurrentString, LastExclMarkPosition - 1, 1) = "'" Then
         Dim ExclMarkPosition As Long
         ExclMarkPosition = InStrRev(CurrentString, "'!")
         
         Dim TotalNoOfSeparators As Long
-        TotalNoOfSeparators = NoOfOccurrencesInString(CurrentString, pcsSep)
+        TotalNoOfSeparators = NoOfOccurrencesInString(CurrentString, ",")
         
         Dim CommaPosition As Long
         If TotalNoOfSeparators = MinCommataCount Then
-            CommaPosition = InStrRev(CurrentString, pcsSep)
+            CommaPosition = InStrRev(CurrentString, ",")
         Else
-            CommaPosition = InStrRev(CurrentString, pcsSep & SingleQuote, ExclMarkPosition)
+            CommaPosition = InStrRev(CurrentString, ",'", ExclMarkPosition)
         End If
         
         RemainingString = Left$(CurrentString, CommaPosition - 1)
@@ -362,7 +358,7 @@ Private Sub GetSingleAreaRange( _
         )
     Else
         Dim NextCommaPosition As Long
-        NextCommaPosition = InStrRev(CurrentString, pcsSep)
+        NextCommaPosition = InStrRev(CurrentString, ",")
         
         RemainingString = Left$(CurrentString, NextCommaPosition - 1)
         CurrentPartString = Right$(CurrentString, CurrentStringLength - NextCommaPosition)
