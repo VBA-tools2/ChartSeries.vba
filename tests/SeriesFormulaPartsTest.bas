@@ -372,26 +372,3 @@ TestExit:
 TestFail:
     Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
 End Sub
-
-
-'==============================================================================
-'@TestMethod("Dummy")
-Private Sub Dummy_Empty_ReturnsEmptyEntryType()
-    On Error GoTo TestFail
-    Const Expected As String = "1"
-    
-    Set sut = SeriesFormulaParts.Create( _
-            "=SERIES(,,{1},1)", _
-            False _
-    )
-    
-    Dim Actual As String
-    Actual = sut.PartSeriesFormula(eElement.ePlotOrder)
-    
-    Assert.AreEqual Expected, Actual
-    
-TestExit:
-    Exit Sub
-TestFail:
-    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
-End Sub
