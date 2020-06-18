@@ -187,22 +187,22 @@ End Sub
 Private Sub SetEntryTypes()
     
     With This
-        Dim sFormulaPart As String
-        sFormulaPart = .FormulaPart
+        Dim FormulaPartString As String
+        FormulaPartString = .FormulaPart
         
-        If Len(sFormulaPart) = 0 Then               'Empty
+        If Len(FormulaPartString) = 0 Then               'Empty
             .EntryType = eEmpty
-        ElseIf Left$(sFormulaPart, 1) = """" Then   'String
+        ElseIf Left$(FormulaPartString, 1) = """" Then   'String
             .EntryType = eString
-        ElseIf Left$(sFormulaPart, 1) = "{" Then    'Literal Array
+        ElseIf Left$(FormulaPartString, 1) = "{" Then    'Literal Array
             .EntryType = eArray
-        ElseIf IsNumeric(sFormulaPart) Then         'Integer (for PlotOrder)
+        ElseIf IsNumeric(FormulaPartString) Then         'Integer (for PlotOrder)
             .EntryType = eInteger
-        ElseIf Left$(sFormulaPart, 1) = "(" Then    'Multi Area Range
+        ElseIf Left$(FormulaPartString, 1) = "(" Then    'Multi Area Range
             .EntryType = eRange
-        ElseIf IsDefinedName(sFormulaPart) Then     'Defined Name
+        ElseIf IsDefinedName(FormulaPartString) Then     'Defined Name
             .EntryType = eDefinedName
-        Else                                        'Single Area Range
+        Else                                             'Single Area Range
             .EntryType = eRange
         End If
     End With
@@ -211,14 +211,14 @@ End Sub
 
 
 Private Function IsDefinedName( _
-    ByVal sFormulaPart As String _
+    ByVal FormulaPartString As String _
         ) As Boolean
     
-    Dim ExclMarkPos As Long
-    ExclMarkPos = InStrRev(sFormulaPart, "!")
+    Dim LastExclMarkPos As Long
+    LastExclMarkPos = InStrRev(FormulaPartString, "!")
     
     Dim RelevantString As String
-    RelevantString = Right$(sFormulaPart, Len(sFormulaPart) - ExclMarkPos)
+    RelevantString = Right$(FormulaPartString, Len(FormulaPartString) - LastExclMarkPos)
     
     IsDefinedName = (InStr(RelevantString, "$") = 0)
     
@@ -242,11 +242,7 @@ Private Sub GetHasSurroundingChars()
             Case eEmpty, eInteger, eDefinedName
                 .HasSurroundingChars = False
             Case Else
-                If .IsSingleAreaRange Then
-                    .HasSurroundingChars = False
-                Else
-                    .HasSurroundingChars = True
-                End If
+                .HasSurroundingChars = Not .IsSingleAreaRange
         End Select
     End With
 End Sub
@@ -307,11 +303,11 @@ Private Sub HandleWkbWksPartWithSingleQuotes()
     Dim TempString As String
     TempString = Replace(This.CleanFormulaPart, CriticalString, ReplacementString)
     
-    Dim iSeparator As Long
-    iSeparator = InStr(TempString, "'!")
+    Dim SeparatorPosition As Long
+    SeparatorPosition = InStr(TempString, "'!")
     
     Dim sWkbWksPart As String
-    sWkbWksPart = Left$(TempString, iSeparator)
+    sWkbWksPart = Left$(TempString, SeparatorPosition)
     
     This.WkbWksPart = Replace(sWkbWksPart, ReplacementString, CriticalString)
     
@@ -320,10 +316,10 @@ End Sub
 
 Private Sub HandleWkbWksPartWithoutSingleQuotes()
     With This
-        Dim iSeparator As Long
-        iSeparator = InStr(.CleanFormulaPart, "!")
+        Dim SeparatorPosition As Long
+        SeparatorPosition = InStr(.CleanFormulaPart, "!")
         
-        .WkbWksPart = Left$(.CleanFormulaPart, iSeparator - 1)
+        .WkbWksPart = Left$(.CleanFormulaPart, SeparatorPosition - 1)
     End With
 End Sub
 
@@ -353,13 +349,14 @@ Private Sub GetSingleAreaRawRangeString()
     Dim SingleAreaString As String
     SingleAreaString = This.CleanFormulaPart
     
-    Dim iLen As Long
-    iLen = Len(SingleAreaString)
+    Dim StringLength As Long
+    StringLength = Len(SingleAreaString)
     
-    Dim iPos As Long
-    iPos = InStrRev(SingleAreaString, "!")
+    Dim LastExclMarkPosition As Long
+    LastExclMarkPosition = InStrRev(SingleAreaString, "!")
     
-    This.RawRangeString = Right$(SingleAreaString, iLen - iPos)
+    This.RawRangeString = _
+            Right$(SingleAreaString, StringLength - LastExclMarkPosition)
     
 End Sub
 
@@ -387,14 +384,14 @@ Private Sub GetRangeWorksheet()
     Dim sWkbWks As String
     sWkbWks = This.CleanWkbWksPart
     
-    Dim iLen As Long
-    iLen = Len(sWkbWks)
+    Dim StringLength As Long
+    StringLength = Len(sWkbWks)
     
-    Dim iStart As Long
-    iStart = InStr(sWkbWks, "]")
+    Dim BracketPosition As Long
+    BracketPosition = InStr(sWkbWks, "]")
     
     Dim TempString As String
-    TempString = Right$(sWkbWks, iLen - iStart)
+    TempString = Right$(sWkbWks, StringLength - BracketPosition)
     
     'SingleQuotes are shown as double SingleQuotes in the SeriesFormula
     '(when they are part of a Worksheet.Name or string)
@@ -406,16 +403,21 @@ End Sub
 Private Sub GetRangeWorkbook()
     
     With This
-        Dim iEnd As Long
-        iEnd = InStr(.CleanWkbWksPart, "]")
+        Dim ClosingBracketPosition As Long
+        ClosingBracketPosition = InStr(.CleanWkbWksPart, "]")
         
-        If iEnd = 0 Then
+        If ClosingBracketPosition = 0 Then
             .RangeBook = .ChartWorkbookName
         Else
-            Dim iStart As Long
-            iStart = InStr(.CleanWkbWksPart, "[") + 1
+            Dim OpeningBracketPosition As Long
+            OpeningBracketPosition = InStr(.CleanWkbWksPart, "[") + 1
             
-            .RangeBook = Mid$(.CleanWkbWksPart, iStart, iEnd - iStart)
+            .RangeBook = _
+                    Mid$( _
+                            .CleanWkbWksPart, _
+                            OpeningBracketPosition, _
+                            ClosingBracketPosition - OpeningBracketPosition _
+                    )
         End If
     End With
     
@@ -425,11 +427,11 @@ End Sub
 Private Sub GetRangePath()
     
     With This
-        Dim iEnd As Long
-        iEnd = InStrRev(.CleanWkbWksPart, "\")
+        Dim LastBackslashPosition As Long
+        LastBackslashPosition = InStrRev(.CleanWkbWksPart, "\")
         
-        If iEnd > 0 Then
-            .RangePath = Left$(.CleanWkbWksPart, iEnd - 1)
+        If LastBackslashPosition > 0 Then
+            .RangePath = Left$(.CleanWkbWksPart, LastBackslashPosition - 1)
         End If
     End With
     
@@ -487,15 +489,11 @@ Private Sub HandleLongRangeCase()
         Dim wks As Worksheet
         Set wks = wkb.Worksheets(.RangeSheet)
         
-        Dim sRng As String
-        sRng = .RangeString
-        
-        If Len(sRng) <= 255 Then
-            Dim rng As Range
-            Set .Range = wks.Range(sRng)
+        If Len(.RangeString) <= 255 Then
+            Set .Range = wks.Range(.RangeString)
         Else
             Dim arrRanges() As String
-            arrRanges = Split(sRng, ",")
+            arrRanges = Split(.RangeString, ",")
             
             Dim i As Long
             For i = LBound(arrRanges) To UBound(arrRanges)
