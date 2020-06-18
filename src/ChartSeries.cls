@@ -44,9 +44,6 @@ Option Explicit
 
 Implements IChartSeries
 
-'==============================================================================
-Private Const pcsSep As String = ","
-'==============================================================================
 
 Private Type TChartSeries
     Series As Series

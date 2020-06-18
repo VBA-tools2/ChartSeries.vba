@@ -20,7 +20,6 @@ Implements ISeriesFormulaParts
 '==============================================================================
 Private Const pcsSep As String = ","
 Private Const SingleQuote As String = "'"
-Private Const DoubleQuote As String = """"
 '==============================================================================
 
 Private Type TSeriesFormulaParts
