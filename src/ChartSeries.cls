@@ -298,7 +298,12 @@ Private Sub GetFullSeriesFormulaSpecialAttempt()
         
         'restore original 'ChartType' and 'AxisGroup'
         .ChartType = iChartType
-        .AxisGroup = iAxisGroup
+        If .AxisGroup <> iAxisGroup Then
+            '(to prevent runtime error -2147467259 in case the 'Series' is hidden)
+            On Error Resume Next
+            .AxisGroup = iAxisGroup
+            On Error GoTo 0
+        End If
     End With
     
 End Sub

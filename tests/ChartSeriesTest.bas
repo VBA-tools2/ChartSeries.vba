@@ -93,6 +93,32 @@ End Sub
 
 
 '@TestMethod("FullFormula")
+Private Sub FullFormula_HiddenSeriesFormulaInaccessible_Throws()
+    Const ExpectedError As Long = eChartSeriesError.ErrNotAccessible
+    On Error GoTo TestFail
+    
+    Set cha = tblNoSpace.ChartObjects("chaTwoAreas").Chart
+    Set srs = cha.FullSeriesCollection(3)
+    Set sut = ChartSeries.Create(srs)
+    
+    Dim Actual As String
+    Actual = sut.FullFormula
+    
+Assert:
+    Assert.Fail "Expected error was not raised"
+    
+TestExit:
+    Exit Sub
+TestFail:
+    If Err.Number = ExpectedError Then
+        Resume TestExit
+    Else
+        Resume Assert
+    End If
+End Sub
+
+
+'@TestMethod("FullFormula")
 Private Sub FullFormula_OfBubbleChart_ReturnsString()
     On Error GoTo TestFail
     Const Expected As String = _
