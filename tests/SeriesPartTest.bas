@@ -1334,6 +1334,30 @@ End Sub
 
 
 '@TestMethod("RangeBook")
+Private Sub RangeBook_ExternalRangeWithSingleQuotes_ReturnsBookName()
+    On Error GoTo TestFail
+    Const Expected As String = "'Client''Closed'.xlsx"
+    
+    Set sut = SeriesPart.Create( _
+            WorkbookName, _
+            "'C:\Users\Random Guy\Desktop\[''Client''''Closed''.xlsx]Test Sheet (666)'!$BK$190:$BK$221" _
+    )
+    
+    If sut.EntryType <> eRange Then Assert.Inconclusive
+    
+    Dim Actual As String
+    Actual = sut.RangeBook
+    
+    Assert.AreEqual Expected, Actual
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod("RangeBook")
 Private Sub RangeBook_InternalLocalDefinedNameNotRange_Throws()
     Const ExpectedError As Long = eSeriesPartError.ErrNotARange
     On Error GoTo TestFail

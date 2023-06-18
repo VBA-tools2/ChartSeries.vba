@@ -412,12 +412,15 @@ Private Sub GetRangeWorkbook()
             Dim OpeningBracketPosition As Long
             OpeningBracketPosition = InStr(.CleanWkbWksPart, "[") + 1
             
-            .RangeBook = _
+            Dim UncleanedBookName As String
+            UncleanedBookName = _
                     Mid$( _
                             .CleanWkbWksPart, _
                             OpeningBracketPosition, _
                             ClosingBracketPosition - OpeningBracketPosition _
                     )
+            
+            .RangeBook = Replace$(UncleanedBookName, "''", "'")
         End If
     End With
     
