@@ -319,6 +319,29 @@ End Sub
 
 
 '@TestMethod("CleanFormulaPart")
+Private Sub CleanFormulaPart_WithSurroundingAndInnerQuotes_ReturnsCleanFormulaPart()
+    On Error GoTo TestFail
+    Const Expected As String = "name: !'""b),"
+    
+    Set sut = SeriesPart.Create( _
+            WorkbookName, _
+            """" & "name: !'""""b)," & """" _
+    )
+    If sut.EntryType <> eString Then Assert.Inconclusive
+    
+    Dim Actual As String
+    Actual = sut.CleanFormulaPart
+    
+    Assert.AreEqual Expected, Actual
+    
+TestExit:
+    Exit Sub
+TestFail:
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
+End Sub
+
+
+'@TestMethod("CleanFormulaPart")
 Private Sub CleanFormulaPart_WithSurroundingCurlyBrackets_ReturnsCleanFormulaPart()
     On Error GoTo TestFail
     Const Expected As String = _

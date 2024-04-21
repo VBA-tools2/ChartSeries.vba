@@ -265,8 +265,13 @@ End Sub
 
 
 Private Sub GetCleanFormulaPartWithSurroundingChars()
+    Const vbDoubleQuote As String = """"
     With This
-        .CleanFormulaPart = Mid$(.FormulaPart, 2, Len(.FormulaPart) - 2)
+        .CleanFormulaPart = .FormulaPart
+        If Left$(.FormulaPart, 1) = """" Then
+            .CleanFormulaPart = Replace(.CleanFormulaPart, vbDoubleQuote & vbDoubleQuote, vbDoubleQuote)
+        End If
+        .CleanFormulaPart = Mid$(.CleanFormulaPart, 2, Len(.CleanFormulaPart) - 2)
     End With
 End Sub
 
