@@ -5,10 +5,16 @@
         "JWALK",
         "POINTNUMBER",
         "XVALUES",
-        "cpearson"
+        "cpearson",
+        "ifdef",
+        "qanda",
+        "sourcedir",
+        "testdir"
     ],
     // words - list of words to be always considered correct
     "words": [
-        "Walkenbach"
+        "Walkenbach",
+        "guillemets",
+        "rubberduck"
     ]
 }
